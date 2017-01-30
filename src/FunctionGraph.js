@@ -1,8 +1,9 @@
 //@flow
 
 import React, {Component} from 'react';
+import {MakeVector, MakePoint} from './UserFunction';
 
-import type {UserFunction, Point} from './UserFunction';
+import type {UserFunction, Vector} from './UserFunction';
 /*
 export const FuncRange = ({Low, High}:{Low:number, High: number}) => {
   return (<div><span>Range:</span>{Low} - {High}</div>);
@@ -23,23 +24,24 @@ export const FuncAdder = () => {
 };
 */
 
-export type Position = {
-  x: number,
-  y: number,
-  angle: number
-};
+const scale = 15;
+const gravity = -9.8; // m/s^2
+const timeSlice = .015;
+const friction = 1;
+
+const xf = (x:number):number => 10.0 + x * scale;
+const yf = (y:number):number => 500.0 - y * scale;
 
 const strokes = [
-  '#f00', '#0f0', '#00f',
+  '#0f0', '#00f', '#f00',
   '#0ff', '#f0f', '#ff0',
   '#800', '#080', '#008',
   '#088', '#808', '#880'];
 
-const xf = (x:number) => 10.0 + x * 75.0;
-const yf = (y:number) => 500.0 - y * 75.0;
-// TODO: Add some numeric labels...
+
+// TODO: Add some numeric labels, maybe?
 const drawGraphPaper = (ctx:CanvasRenderingContext2D) => {
-  for (let pos = -10; pos <= 12; pos += .5) {
+  for (let pos = -100; pos <= 120; pos += .5) {
     ctx.beginPath();
     ctx.strokeStyle = '#000';
     if (Math.round(pos + .1) === Math.round(pos - .1)) {
@@ -47,15 +49,18 @@ const drawGraphPaper = (ctx:CanvasRenderingContext2D) => {
     } else {
       ctx.lineWidth = .05;
     }
-    ctx.moveTo(xf(pos),yf(-10));
-    ctx.lineTo(xf(pos),yf(10));
-    ctx.moveTo(xf(-1), yf(pos));
-    ctx.lineTo(xf(12), yf(pos));
+    ctx.moveTo(xf(pos),yf(-100));
+    ctx.lineTo(xf(pos),yf(100));
+    ctx.moveTo(xf(-10), yf(pos));
+    ctx.lineTo(xf(120), yf(pos));
     ctx.stroke();
   }
 };
 
-const drawFunctions = (ctx:CanvasRenderingContext2D, funcs:Array<UserFunction>) =>    {
+const td = (n:number):number => Math.round(n * 100) / 100;
+
+const drawFunctions =
+  (ctx: CanvasRenderingContext2D, funcs: Array<UserFunction>):void => {
   let curStroke = 0;
   for (let f of funcs) {
     let x = f.endPoints.a.x;
@@ -63,7 +68,7 @@ const drawFunctions = (ctx:CanvasRenderingContext2D, funcs:Array<UserFunction>) 
     ctx.beginPath();
     ctx.strokeStyle = strokes[curStroke];
     ctx.fillStyle = strokes[curStroke];
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 0.25;
     curStroke = (curStroke + 1) % strokes.length;
     ctx.moveTo(xf(x), yf(y));
     const e = f.range.high;
@@ -76,18 +81,88 @@ const drawFunctions = (ctx:CanvasRenderingContext2D, funcs:Array<UserFunction>) 
     ctx.stroke();
     ctx.beginPath();
     ctx.fillStyle = '#000';
-    ctx.arc(xf(f.endPoints.b.x), yf(f.endPoints.b.y), 2.5, 0,2*Math.PI);
+    ctx.arc(xf(f.endPoints.b.x), yf(f.endPoints.b.y), 2.5, 0, 2 * Math.PI);
     ctx.fill();
     ctx.beginPath();
     ctx.fillStyle = '#000';
-    ctx.arc(xf(f.endPoints.a.x), yf(f.endPoints.a.y), 2.5, 0,2*Math.PI);
+    ctx.arc(xf(f.endPoints.a.x), yf(f.endPoints.a.y), 2.5, 0, 2 * Math.PI);
     ctx.fill();
   }
 };
 
-const getPosition = (funcs:Array<UserFunction>, time:number):Position => {
-  // Okay, reasonable way to simulate gravity? Just calculate it, each time
-  return {x:0, y:0, angle:0};
+const getTangentAngle =
+  (x: number, dir: boolean, func: (x: number) => number): number => {
+  // Stupid approximation :(
+  const slice = dir ? 1e-10 : -1e-10;
+  const y = func(x);
+  const y2 = func(x + slice);
+  return Math.atan2(y2 - y, slice);
+};
+
+let resMap: Array<Vector> = [];
+
+const getPosition = (funcs:Array<UserFunction>, time:number):Vector => {
+  // Okay, reasonable way to simulate gravity? Just calculate it cumulatively
+  // because I've forgotten the Calculus necessary to do it accurately :/
+  const func:UserFunction = funcs[0];
+  let vec:Vector = MakeVector(func.endPoints.a, 0, 0);
+
+  for (let idx = 0; idx <= time / timeSlice; idx++) {
+    if (resMap[idx]) {
+      // Dynamic programming, FTW...
+      vec = resMap[idx];
+      continue;
+    }
+    // First, approximate the tangent to the curve at the current location
+    const direction = Math.abs(vec.angle) < Math.PI/2;
+    const tangent = getTangentAngle(vec.origin.x, direction, func.func);
+    const normal = (tangent - Math.PI / 2) % Math.PI;
+
+    //const normal = tangent + Math.PI/2;
+    const A = friction * gravity * Math.cos(normal); // Tangential acceleration!
+    // const N = gravity * Math.sin(tangent); // This goes away (Normal force)
+
+    const Ax = A * Math.cos(tangent);
+    const Ay = A * Math.sin(tangent);
+
+    const Vx = vec.magnitude * Math.cos(vec.angle);
+    const Vy = vec.magnitude * Math.sin(vec.angle);
+
+/*
+    console.log({A:`${td(A)},${td(Ax)},${td(Ay)}`, V:td(vec.magnitude),
+      Pos:`${td(vec.origin.x)},${td(vec.origin.y)}`});
+*/
+
+    const x = Ax * timeSlice * timeSlice + Vx * timeSlice + vec.origin.x;
+    const yc = Ay * timeSlice * timeSlice + Vy * timeSlice + vec.origin.y;
+    const yf = func.func(x);
+
+    // Now we need to pick which y to report:
+    // If it's "below" the track, then it's the function value.
+    // If it's "above" the track, then it's the calculcated value.
+
+    const y = yf;
+    const xm = vec.origin.x - x;
+    const ym = vec.origin.y - y;
+
+    vec = MakeVector(MakePoint(x, y), getTangentAngle(x, direction, func.func),
+                     Math.sqrt(xm * xm + ym * ym) / timeSlice);
+    resMap[idx] = vec;
+  }
+
+  console.log({
+    x : td(vec.origin.x),
+    y : td(vec.origin.y),
+    degs : td(vec.angle * 180 / Math.PI),
+    mag : td(vec.magnitude)
+  });
+
+  return vec;
+};
+
+const hx = (i:number):string => {
+  const str = Math.round(i).toString(16);
+  return str.length === 1 ? `0${str}` : str;
 };
 
 export class FuncGraph extends Component {
@@ -97,16 +172,29 @@ export class FuncGraph extends Component {
     const funcs:Array<UserFunction> = this.props.funcs;
     drawGraphPaper(ctx);
     drawFunctions(ctx, funcs);
-    const pt = getPosition(funcs, 0);
+    for (let t = 0; t <= 18; t += .25) {
+      const vec:Vector = getPosition(funcs, t);
+      ctx.beginPath();
+      const n = Math.round(t * 255 / 18);
+      ctx.fillStyle = `#${hx(n)}${hx((n * 5) % 255)}${hx((n * 3) % 255)}`;
+      ctx.arc(xf(vec.origin.x), yf(vec.origin.y), 1.5, 0, 2 * Math.PI);
+      ctx.fill();
+      /*
+      ctx.beginPath();
+      ctx.strokeStyle = "#000000";
+      ctx.lineWidth = .2;
+      const xo = vec.origin.x;
+      const yo = vec.origin.y;
+      ctx.moveTo(xf(xo), yf(yo));
+      const xe = xo + Math.cos(vec.angle+Math.PI/2) * vec.magnitude;
+      const ye = yo + Math.sin(vec.angle+Math.PI/2) * vec.magnitude;
+      ctx.lineTo(xf(xe), yf(ye));
+      ctx.stroke();
+      */
+    }
   }
   render() {
-    const s = {border : '1px solid #444'};
-    return (
-      <canvas
-        ref='FuncGraph'
-        width={800}
-        height={800}
-        style={s}/>
-    );
+    const s = {border : '1px solid #91f'};
+    return (<canvas ref='FuncGraph' width={800} height={800} style={s}/>);
   }
 };

@@ -5,6 +5,12 @@ export type Point = {
   y : number
 };
 
+export type Vector = {
+  origin : Point,
+  angle : number,
+  magnitude : number
+};
+
 export type UserFunction = {
   text : string,
   func : (val: number) => number,
@@ -14,8 +20,12 @@ export type UserFunction = {
 
 export const MakePoint = (x: number, y: number): Point => ({x, y});
 
-export const MakeUserFunc =
-(funcExpr: string, low: string, high: string): (UserFunction | string) => {
+export const MakeVector = (origin: Point, angle: number, magnitude: number) => {
+  return {origin, angle, magnitude};
+};
+
+export const MakeUserFunc = function(funcExpr: string, low: string,
+                                     high: string): (UserFunction | string) {
   // Validate the range, since that's easy
   const l: number = parseFloat(low);
   const h: number = parseFloat(high);
@@ -28,7 +38,8 @@ export const MakeUserFunc =
   const lo = Math.min(l, h);
   const hi = Math.max(l, h);
   // TODO: Parse/validate the function expression
-  // For now, just to make it fast, I'm using eval, which is a HUGE no no.
+  // For now, just to make it fast, I'm using eval, which is a HUGE no
+  // no.
   // Kids, don't do what I'm doing here.
   const theFunc = (val: number): number => {
     // eslint-disable-next-line

@@ -4,15 +4,17 @@ import React from 'react';
 
 import type {UserFunction} from './UserFunction';
 
-export const FuncRange = ({Low, High}:{Low:number, High: number}) => {
-  return (<div><span>Range:</span>{Low} - {High}</div>);
+export const FuncRange = ({Low, High}: {Low : number, High : number}) => {
+  return (<span> {`{${Low} <= x < ${High}}`}</span>);
 };
+
+const td = (n:number):number => Math.round(n * 100) / 100;
 
 export const FuncItem = ({userFunc}:{userFunc: UserFunction}) => {
   return (<div>
-    <div>{userFunc.text}</div>
-    <div>Low: {userFunc.range.low},{userFunc.func(userFunc.range.low)}</div>
-    <div>High: {userFunc.range.high},{userFunc.func(userFunc.range.high)}</div>
+    <pre>f(x) = {userFunc.text}</pre>
+    <div>lo:{td(userFunc.range.low)},{td(userFunc.func(userFunc.range.low))} -
+      hi:{td(userFunc.range.high)},{td(userFunc.func(userFunc.range.high))}</div>
     <FuncRange Low={userFunc.range.low} High={userFunc.range.high}/>
   </div>);
 };
