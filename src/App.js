@@ -14,7 +14,7 @@ import './App.css';
 class App extends Component {
   render() {
     // A couple of functions...
-    const uf1 = MakeUserFunc('0.05 * x + (Math.cos(x * 2.25) + 1) * Math.PI / (x / 2 + 0.5)', '0.0', '30.0');
+    const uf1 = MakeUserFunc('0.15 * x + (Math.cos(x * 2.25) + 1) * Math.PI / (x + 0.15)', '0.0', '30.0');
     const uf2 = MakeUserFunc('1', '30.0', '35.0');
     if (typeof uf1 === 'string' || typeof uf2 === 'string') {
       return (<div>Nope!{uf1}{uf2}</div>);

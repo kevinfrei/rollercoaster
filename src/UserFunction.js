@@ -5,10 +5,14 @@ export type Point = {
   y : number
 };
 
+// I'm abusing this a bit:
+// 'line' indicates, for the simulation,
+// whether the point is still on the function or not
 export type Vector = {
   origin : Point,
   angle : number,
-  magnitude : number
+  magnitude : number,
+  line : boolean
 };
 
 export type UserFunction = {
@@ -20,8 +24,8 @@ export type UserFunction = {
 
 export const MakePoint = (x: number, y: number): Point => ({x, y});
 
-export const MakeVector = (origin: Point, angle: number, magnitude: number) => {
-  return {origin, angle, magnitude};
+export const MakeVector = (origin: Point, angle: number, magnitude: number, line: boolean) => {
+  return {origin, angle, magnitude, line};
 };
 
 export const MakeUserFunc = function(funcExpr: string, low: string,

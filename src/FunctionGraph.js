@@ -3,7 +3,7 @@
 import React, {Component} from 'react';
 import {MakeVector, MakePoint} from './UserFunction';
 
-import type {UserFunction, Vector} from './UserFunction';
+import type {UserFunction, Vector, Point} from './UserFunction';
 /*
 export const FuncRange = ({Low, High}:{Low:number, High: number}) => {
   return (<div><span>Range:</span>{Low} - {High}</div>);
@@ -24,20 +24,49 @@ export const FuncAdder = () => {
 };
 */
 
-const scale = 15;
-const gravity = -9.8; // m/s^2
-const timeSlice = .015;
+// Super duper exciting constants
+const halfPi = Math.PI / 2;
+const twoPi = Math.PI * 2;
+const gravity = 9.8; // m/s^2
+// This is probably worth doing, otherwise things fly off...
 const friction = 1;
 
-const xf = (x:number):number => 10.0 + x * scale;
-const yf = (y:number):number => 500.0 - y * scale;
+// Scale of the graph
+const scale = 40;
+// How many slices used to calculate random stuff
+const timeSlice = 1/128;
 
+// Function colors
 const strokes = [
   '#0f0', '#00f', '#f00',
   '#0ff', '#f0f', '#ff0',
   '#800', '#080', '#008',
   '#088', '#808', '#880'];
 
+// console.log helpers: text digits, text angle
+const td = (n:number):number => Math.round(n * 100) / 100;
+const ta = (n:number):number => td(n * Math.PI / 180);
+
+// Helper functions
+const distSquare = (pt:Point, x:number, y:number): number => {
+  const xd = pt.x - x;
+  const yd = pt.y - y;
+  return xd * xd + yd * yd;
+};
+const dist = (pt:Point, x:number, y:number):number => {
+  return Math.sqrt(distSquare(pt, x, y));
+};
+// I want to make sure that all angles I get are between pi and -pi
+const NormalizeAngle = (n:number):number => {
+  let res = n % twoPi;
+  if (res > Math.PI) {
+    res -= twoPi;
+  }
+  return res;
+}
+
+const xf = (x:number):number => 10.0 + x * scale;
+const yf = (y:number):number => 500.0 - y * scale;
 
 // TODO: Add some numeric labels, maybe?
 const drawGraphPaper = (ctx:CanvasRenderingContext2D) => {
@@ -57,7 +86,6 @@ const drawGraphPaper = (ctx:CanvasRenderingContext2D) => {
   }
 };
 
-const td = (n:number):number => Math.round(n * 100) / 100;
 
 const drawFunctions =
   (ctx: CanvasRenderingContext2D, funcs: Array<UserFunction>):void => {
@@ -81,11 +109,11 @@ const drawFunctions =
     ctx.stroke();
     ctx.beginPath();
     ctx.fillStyle = '#000';
-    ctx.arc(xf(f.endPoints.b.x), yf(f.endPoints.b.y), 2.5, 0, 2 * Math.PI);
+    ctx.arc(xf(f.endPoints.b.x), yf(f.endPoints.b.y), 2.5, 0, twoPi);
     ctx.fill();
     ctx.beginPath();
     ctx.fillStyle = '#000';
-    ctx.arc(xf(f.endPoints.a.x), yf(f.endPoints.a.y), 2.5, 0, 2 * Math.PI);
+    ctx.arc(xf(f.endPoints.a.x), yf(f.endPoints.a.y), 2.5, 0, twoPi);
     ctx.fill();
   }
 };
@@ -96,7 +124,8 @@ const getTangentAngle =
   const slice = dir ? 1e-10 : -1e-10;
   const y = func(x);
   const y2 = func(x + slice);
-  return Math.atan2(y2 - y, slice);
+  const delta = y2 - y;
+  return NormalizeAngle(Math.atan2(delta, slice));
 };
 
 let resMap: Array<Vector> = [];
@@ -105,7 +134,7 @@ const getPosition = (funcs:Array<UserFunction>, time:number):Vector => {
   // Okay, reasonable way to simulate gravity? Just calculate it cumulatively
   // because I've forgotten the Calculus necessary to do it accurately :/
   const func:UserFunction = funcs[0];
-  let vec:Vector = MakeVector(func.endPoints.a, 0, 0);
+  let vec:Vector = MakeVector(func.endPoints.a, 0, 0, true);
 
   for (let idx = 0; idx <= time / timeSlice; idx++) {
     if (resMap[idx]) {
@@ -114,16 +143,19 @@ const getPosition = (funcs:Array<UserFunction>, time:number):Vector => {
       continue;
     }
     // First, approximate the tangent to the curve at the current location
-    const direction = Math.abs(vec.angle) < Math.PI/2;
+    if (vec.origin.x > 2)
+      debugger;
+    const direction = Math.abs(vec.angle) < halfPi;
     const tangent = getTangentAngle(vec.origin.x, direction, func.func);
-    const normal = (tangent - Math.PI / 2) % Math.PI;
+    const normal = NormalizeAngle(tangent + halfPi);
 
     //const normal = tangent + Math.PI/2;
-    const A = friction * gravity * Math.cos(normal); // Tangential acceleration!
+    const normalForce = vec.line ? Math.cos(normal) : 1.0;
+    const A = friction * gravity * normalForce; // Tangential acceleration!
     // const N = gravity * Math.sin(tangent); // This goes away (Normal force)
 
-    const Ax = A * Math.cos(tangent);
-    const Ay = A * Math.sin(tangent);
+    const Ax = A * (vec.line ? Math.cos(tangent) : 0);
+    const Ay = A * (vec.line ? Math.sin(tangent) : -1);
 
     const Vx = vec.magnitude * Math.cos(vec.angle);
     const Vy = vec.magnitude * Math.sin(vec.angle);
@@ -135,28 +167,37 @@ const getPosition = (funcs:Array<UserFunction>, time:number):Vector => {
 
     const x = Ax * timeSlice * timeSlice + Vx * timeSlice + vec.origin.x;
     const yc = Ay * timeSlice * timeSlice + Vy * timeSlice + vec.origin.y;
-    const yf = func.func(x);
+    const yf = func.func(x); // The point on the track
 
-    // Now we need to pick which y to report:
+    // TODO: pick which y to report:
     // If it's "below" the track, then it's the function value.
     // If it's "above" the track, then it's the calculcated value.
 
-    const y = yf;
-    const xm = vec.origin.x - x;
-    const ym = vec.origin.y - y;
+    // Calculate the angle from the origin to the calculated point
+    // as well as to the 'track' point,
+    // And compare it to the angle of the tangent. If it's within 90 degrees of
+    // the normal, you're off the track (so return the calculated point)
 
-    vec = MakeVector(MakePoint(x, y), getTangentAngle(x, direction, func.func),
-                     Math.sqrt(xm * xm + ym * ym) / timeSlice);
+    const calcAngle = NormalizeAngle(Math.atan2(yc - vec.origin.y, x - vec.origin.x));
+    const trackAngle = NormalizeAngle(Math.atan2(yf - vec.origin.y, x - vec.origin.x));
+    const calcd = Math.abs(normal - calcAngle);
+    const trackd = Math.abs(normal - trackAngle);
+    const overTheLine = calcd > trackd;
+    // console.log({c:ta(calcAngle), n:ta(normal), cd:ta(calcd), td:ta(trackd), o:overTheLine});
+
+    const y = overTheLine ? yf : yc;
+    const vectorDirection = NormalizeAngle(Math.atan2(y - vec.origin.y, x - vec.origin.x));
+    vec = MakeVector(MakePoint(x, y), vectorDirection,
+                     dist(vec.origin, x, y) / timeSlice, overTheLine);
     resMap[idx] = vec;
   }
 
-  console.log({
+  /*console.log({
     x : td(vec.origin.x),
     y : td(vec.origin.y),
     degs : td(vec.angle * 180 / Math.PI),
     mag : td(vec.magnitude)
-  });
-
+  });*/
   return vec;
 };
 
@@ -172,12 +213,12 @@ export class FuncGraph extends Component {
     const funcs:Array<UserFunction> = this.props.funcs;
     drawGraphPaper(ctx);
     drawFunctions(ctx, funcs);
-    for (let t = 0; t <= 18; t += .25) {
+    for (let t = 0; t <= 18; t += .03125) {
       const vec:Vector = getPosition(funcs, t);
       ctx.beginPath();
       const n = Math.round(t * 255 / 18);
       ctx.fillStyle = `#${hx(n)}${hx((n * 5) % 255)}${hx((n * 3) % 255)}`;
-      ctx.arc(xf(vec.origin.x), yf(vec.origin.y), 1.5, 0, 2 * Math.PI);
+      ctx.arc(xf(vec.origin.x), yf(vec.origin.y), 1.5, 0, twoPi);
       ctx.fill();
       /*
       ctx.beginPath();
