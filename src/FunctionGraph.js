@@ -235,7 +235,7 @@ export class FuncGraph extends Component {
     }
   }
   render() {
-    const s = {border : '1px solid #91f'};
+    const s = {border : '1px solid #91f', height:'800px', width:'800px'};
     return (<canvas ref='FuncGraph' width={800} height={800} style={s}/>);
   }
 };

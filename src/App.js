@@ -21,10 +21,13 @@ class App extends Component {
     }
     let funcList = [ uf1, uf2 ];
     return (
-      <div className='App'>
+      <div className='RowList'>
+      <div className='ColList'>
         <FuncList funcs={funcList} />
         <FuncGraph funcs={funcList}/>
       </div>
+      <div>Graph Controls Down Here!</div>
+    </div>
     );
   }
 }
