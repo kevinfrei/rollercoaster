@@ -12,8 +12,8 @@ happen.
 
 ## Getting Started
 
-To run the system, download the Yarn package manager
-[https://yarnpkg.com/docs/install], 
+To run the system, download the 
+[Yarn package manager](https://yarnpkg.com/docs/install), 
 then go to the root directory and type `yarn` then, once all the dependencies
 are downloaded, type `yarn start` and the app will launch in a web browser.
 I assume it will also work with npm instead of yarn, but again,
