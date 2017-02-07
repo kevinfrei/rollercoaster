@@ -1,21 +1,20 @@
 // @flow
 
-import {MakeVector, MakePoint, GetFunc} from './UserFunction';
+import {GetFunc, MakePoint, MakeVector} from './UserFunction';
 
 import type {UserFunction, MathFunc, Vector, Point} from './UserFunction';
 
 type PointData = {
-  tangent: number,
-  normal: number
+  tangent : number,
+  normal : number
 };
 
 type ForceVectors = {
-  Ax:number,
-  Ay:number,
-  Vx:number,
-  Vy:number,
+  Ax : number,
+  Ay : number,
+  Vx : number,
+  Vy : number,
 };
-
 
 // Super duper exciting constants
 const halfPi = Math.PI / 2;
@@ -26,7 +25,7 @@ const friction = 1;
 
 // How many slices used to calculate random stuff
 // More slices == more accuracy
-const timeSlice = 1/1024;
+const timeSlice = 1 / 1024;
 const timeSliceSquared = timeSlice * timeSlice;
 
 // console.log helpers: text digits, text angle
@@ -34,22 +33,25 @@ const timeSliceSquared = timeSlice * timeSlice;
 // const ta = (n:number):number => td(n * Math.PI / 180);
 
 // Helper functions
-const distSquare = (pt:Point, x:number, y:number): number => {
+const distSquare = (pt: Point, x: number, y: number): number => {
   const xd = pt.x - x;
   const yd = pt.y - y;
   return xd * xd + yd * yd;
 };
-const dist = (pt:Point, x:number, y:number):number => {
+
+const dist = (pt: Point, x: number, y: number): number => {
   return Math.sqrt(distSquare(pt, x, y));
 };
+
 // I want to make sure that all angles I get are between pi and -pi
-const NormalizeAngle = (n:number):number => {
+const NormalizeAngle = (n: number): number => {
   let res = n % twoPi;
   if (res > Math.PI) {
     res -= twoPi;
   }
   return res;
-}
+};
+
 const getTangentAngle = (x: number, func: MathFunc): number => {
   // Stupid approximation :(
   const slice = 1e-10;
@@ -59,15 +61,16 @@ const getTangentAngle = (x: number, func: MathFunc): number => {
   return NormalizeAngle(Math.atan2(delta, slice));
 };
 
-const GetPointData = (x:number, func:MathFunc):PointData => {
+const GetPointData = (x: number, func: MathFunc): PointData => {
   const tangent = getTangentAngle(x, func);
   const normal = NormalizeAngle(tangent + halfPi);
   return {tangent, normal};
 };
 
-const CalcForceVectors = (vec:Vector, normal:number, tangent:number):ForceVectors => {
+const CalcForceVectors =
+  (vec: Vector, normal: number, tangent: number):ForceVectors => {
   const normalForce = vec.line ? Math.cos(normal) : 1.0;
-  //if (!vec.line)
+  // if (!vec.line)
   //  debugger;
   const A = friction * gravity * normalForce; // Tangential acceleration!
   // const N = gravity * Math.sin(tangent); // This goes away (Normal force)
@@ -78,15 +81,17 @@ const CalcForceVectors = (vec:Vector, normal:number, tangent:number):ForceVector
   const Vx = vec.magnitude * Math.cos(vec.angle);
   const Vy = vec.magnitude * Math.sin(vec.angle);
   return {Ax, Ay, Vx, Vy};
-}
+};
 
 let resMap: Array<Vector> = [];
 
-export const getPosition = (funcs:Array<UserFunction>, time:number):Vector => {
-  // Okay, reasonable way to simulate gravity? Just calculate it cumulatively
-  // because I've forgotten the Calculus necessary to do it accurately :/
+export const getPosition =
+  (funcs: Array<UserFunction>, time: number): Vector => {
+  // Okay, reasonable way to simulate gravity? Just calculate it
+  // cumulatively because I've forgotten the Calculus necessary to do it
+  // accurately :/
   const firstFunc = funcs[0];
-  let vec:Vector = MakeVector(firstFunc.endPoints.a, 0, 0, true);
+  let vec: Vector = MakeVector(firstFunc.endPoints.a, 0, 0, true);
 
   for (let idx = 0; idx <= time / timeSlice; idx++) {
     if (resMap[idx]) {
@@ -100,7 +105,7 @@ export const getPosition = (funcs:Array<UserFunction>, time:number):Vector => {
     }
     const func = userFunc.func;
     // First, approximate the tangent to the curve at the current location
-    let { tangent, normal } = GetPointData(vec.origin.x, func);
+    let {tangent, normal} = GetPointData(vec.origin.x, func);
     let {Ax, Ay, Vx, Vy} = CalcForceVectors(vec, normal, tangent);
 
     // Calculate the estimated delta from the current location
@@ -125,8 +130,7 @@ export const getPosition = (funcs:Array<UserFunction>, time:number):Vector => {
       // location, then bisect the two points and use that as your X coord.
 
       // I did a bunch of math by hand, and came up with a pretty easy forumla
-      // that appears to be correct for a couple of simple examples
-      //debugger;
+      // that appears to be correct for a couple of simple examples debugger;
       const angleFunc = NormalizeAngle(Math.atan2(yf - vec.origin.y, xd));
       const angleVect = NormalizeAngle(Math.atan2(yd, xd));
       const angleDelt = angleVect - angleFunc;
@@ -134,45 +138,24 @@ export const getPosition = (funcs:Array<UserFunction>, time:number):Vector => {
       const adSin = Math.sin(angleDelt);
       const magVect = Math.sqrt(xd * xd + yd * yd);
       const xOffset = magVect * afSin * adSin;
-      //console.log({x,xOffset,yc,yf,xn:x+xOffset,yn:func.func(x+xOffset)});
+      // console.log({x,xOffset,yc,yf,xn:x+xOffset,yn:func.func(x+xOffset)});
       x += xOffset;
       yf = func(x);
     } // else we don't care, because we're off the track, anyway...
 
-    // Check to see if we've moved off the end of this function
-    // (and on to the next)...
-    /*
-    if (false && x > func.range.high) {
-      //debugger;
-      if (funcPos + 1 === funcs.length) {
-        // If we've moved off the end of the functions, we're all done
-        return vec;
-      } else {
-        func = funcs[++funcPos];
-      }
-      // TODO: TO handle loop-de-loops, we'll need to override direction
-      // Since we've moved on to a new function, we need to 'smooth' the graph
-      // a bit for estimtation to work moderately well
-      const {tangent:newTangent, normal:newNormal} = GetPointData(x, func);
-      const {Ax:newAx, Ay:newAy, Vx:newVx, Vy:newVy} = CalcForceVectors(vec, newNormal, newTangent);
-      const newX = newAx * timeSliceSquared + newVx * timeSlice + vec.origin.x;
-      const newY = newAy * timeSliceSquared + newVy * timeSlice + vec.origin.y;
-      x = (newX + x) / 2; // Because averaging makes *total* sense :/
-      yc = (newY + yc) / 2; // particularly for the caclucated position, but whatever...
-    }
-    */
+    // TODO: TO handle loop-de-loops, we'll need to override direction
+    // Since we've moved on to a new function, we need to 'smooth' the graph
+    // a bit for estimtation to work moderately well
+
     const y = overTheLine ? yf : yc;
-    const vectorDirection = NormalizeAngle(Math.atan2(y - vec.origin.y, x - vec.origin.x));
-    vec = MakeVector(MakePoint(x, y), vectorDirection,
-                     dist(vec.origin, x, y) / timeSlice, overTheLine);
+    const vectorDirection =
+        NormalizeAngle(Math.atan2(y - vec.origin.y, x - vec.origin.x));
+    vec = MakeVector(MakePoint(x, y),
+                     vectorDirection,
+                     dist(vec.origin, x, y) / timeSlice,
+                     overTheLine);
     resMap[idx] = vec;
   }
 
-  /*console.log({
-    x : td(vec.origin.x),
-    y : td(vec.origin.y),
-    degs : td(vec.angle * 180 / Math.PI),
-    mag : td(vec.magnitude)
-  });*/
   return vec;
 };

@@ -15,7 +15,10 @@ export type Vector = {
   line : boolean
 };
 
-export type Range = { low: number, high: number };
+export type Range = {
+  low : number,
+  high : number
+};
 
 export type MathFunc = (val: number) => number;
 
@@ -28,26 +31,25 @@ export type UserFunction = {
 
 export const MakePoint = (x: number, y: number): Point => ({x, y});
 
-export const MakeVector = (origin: Point, angle: number, magnitude: number, line: boolean) => {
-  return {origin, angle, magnitude, line};
-};
+export const MakeVector =
+  (origin: Point, angle: number, magnitude: number, line: boolean) =>
+  ({origin, angle, magnitude, line});
 
-export const MakeUserFunc = function(funcExpr: string, low: string,
-                                     high: string): (UserFunction | string) {
+export const MakeUserFunc = function(
+    text: string, low: string, high: string): (UserFunction|string) {
   // Validate the range, since that's easy
   const l: number = parseFloat(low);
   const h: number = parseFloat(high);
   if (Number.isNaN(l)) {
-    return "Low value of range is not a number.";
+    return 'Low value of range is not a number.';
   }
   if (Number.isNaN(h)) {
-    return "High value of range is not a number.";
+    return 'High value of range is not a number.';
   }
   const lo = Math.min(l, h);
   const hi = Math.max(l, h);
   // TODO: Parse/validate the function expression
-  // For now, just to make it fast, I'm using eval, which is a HUGE no
-  // no.
+  // For now, just to make it fast, I'm using eval, which is a HUGE no no.
   // Kids, don't do what I'm doing here.
 
   // Rather than have 'theFunc' be an eval, I'm evaluating the expression
@@ -55,21 +57,22 @@ export const MakeUserFunc = function(funcExpr: string, low: string,
   // I *believe* this has the effect of compiling the expression.
   // It certainly seems faster while I'm debugging
 
-  // And yes, I know eval is dangerous...
   // eslint-disable-next-line
-  const theFunc: MathFunc = eval("(x) => (" + funcExpr + ");");
-  const a: Point = MakePoint(lo, theFunc(lo));
-  const b: Point = MakePoint(hi, theFunc(hi));
+  const func: MathFunc = eval('(x) => (' + text + ');');
+  const a: Point = MakePoint(lo, func(lo));
+  const b: Point = MakePoint(hi, func(hi));
   return {
-    text : funcExpr,
-    func : theFunc,
+    text,
+    func,
     range : {low : lo, high : hi},
     endPoints : {a, b}
   };
 };
 
-export const GetFunc = (funcList: Array<UserFunction>, x:number):?UserFunction => {
-  // TODO: Make this more efficient than a linear search through the array...
+export const GetFunc =
+  (funcList: Array<UserFunction>, x: number): ? UserFunction => {
+  // TODO: Make this more efficient than a linear search through the
+  // array...
   for (let f of funcList) {
     if (f.range.high > x) {
       return f;
@@ -77,7 +80,7 @@ export const GetFunc = (funcList: Array<UserFunction>, x:number):?UserFunction =
   }
 };
 
-export const FuncListRange = (funcList: Array<UserFunction>):Range => {
+export const FuncListRange = (funcList: Array<UserFunction>): Range => {
   let high = funcList[0].range.high;
   let low = funcList[0].range.low;
   for (let f of funcList) {
