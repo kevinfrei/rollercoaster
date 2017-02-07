@@ -4,6 +4,19 @@ import React, {Component} from 'react';
 import {MakeVector, MakePoint} from './UserFunction';
 
 import type {UserFunction, Vector, Point} from './UserFunction';
+
+type PointData = {
+  tangent: number,
+  normal: number
+};
+
+type ForceVectors = {
+  Ax:number,
+  Ay:number,
+  Vx:number,
+  Vy:number,
+};
+
 /*
 export const FuncRange = ({Low, High}:{Low:number, High: number}) => {
   return (<div><span>Range:</span>{Low} - {High}</div>);
@@ -28,24 +41,25 @@ export const FuncAdder = () => {
 const halfPi = Math.PI / 2;
 const twoPi = Math.PI * 2;
 const gravity = 9.8; // m/s^2
-// This is probably worth doing, otherwise things fly off...
+// This is probably worth doing
 const friction = 1;
 
 // Scale of the graph
-const scale = 40;
+const scale = 30;
 // How many slices used to calculate random stuff
-const timeSlice = 1/128;
+const timeSlice = 1/256;
+const timeSliceSquared = timeSlice * timeSlice;
 
 // Function colors
 const strokes = [
-  '#0f0', '#00f', '#f00',
-  '#0ff', '#f0f', '#ff0',
+  '#040', '#004', '#400',
+  '#044', '#404', '#440',
   '#800', '#080', '#008',
   '#088', '#808', '#880'];
 
 // console.log helpers: text digits, text angle
-const td = (n:number):number => Math.round(n * 100) / 100;
-const ta = (n:number):number => td(n * Math.PI / 180);
+// const td = (n:number):number => Math.round(n * 10000) / 10000;
+// const ta = (n:number):number => td(n * Math.PI / 180);
 
 // Helper functions
 const distSquare = (pt:Point, x:number, y:number): number => {
@@ -118,22 +132,43 @@ const drawFunctions =
   }
 };
 
-const getTangentAngle =
-  (x: number, dir: boolean, func: (x: number) => number): number => {
+const getTangentAngle = (x: number, func: (x: number) => number): number => {
   // Stupid approximation :(
-  const slice = dir ? 1e-10 : -1e-10;
+  const slice = 1e-10;
   const y = func(x);
   const y2 = func(x + slice);
   const delta = y2 - y;
   return NormalizeAngle(Math.atan2(delta, slice));
 };
 
+const GetPointData = (x:number, func:UserFunction):PointData => {
+  const tangent = getTangentAngle(x, func.func);
+  const normal = NormalizeAngle(tangent + halfPi);
+  return {tangent, normal};
+};
+
+const CalcForceVectors = (vec:Vector, normal:number, tangent:number):ForceVectors => {
+  const normalForce = vec.line ? Math.cos(normal) : 1.0;
+  //if (!vec.line)
+  //  debugger;
+  const A = friction * gravity * normalForce; // Tangential acceleration!
+  // const N = gravity * Math.sin(tangent); // This goes away (Normal force)
+
+  const Ax = A * (vec.line ? Math.cos(tangent) : 0);
+  const Ay = A * (vec.line ? Math.sin(tangent) : -1);
+
+  const Vx = vec.magnitude * Math.cos(vec.angle);
+  const Vy = vec.magnitude * Math.sin(vec.angle);
+  return {Ax, Ay, Vx, Vy};
+}
+
 let resMap: Array<Vector> = [];
 
 const getPosition = (funcs:Array<UserFunction>, time:number):Vector => {
   // Okay, reasonable way to simulate gravity? Just calculate it cumulatively
   // because I've forgotten the Calculus necessary to do it accurately :/
-  const func:UserFunction = funcs[0];
+  let func:UserFunction = funcs[0];
+  let funcPos = 0;
   let vec:Vector = MakeVector(func.endPoints.a, 0, 0, true);
 
   for (let idx = 0; idx <= time / timeSlice; idx++) {
@@ -142,48 +177,67 @@ const getPosition = (funcs:Array<UserFunction>, time:number):Vector => {
       vec = resMap[idx];
       continue;
     }
+
     // First, approximate the tangent to the curve at the current location
-    if (vec.origin.x > 2)
-      debugger;
-    const direction = Math.abs(vec.angle) < halfPi;
-    const tangent = getTangentAngle(vec.origin.x, direction, func.func);
-    const normal = NormalizeAngle(tangent + halfPi);
+    let { tangent, normal } = GetPointData(vec.origin.x, func);
+    let {Ax, Ay, Vx, Vy} = CalcForceVectors(vec, normal, tangent);
 
-    //const normal = tangent + Math.PI/2;
-    const normalForce = vec.line ? Math.cos(normal) : 1.0;
-    const A = friction * gravity * normalForce; // Tangential acceleration!
-    // const N = gravity * Math.sin(tangent); // This goes away (Normal force)
+    // Calculate the estimated delta from the current location
+    let xd = Ax * timeSliceSquared + Vx * timeSlice;
+    let yd = Ay * timeSliceSquared + Vy * timeSlice;
 
-    const Ax = A * (vec.line ? Math.cos(tangent) : 0);
-    const Ay = A * (vec.line ? Math.sin(tangent) : -1);
+    // Get the next position
+    let x = xd + vec.origin.x;
+    let yc = yd + vec.origin.y;
+    let yf = func.func(x); // The point on the track
 
-    const Vx = vec.magnitude * Math.cos(vec.angle);
-    const Vy = vec.magnitude * Math.sin(vec.angle);
+    const overTheLine = yc < yf;
+    if (overTheLine) {
+      // FYI, This is the common case
+      // We need to find a 'good' point on the function that is close to
+      // the distance from the origin.
+      // This is just a best-effort. The smaller the timeSlice
+      // the more accurate this will be, at least that's the idea
 
-/*
-    console.log({A:`${td(A)},${td(Ax)},${td(Ay)}`, V:td(vec.magnitude),
-      Pos:`${td(vec.origin.x)},${td(vec.origin.y)}`});
-*/
+      // The idea I'm trying is that you have a vector *below* the graph.
+      // reflect that vector across the vector on the graph at the updated X
+      // location, then bisect the two points and use that as your X coord.
 
-    const x = Ax * timeSlice * timeSlice + Vx * timeSlice + vec.origin.x;
-    const yc = Ay * timeSlice * timeSlice + Vy * timeSlice + vec.origin.y;
-    const yf = func.func(x); // The point on the track
+      // I did a bunch of math by hand, and came up with a pretty easy forumla
+      // that appears to be correct for a couple of simple examples
+      //debugger;
+      const angleFunc = NormalizeAngle(Math.atan2(yf - vec.origin.y, xd));
+      const angleVect = NormalizeAngle(Math.atan2(yd, xd));
+      const angleDelt = angleVect - angleFunc;
+      const afSin = Math.sin(angleFunc);
+      const adSin = Math.sin(angleDelt);
+      const magVect = Math.sqrt(xd * xd + yd * yd);
+      const xOffset = magVect * afSin * adSin;
+      //console.log({x,xOffset,yc,yf,xn:x+xOffset,yn:func.func(x+xOffset)});
+      x += xOffset;
+      yf = func.func(x);
+    } // else we don't care, because we're off the track, anyway...
 
-    // TODO: pick which y to report:
-    // If it's "below" the track, then it's the function value.
-    // If it's "above" the track, then it's the calculcated value.
-
-    // Calculate the angle from the origin to the calculated point
-    // as well as to the 'track' point,
-    // And compare it to the angle of the tangent. If it's within 90 degrees of
-    // the normal, you're off the track (so return the calculated point)
-
-    const calcAngle = NormalizeAngle(Math.atan2(yc - vec.origin.y, x - vec.origin.x));
-    const trackAngle = NormalizeAngle(Math.atan2(yf - vec.origin.y, x - vec.origin.x));
-    const calcd = Math.abs(normal - calcAngle);
-    const trackd = Math.abs(normal - trackAngle);
-    const overTheLine = calcd > trackd;
-    // console.log({c:ta(calcAngle), n:ta(normal), cd:ta(calcd), td:ta(trackd), o:overTheLine});
+    // Check to see if we've moved off the end of this function
+    // (and on to the next)...
+    if (false && x > func.range.high) {
+      //debugger;
+      if (funcPos + 1 === funcs.length) {
+        // If we've moved off the end of the functions, we're all done
+        return vec;
+      } else {
+        func = funcs[++funcPos];
+      }
+      // TODO: TO handle loop-de-loops, we'll need to override direction
+      // Since we've moved on to a new function, we need to 'smooth' the graph
+      // a bit for estimtation to work moderately well
+      const {tangent:newTangent, normal:newNormal} = GetPointData(x, func);
+      const {Ax:newAx, Ay:newAy, Vx:newVx, Vy:newVy} = CalcForceVectors(vec, newNormal, newTangent);
+      const newX = newAx * timeSliceSquared + newVx * timeSlice + vec.origin.x;
+      const newY = newAy * timeSliceSquared + newVy * timeSlice + vec.origin.y;
+      x = (newX + x) / 2; // Because averaging makes *total* sense :/
+      yc = (newY + yc) / 2; // particularly for the caclucated position, but whatever...
+    }
 
     const y = overTheLine ? yf : yc;
     const vectorDirection = NormalizeAngle(Math.atan2(y - vec.origin.y, x - vec.origin.x));

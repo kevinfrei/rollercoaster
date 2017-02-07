@@ -15,9 +15,11 @@ export type Vector = {
   line : boolean
 };
 
+type MathFunc = (val: number)=> number;
+
 export type UserFunction = {
   text : string,
-  func : (val: number) => number,
+  func : MathFunc,
   range : {low : number, high : number},
   endPoints : {a : Point, b : Point}
 };
@@ -45,12 +47,15 @@ export const MakeUserFunc = function(funcExpr: string, low: string,
   // For now, just to make it fast, I'm using eval, which is a HUGE no
   // no.
   // Kids, don't do what I'm doing here.
-  const theFunc = (val: number): number => {
-    // eslint-disable-next-line
-    const x = val;
-    // eslint-disable-next-line
-    return eval(funcExpr);
-  };
+
+  // Rather than have 'theFunc' be an eval, I'm evaluating the expression
+  // such that theFunc will be a routine that invokes the function directly
+  // I *believe* this has the effect of compiling the expression.
+  // It certainly seems faster while I'm debugging
+
+  // And yes, I know eval is dangerous...
+  // eslint-disable-next-line
+  const theFunc: MathFunc = eval("(x) => (" + funcExpr + ");");
   const a: Point = MakePoint(lo, theFunc(lo));
   const b: Point = MakePoint(hi, theFunc(hi));
   return {
