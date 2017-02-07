@@ -15,12 +15,14 @@ export type Vector = {
   line : boolean
 };
 
-type MathFunc = (val: number)=> number;
+export type Range = { low: number, high: number };
+
+export type MathFunc = (val: number) => number;
 
 export type UserFunction = {
   text : string,
   func : MathFunc,
-  range : {low : number, high : number},
+  range : Range,
   endPoints : {a : Point, b : Point}
 };
 
@@ -64,4 +66,27 @@ export const MakeUserFunc = function(funcExpr: string, low: string,
     range : {low : lo, high : hi},
     endPoints : {a, b}
   };
+};
+
+export const GetFunc = (funcList: Array<UserFunction>, x:number):?UserFunction => {
+  // TODO: Make this more efficient than a linear search through the array...
+  for (let f of funcList) {
+    if (f.range.high > x) {
+      return f;
+    }
+  }
+};
+
+export const FuncListRange = (funcList: Array<UserFunction>):Range => {
+  let high = funcList[0].range.high;
+  let low = funcList[0].range.low;
+  for (let f of funcList) {
+    if (f.range.low < low) {
+      low = f.range.low;
+    }
+    if (f.range.high > high) {
+      high = f.range.high;
+    }
+  }
+  return {low, high};
 };

@@ -20,7 +20,7 @@ export const FuncItem = ({userFunc}:{userFunc: UserFunction}) => {
         <button>&darr;</button>
       </div>
       <div style={{border:'1pt solid black',margin:'2pt',alignSelf:'center',flexGrow:'4'}}>
-        f(x) = {userFunc.text}
+        {userFunc.text}
       </div>
       <FuncRange Low={userFunc.range.low} High={userFunc.range.high}/>
     </div>

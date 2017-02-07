@@ -1,8 +1,8 @@
 // @flow
 
-import {MakeVector, MakePoint} from './UserFunction';
+import {MakeVector, MakePoint, GetFunc} from './UserFunction';
 
-import type {UserFunction, Vector, Point} from './UserFunction';
+import type {UserFunction, MathFunc, Vector, Point} from './UserFunction';
 
 type PointData = {
   tangent: number,
@@ -25,6 +25,7 @@ const gravity = 9.8; // m/s^2
 const friction = 1;
 
 // How many slices used to calculate random stuff
+// More slices == more accuracy
 const timeSlice = 1/1024;
 const timeSliceSquared = timeSlice * timeSlice;
 
@@ -49,7 +50,7 @@ const NormalizeAngle = (n:number):number => {
   }
   return res;
 }
-const getTangentAngle = (x: number, func: (x: number) => number): number => {
+const getTangentAngle = (x: number, func: MathFunc): number => {
   // Stupid approximation :(
   const slice = 1e-10;
   const y = func(x);
@@ -58,8 +59,8 @@ const getTangentAngle = (x: number, func: (x: number) => number): number => {
   return NormalizeAngle(Math.atan2(delta, slice));
 };
 
-const GetPointData = (x:number, func:UserFunction):PointData => {
-  const tangent = getTangentAngle(x, func.func);
+const GetPointData = (x:number, func:MathFunc):PointData => {
+  const tangent = getTangentAngle(x, func);
   const normal = NormalizeAngle(tangent + halfPi);
   return {tangent, normal};
 };
@@ -84,9 +85,8 @@ let resMap: Array<Vector> = [];
 export const getPosition = (funcs:Array<UserFunction>, time:number):Vector => {
   // Okay, reasonable way to simulate gravity? Just calculate it cumulatively
   // because I've forgotten the Calculus necessary to do it accurately :/
-  let func:UserFunction = funcs[0];
-  let funcPos = 0;
-  let vec:Vector = MakeVector(func.endPoints.a, 0, 0, true);
+  const firstFunc = funcs[0];
+  let vec:Vector = MakeVector(firstFunc.endPoints.a, 0, 0, true);
 
   for (let idx = 0; idx <= time / timeSlice; idx++) {
     if (resMap[idx]) {
@@ -94,7 +94,11 @@ export const getPosition = (funcs:Array<UserFunction>, time:number):Vector => {
       vec = resMap[idx];
       continue;
     }
-
+    const userFunc = GetFunc(funcs, vec.origin.x);
+    if (!userFunc) {
+      return vec;
+    }
+    const func = userFunc.func;
     // First, approximate the tangent to the curve at the current location
     let { tangent, normal } = GetPointData(vec.origin.x, func);
     let {Ax, Ay, Vx, Vy} = CalcForceVectors(vec, normal, tangent);
@@ -106,7 +110,7 @@ export const getPosition = (funcs:Array<UserFunction>, time:number):Vector => {
     // Get the next position
     let x = xd + vec.origin.x;
     let yc = yd + vec.origin.y;
-    let yf = func.func(x); // The point on the track
+    let yf = func(x); // The point on the track
 
     const overTheLine = yc < yf;
     if (overTheLine) {
@@ -132,11 +136,12 @@ export const getPosition = (funcs:Array<UserFunction>, time:number):Vector => {
       const xOffset = magVect * afSin * adSin;
       //console.log({x,xOffset,yc,yf,xn:x+xOffset,yn:func.func(x+xOffset)});
       x += xOffset;
-      yf = func.func(x);
+      yf = func(x);
     } // else we don't care, because we're off the track, anyway...
 
     // Check to see if we've moved off the end of this function
     // (and on to the next)...
+    /*
     if (false && x > func.range.high) {
       //debugger;
       if (funcPos + 1 === funcs.length) {
@@ -155,7 +160,7 @@ export const getPosition = (funcs:Array<UserFunction>, time:number):Vector => {
       x = (newX + x) / 2; // Because averaging makes *total* sense :/
       yc = (newY + yc) / 2; // particularly for the caclucated position, but whatever...
     }
-
+    */
     const y = overTheLine ? yf : yc;
     const vectorDirection = NormalizeAngle(Math.atan2(y - vec.origin.y, x - vec.origin.x));
     vec = MakeVector(MakePoint(x, y), vectorDirection,

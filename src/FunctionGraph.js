@@ -41,7 +41,7 @@ export const FuncAdder = () => {
 */
 
 // Scale of the graph
-const scale = 30;
+const scale = 20;
 
 // Function colors
 const strokes = [
@@ -60,7 +60,7 @@ const drawGraphPaper = (ctx:CanvasRenderingContext2D) => {
     ctx.beginPath();
     ctx.strokeStyle = '#000';
     if (Math.round(pos + .1) === Math.round(pos - .1)) {
-      ctx.lineWidth = pos ? .2 : 1;
+      ctx.lineWidth = pos ? .15 : .5;
     } else {
       ctx.lineWidth = .05;
     }
@@ -120,25 +120,26 @@ export class FuncGraph extends Component {
     const funcs:Array<UserFunction> = this.props.funcs;
     drawGraphPaper(ctx);
     drawFunctions(ctx, funcs);
-    for (let t = 0; t <= 18; t += .03125) {
+    for (let t = 0; t <= 60; t += .03125) {
       const vec:Vector = getPosition(funcs, t);
       ctx.beginPath();
-      const n = Math.round(t * 255 / 18);
+      const n = Math.round(t * 32);
       ctx.fillStyle = `#${b(n)}${b((n+128) * 5)}${b(n * 3)}`;
       ctx.arc(xf(vec.origin.x), yf(vec.origin.y), 1.5, 0, twoPi);
       ctx.fill();
-      /*
-      ctx.beginPath();
-      ctx.strokeStyle = "#000000";
-      ctx.lineWidth = .2;
-      const xo = vec.origin.x;
-      const yo = vec.origin.y;
-      ctx.moveTo(xf(xo), yf(yo));
-      const xe = xo + Math.cos(vec.angle+Math.PI/2) * vec.magnitude;
-      const ye = yo + Math.sin(vec.angle+Math.PI/2) * vec.magnitude;
-      ctx.lineTo(xf(xe), yf(ye));
-      ctx.stroke();
-      */
+      if (false) {
+        // This draws the velocity vector on the graph
+        ctx.beginPath();
+        ctx.strokeStyle = "#000000";
+        ctx.lineWidth = .2;
+        const xo = vec.origin.x;
+        const yo = vec.origin.y;
+        ctx.moveTo(xf(xo), yf(yo));
+        const xe = xo + Math.cos(vec.angle+Math.PI/2) * vec.magnitude;
+        const ye = yo + Math.sin(vec.angle+Math.PI/2) * vec.magnitude;
+        ctx.lineTo(xf(xe), yf(ye));
+        ctx.stroke();
+      }
     }
   }
   render() {
