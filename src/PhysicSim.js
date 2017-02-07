@@ -20,6 +20,10 @@ type ForceVectors = {
 const halfPi = Math.PI / 2;
 const twoPi = Math.PI * 2;
 const gravity = 9.8; // m/s^2
+
+const initialSpeed = 0;
+const initialAngle = -halfPi;
+
 // This is probably worth doing something with eventually
 const friction = 1;
 
@@ -55,10 +59,14 @@ const NormalizeAngle = (n: number): number => {
 const getTangentAngle = (x: number, func: MathFunc): number => {
   // Stupid approximation :(
   const slice = 1e-10;
-  const y = func(x);
-  const y2 = func(x + slice);
-  const delta = y2 - y;
-  return NormalizeAngle(Math.atan2(delta, slice));
+  try {
+    const y = func(x);
+    const y2 = func(x + slice);
+    const delta = y2 - y;
+    return Number.isNaN(delta) ? 0 : NormalizeAngle(Math.atan2(delta, slice));
+  } catch (e) {
+    return 0;
+  }
 };
 
 const GetPointData = (x: number, func: MathFunc): PointData => {
@@ -91,7 +99,8 @@ export const getPosition =
   // cumulatively because I've forgotten the Calculus necessary to do it
   // accurately :/
   const firstFunc = funcs[0];
-  let vec: Vector = MakeVector(firstFunc.endPoints.a, 0, 0, true);
+  const start = firstFunc.range.low;
+  let vec: Vector = MakeVector(MakePoint(start, firstFunc.func(start)), initialAngle, initialSpeed, true);
 
   for (let idx = 0; idx <= time / timeSlice; idx++) {
     if (resMap[idx]) {

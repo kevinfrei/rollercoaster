@@ -7,8 +7,8 @@ import type {UserFunction, Vector} from './UserFunction';
 
 // Super duper exciting constants
 const twoPi = Math.PI * 2;
-const scale = 20; // Scale of the graph
-
+const scale = 25; // Scale of the graph
+const graphStep = 1e-2; // The steps used for drawing the graph
 // Function colors
 const strokes = [
   '#040',
@@ -50,8 +50,12 @@ const drawFunctions =
   (ctx: CanvasRenderingContext2D, funcs: Array<UserFunction>): void => {
   let curStroke = 0;
   for (let f of funcs) {
-    let x = f.endPoints.a.x;
-    let y = f.endPoints.a.y;
+    let x = f.range.low;
+    let y = f.func(x);
+    ctx.beginPath();
+    ctx.fillStyle = '#000';
+    ctx.arc(xf(x), yf(y), 2.5, 0, twoPi);
+    ctx.fill();
     ctx.beginPath();
     ctx.strokeStyle = strokes[curStroke];
     ctx.fillStyle = strokes[curStroke];
@@ -60,19 +64,23 @@ const drawFunctions =
     ctx.moveTo(xf(x), yf(y));
     const e = f.range.high;
     while (x < e) {
-      y = f.func(x);
-      ctx.lineTo(xf(x), yf(y));
-      x += .01;
+      let fail = false;
+      try {
+        y = f.func(x);
+        fail = Number.isNaN(y);
+      } catch (e) {
+        fail = true;
+      }
+      if (!fail)
+        ctx.lineTo(xf(x), yf(y));
+      x += graphStep;
     }
-    ctx.lineTo(xf(f.endPoints.b.x), yf(f.endPoints.b.y));
+    y = f.func(e);
+    ctx.lineTo(xf(e), yf(y));
     ctx.stroke();
     ctx.beginPath();
     ctx.fillStyle = '#000';
-    ctx.arc(xf(f.endPoints.b.x), yf(f.endPoints.b.y), 2.5, 0, twoPi);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.fillStyle = '#000';
-    ctx.arc(xf(f.endPoints.a.x), yf(f.endPoints.a.y), 2.5, 0, twoPi);
+    ctx.arc(xf(e), yf(y), 2.5, 0, twoPi);
     ctx.fill();
   }
 };
@@ -119,7 +127,7 @@ export class FuncGraph extends Component {
     }
   }
   render() {
-    const s = {border : '1px solid #91f', height : '800px', width : '800px'};
+    const s = {border : '1px solid #91f', height : '600px', width : '600px'};
     return (<canvas ref='FuncGraph' width={800} height={800} style={s}/>);
   }
 };

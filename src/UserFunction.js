@@ -26,7 +26,6 @@ export type UserFunction = {
   text : string,
   func : MathFunc,
   range : Range,
-  endPoints : {a : Point, b : Point}
 };
 
 export const MakePoint = (x: number, y: number): Point => ({x, y});
@@ -58,14 +57,13 @@ export const MakeUserFunc = function(
   // It certainly seems faster while I'm debugging
 
   // eslint-disable-next-line
-  const func: MathFunc = eval('(x) => (' + text + ');');
+  const func: MathFunc = eval('(x) => {try { return (' + text + ');} catch (e) {} return 0;}');
   const a: Point = MakePoint(lo, func(lo));
   const b: Point = MakePoint(hi, func(hi));
   return {
     text,
     func,
     range : {low : lo, high : hi},
-    endPoints : {a, b}
   };
 };
 

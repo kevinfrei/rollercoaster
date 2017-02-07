@@ -27,13 +27,12 @@ class App extends Component {
       return (<div>Nope!{uf1} {uf2}</div>);
     }
     let funcList = [ uf1, uf2, uf3 ];
+    const adder = () => {window.alert('hello');};
     return (
-      <div className='RowList'>
-        <div className='ColList'>
-          <FuncList funcs={funcList} />
-          <FuncGraph funcs = {funcList} />
-        </div>
-        <div>
+      <div className='ColList'>
+        <FuncList funcs={funcList} addSaveFunc={adder}/>
+        <div className='RowList'>
+          <FuncGraph funcs={funcList} />
           Graph Controls Down Here!
         </div>
       </div>

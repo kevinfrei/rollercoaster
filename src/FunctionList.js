@@ -2,43 +2,69 @@
 
 import React from 'react';
 
+import {MakeUserFunc} from './UserFunction';
+
 import type {UserFunction} from './UserFunction';
 
-export const FuncRange = ({Low, High}: {Low : number, High : number}) => {
-  return (
-    <span style={{alignSelf:'center'}}>
-      {Low}&nbsp;&larr;&nbsp;x&nbsp;&larr;&nbsp;{High}
-    </span>);
+// Don't forget: These are all stateless components!
+// Stateful components should in the 'Containers.js' file
+
+export const FuncDivider = ({value,onChange}:{value:number,onChange?:Function}) =>
+  (<div style={{alignSelf:'center'}}>
+    x = <input type='text' value={value} onChange={onChange && onChange()} style={{width:'14pt', textAlign:'center'}}/></div>);
+
+type FuncItemAttribs = {
+  userFunc: UserFunction,
+  first?:boolean,
+  last?:boolean,
+  onEdit?:Function,
+  onPrev?:Function,
+  onNext?:Function,
+  onDel?:Function
 };
 
-
-export const FuncItem = ({userFunc}:{userFunc: UserFunction}) => {
+export const FuncItem = ({userFunc,first,last,onEdit,onPrev,onNext,onDel}:FuncItemAttribs) => {
   return (
+    <div style={{width:'250pt',alignItems:'stretch'}} className='RowList'>
     <div className='ColList'>
-      <div>
-        <button>&uarr;</button><br/>
-        <button>&darr;</button>
+      <div style={{flexGrow:'1'}}>
+        <button disabled={first} onClick={onPrev && onPrev()}>&uarr;</button><br/>
+        <button disabled={last} onClick={onNext && onNext()}>&darr;</button>
       </div>
-      <div style={{border:'1pt solid black',margin:'2pt',alignSelf:'center',flexGrow:'4'}}>
-        {userFunc.text}
+      <div style={{border:'1px solid #000',margin:'2pt',alignSelf:'stretch',flexGrow:'500'}}>{userFunc.text}</div>
+      <div style={{flexGrow:'1'}}>
+        <button onClick={onDel && onDel()}>del</button><br/>
+        <button onClick={onEdit && onEdit()}>edit</button>
       </div>
-      <FuncRange Low={userFunc.range.low} High={userFunc.range.high}/>
     </div>
+    <FuncDivider value={userFunc.range.high}/>
+  </div>
   );
 };
 
 // TODO: Needs wired to Redux, as it affects state
-export const FuncAdder = () => {
-  return (<div style={{margin:'2pt', alignSelf:'center'}}><button>Add Function (NYI!)</button></div>);
+export const FuncChanger = ({onClick,func}:{onClick:Function, func?:UserFunction}) => {
+  return (
+    <div style={{margin:'2pt'}} className='RowList'>
+      <div className='ColList'>
+        f(x) =  <textarea value={func ? func.text : 'x'}/>
+      </div>
+      <div alignSelf='auto'><button onClick={onClick}>{func ? 'Save' : 'Add'} Function</button></div>
+    </div>
+  );
 };
 
-export const FuncList = ({funcs}:{funcs: Array<UserFunction>}) => {
+export const FuncList = ({funcs, addSaveFunc}:{funcs: Array<UserFunction>, addSaveFunc: Function}) => {
   // Should I assert that they're sorted?
-  const MapOfFuncs = funcs.map((uf, index) => {
-    return (<FuncItem key={index} userFunc={uf}/>);
-  });
-  return (<div className='RowList'>
-    {MapOfFuncs}
-    <FuncAdder/>
-  </div>);
+  const MapOfFuncs = funcs.map((uf, index) =>
+    (<FuncItem first={index===0} last={index===funcs.length-1} key={index} userFunc={uf}/>));
+  const DefaultFunc = MakeUserFunc('5*x','15','20');
+  if (typeof DefaultFunc === 'string') throw 'nope';
+  return (
+    <div style={{margin:'2pt'}} className='RowList'>
+      <FuncDivider value={0}/>
+      {MapOfFuncs}
+      <FuncChanger onClick={addSaveFunc} func={DefaultFunc}/>
+    </div>
+  );
 };
