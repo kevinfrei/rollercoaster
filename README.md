@@ -41,7 +41,6 @@ It all lives under `src`. From there, `App.js` is the main entry point.
 
 ### TODO:
 
-* Support function segments, instead of just one function
 * Add Redux so that the whole thing actually works properly with state.
 * Animate the coaster (rather than just drawing the discrete time
 locations).
