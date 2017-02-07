@@ -12,8 +12,8 @@ happen.
 
 ## Getting Started
 
-To run the system, download the 
-[Yarn package manager](https://yarnpkg.com/docs/install), 
+To run the system, download the
+[Yarn package manager](https://yarnpkg.com/docs/install),
 then go to the root directory and type `yarn` then, once all the dependencies
 are downloaded, type `yarn start` and the app will launch in a web browser.
 I assume it will also work with npm instead of yarn, but again,
@@ -41,6 +41,7 @@ It all lives under `src`. From there, `App.js` is the main entry point.
 
 ### TODO:
 
+* Support function segments, instead of just one function
 * Add Redux so that the whole thing actually works properly with state.
 * Animate the coaster (rather than just drawing the discrete time
 locations).
@@ -50,8 +51,8 @@ the functions? Probably do some validation of the AST and then produce the JS
 function to be executed.
 * Parameterize various aspects of the system including:
  * The scale of the graph.
- * The amount of friction (I don't think it's calculated correctly right now)
  * Gravity? (How would my roller coaster behave on Mars?)
 * Maybe allow the animation to just be a 'slider'.
-* Create a better formula editor. (The kids are apparently accustomed to
-  desmos.com, and it really is a pretty awesome formula editor)
+* Integrate a better formula editor. (The kids are apparently accustomed to
+  desmos.com, and it really is a pretty awesome formula editor.
+  It either uses mathjax or mathquill.
