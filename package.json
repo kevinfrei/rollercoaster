@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
+    "flow-bin": "^0.38.0",
     "react-scripts": "0.8.5"
   },
   "dependencies": {
@@ -23,6 +24,7 @@
     "url": "git@github.com:kevinfrei/rollercoaster.git",
     "type": "git"
   },
+  "homepage": "https://kevinfrei.github.io/rollercoaster",
   "author": "Kevin Frei <kevinfrei@hotmail.com>",
   "license": "Unlicense"
 }

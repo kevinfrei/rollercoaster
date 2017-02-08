@@ -10,6 +10,8 @@ if it's continuous, this will simulate a car being dropped, starting
 at X=0, down the track. If the car leaves the track, bad things
 happen.
 
+Try it out yourself [here](https://kevinfrei.github.io/rollercoaster/).
+
 ## Getting Started
 
 To run the system, download the

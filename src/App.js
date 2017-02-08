@@ -15,13 +15,12 @@ import {MakeUserFunc} from './UserFunction';
 class App extends Component {
   render() {
     // A couple of functions...
-    // const uf1 = MakeUserFunc('(x-1)*(x-1)/(x+.003) + 1', '0', '50');
-    // const uf1 = MakeUserFunc('Math.cos(x*x) / (x +.03) + .1 * x', '0', '10');
-    const uf1 =
-        MakeUserFunc('5+5*Math.cos((x+.01)*(Math.PI/4))/(x+.8)', '0', '6');
-    const uf2 = MakeUserFunc('.8*x+.2', '6.0', '11.0');
+    // const uf1 = MakeUserFunc('(x-1)*(x-1)/(x+.003) + 1', 0, 50);
+    // const uf1 = MakeUserFunc('Math.cos(x*x) / (x +.03) + .1 * x', 0, 10);
+    const uf1 = MakeUserFunc('5+5*Math.cos(.01+x*Math.PI*.25)/(x+.8)', 0, 6);
+    const uf2 = MakeUserFunc('.8*x+.2', 6.0, 11.0);
     const uf3 = MakeUserFunc(
-        'Math.sqrt(Math.abs(1 - (x-20) * (x-20)))', '11.0', '30.0');
+        'Math.sqrt(Math.abs(1 - (x-20) * (x-20)))', 11.0, 30.0);
     if (typeof uf1 === 'string' || typeof uf2 === 'string' ||
         typeof uf3 === 'string') {
       return (<div>Nope!{uf1} {uf2}</div>);

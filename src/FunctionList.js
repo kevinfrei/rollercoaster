@@ -31,9 +31,9 @@ export const FuncItem = ({userFunc,first,last,onEdit,onPrev,onNext,onDel}:FuncIt
         <button disabled={first} onClick={onPrev && onPrev()}>&uarr;</button><br/>
         <button disabled={last} onClick={onNext && onNext()}>&darr;</button>
       </div>
-      <div style={{border:'1px solid #000',margin:'2pt',alignSelf:'stretch',flexGrow:'500'}}>{userFunc.text}</div>
+      <div style={{margin:'2pt',alignSelf:'stretch',flexGrow:'500'}}>{userFunc.text}</div>
       <div style={{flexGrow:'1'}}>
-        <button onClick={onDel && onDel()}>del</button><br/>
+        <button onClick={onDel && onDel()} disabled={first && last}>del</button><br/>
         <button onClick={onEdit && onEdit()}>edit</button>
       </div>
     </div>
@@ -58,8 +58,8 @@ export const FuncList = ({funcs, addSaveFunc}:{funcs: Array<UserFunction>, addSa
   // Should I assert that they're sorted?
   const MapOfFuncs = funcs.map((uf, index) =>
     (<FuncItem first={index===0} last={index===funcs.length-1} key={index} userFunc={uf}/>));
-  const DefaultFunc = MakeUserFunc('5*x','15','20');
-  if (typeof DefaultFunc === 'string') throw 'nope';
+  const DefaultFunc = MakeUserFunc('5*x',15,20);
+  if (typeof DefaultFunc === 'string') throw String('');
   return (
     <div style={{margin:'2pt'}} className='RowList'>
       <FuncDivider value={0}/>

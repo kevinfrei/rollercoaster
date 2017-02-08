@@ -24,9 +24,6 @@ const gravity = 9.8; // m/s^2
 const initialSpeed = 0;
 const initialAngle = -halfPi;
 
-// This is probably worth doing something with eventually
-const friction = 1;
-
 // How many slices used to calculate random stuff
 // More slices == more accuracy
 const timeSlice = 1 / 1024;
@@ -80,7 +77,7 @@ const CalcForceVectors =
   const normalForce = vec.line ? Math.cos(normal) : 1.0;
   // if (!vec.line)
   //  debugger;
-  const A = friction * gravity * normalForce; // Tangential acceleration!
+  const A = gravity * normalForce; // Tangential acceleration!
   // const N = gravity * Math.sin(tangent); // This goes away (Normal force)
 
   const Ax = A * (vec.line ? Math.cos(tangent) : 0);

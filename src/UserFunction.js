@@ -35,18 +35,10 @@ export const MakeVector =
   ({origin, angle, magnitude, line});
 
 export const MakeUserFunc = function(
-    text: string, low: string, high: string): (UserFunction|string) {
+    text: string, l: number, h: number): (UserFunction|string) {
   // Validate the range, since that's easy
-  const l: number = parseFloat(low);
-  const h: number = parseFloat(high);
-  if (Number.isNaN(l)) {
-    return 'Low value of range is not a number.';
-  }
-  if (Number.isNaN(h)) {
-    return 'High value of range is not a number.';
-  }
-  const lo = Math.min(l, h);
-  const hi = Math.max(l, h);
+  const low = Math.min(l, h);
+  const high = Math.max(l, h);
   // TODO: Parse/validate the function expression
   // For now, just to make it fast, I'm using eval, which is a HUGE no no.
   // Kids, don't do what I'm doing here.
@@ -58,14 +50,12 @@ export const MakeUserFunc = function(
 
   // eslint-disable-next-line
   const func: MathFunc = eval('(x) => {try { return (' + text + ');} catch (e) {} return 0;}');
-  const a: Point = MakePoint(lo, func(lo));
-  const b: Point = MakePoint(hi, func(hi));
-  return {
-    text,
-    func,
-    range : {low : lo, high : hi},
-  };
+  return { text, func, range : {low, high} };
 };
+
+export const CopyUserFunc =
+  (func:UserFunction, low:number, high:number):UserFunction => (
+    { text:func.text, func:func.func, range: {low, high} });
 
 export const GetFunc =
   (funcList: Array<UserFunction>, x: number): ? UserFunction => {
