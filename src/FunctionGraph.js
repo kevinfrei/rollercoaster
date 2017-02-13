@@ -11,18 +11,8 @@ const scale = 25; // Scale of the graph
 const graphStep = 1e-2; // The steps used for drawing the graph
 // Function colors
 const strokes = [
-  '#040',
-  '#004',
-  '#400',
-  '#044',
-  '#404',
-  '#440',
-  '#800',
-  '#080',
-  '#008',
-  '#088',
-  '#808',
-  '#880'
+  '#040', '#004', '#400', '#044', '#404', '#440',
+  '#800', '#080', '#008', '#088', '#808', '#880'
 ];
 
 const xf = (x: number): number => 10.0 + x * scale;

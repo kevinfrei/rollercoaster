@@ -1,5 +1,5 @@
 // @flow
-import {CopyUserFunc, MakeUserFunc} from './UserFunction';
+import {CopyUserFunc, MakeUserFunc, DemandUserFunc} from './UserFunction';
 
 import type {UserFunction} from './UserFunction';
 
@@ -13,9 +13,15 @@ import type {UserFunction} from './UserFunction';
 //    Current time
 //    Gravity?
 
+export type DisplayStateType = {
+  state: 'ERROR' | 'WARNING' | 'GOOD',
+  message: string
+};
+
 export type GraphState = {
   funcs: Array<UserFunction>,
-  displayState: DisplayStateType
+  displayState: DisplayStateType,
+  currentEdit: number
 };
 
 type FuncArray = Array<UserFunction>;
@@ -56,12 +62,40 @@ export type MoveFunctionAction = {
   up: boolean
 };
 
-type CoasterAction = AddFunctionAction | DeleteFunctionAction | EditFunctionAction | ChangeDividerAction | MoveFunctionAction;
-
-export type DisplayStateType = {
-  state: 'ERROR' | 'WARNING' | 'GOOD',
-  message: string
+export type SelectFunctionAction = {
+  type: 'SELECT_FUNCTION',
+  position: number
 };
+
+export const Actions = {
+  AddFunction: (expr:string):AddFunctionAction => {
+    return {type: 'ADD_FUNCTION', expr};
+  },
+  DeleteFunction: (position:number):DeleteFunctionAction => {
+    return {type: 'DELETE_FUNCTION', position};
+  },
+  EditFunction: (position:number, funcBody:string):EditFunctionAction => {
+    return {type: 'EDIT_FUNCTION', position, funcBody};
+  },
+  ChangeDivider: (position:number, value: number):ChangeDividerAction => {
+    console.log({position,value});
+    return {type: 'CHANGE_LIMIT', position, value};
+  },
+  MoveFunction: (position:number, up:boolean): MoveFunctionAction => {
+    return {type: 'MOVE_FUNCTION', position, up};
+  },
+  SelectFunction: (position:number): SelectFunctionAction => {
+    return {type: 'SELECT_FUNCTION', position};
+  }
+};
+
+type CoasterAction =
+  AddFunctionAction |
+  DeleteFunctionAction |
+  EditFunctionAction |
+  ChangeDividerAction |
+  MoveFunctionAction |
+  SelectFunctionAction;
 
 const MakeStateError =
   (message:string): DisplayStateType => ({state: 'ERROR', message});
@@ -71,7 +105,11 @@ const MakeStateGood =
   (message:string = ''): DisplayStateType => ({state: 'GOOD', message});
 
 
-const initialState:GraphState = {funcs:[], displayState:MakeStateError('No Functions!')};
+const initialState:GraphState = {
+  funcs: [DemandUserFunc('Math.cos(x+.01)', 0, 7)],
+  displayState: MakeStateGood(),
+  currentEdit: -1
+};
 
 const ValidateFuncs = (funcs:FuncArray):DisplayStateType => {
   let prevHi:?number;
@@ -98,6 +136,16 @@ const ValidateFuncs = (funcs:FuncArray):DisplayStateType => {
   return MakeStateGood();
 }
 
+const MakeGraphState = (
+    funcs: FuncArray,
+    displayState:DisplayStateType,
+    currentEdit:number): GraphState => {
+  return { funcs, displayState, currentEdit};
+};
+
+const MakeValidGraphState = (funcs: FuncArray, currentEdit:number):GraphState =>
+  MakeGraphState(funcs, ValidateFuncs(funcs), currentEdit);
+
 const sliceOut = (funcs:FuncArray, pos:number):{bArr:FuncArray,func:UserFunction,eArr:FuncArray} => {
   const bArr = funcs.slice(0,pos);
   const eArr = funcs.slice(pos+1,funcs.length);
@@ -114,10 +162,11 @@ const editFunctionReducer = (state:GraphState, action:EditFunctionAction):GraphS
   const {bArr, func, eArr} = sliceOut(funcs, pos);
   const newFunc:(UserFunction|string) = MakeUserFunc(action.funcBody, func.range.low, func.range.high);
   if (typeof newFunc === 'string') {
-    return {funcs, displayState:MakeStateWarning('New function does not appear to work')};
+    return MakeGraphState(funcs, MakeStateWarning('Function does not appear to work'), state.currentEdit);
   }
   funcs = [...bArr, newFunc, ...eArr];
-  return {funcs, displayState:ValidateFuncs(funcs)};
+  const displayState = ValidateFuncs(funcs);
+  return MakeGraphState(funcs, displayState, (displayState.state === 'GOOD') ? -1 : state.currentEdit);
 };
 
 const deleteFunctionReducer = (state:GraphState, action:DeleteFunctionAction):GraphState => {
@@ -128,8 +177,23 @@ const deleteFunctionReducer = (state:GraphState, action:DeleteFunctionAction):Gr
     return state;
   }
   const {bArr, func, eArr} = sliceOut(funcs, pos);
+  // Fill in the gap in the range
+  const high = func.range.high;
+  if (bArr.length > 0) {
+    bArr[bArr.length-1].range.high = high;
+  } else if (eArr.length > 0) {
+    eArr[0].range.low = high;
+  } else {
+    console.log('Invalid delete function results');
+  }
   funcs = [...bArr, ...eArr];
-  return {funcs, displayState:ValidateFuncs(funcs)};
+  let currentEdit = state.currentEdit;
+  if (currentEdit === pos) {
+    currentEdit = -1;
+  } else if (currentEdit > pos) {
+    currentEdit--;
+  }
+  return MakeValidGraphState(funcs, currentEdit);
 };
 
 const addFunctionReducer = (state:GraphState, action:AddFunctionAction):GraphState => {
@@ -137,10 +201,15 @@ const addFunctionReducer = (state:GraphState, action:AddFunctionAction):GraphSta
   const r = funcs[funcs.length - 1].range.high;
   const func = MakeUserFunc(action.expr, r, r+1);
   if (typeof func === 'string') {
-    return {funcs, displayState:MakeStateError(func)};
+    return {funcs, displayState:MakeStateError(func), currentEdit: state.currentEdit};
   }
   funcs = [...funcs, func];
-  return {funcs, displayState:ValidateFuncs(funcs)};
+  const isValid = ValidateFuncs(funcs);
+  if (isValid.state === 'GOOD') {
+    return MakeGraphState(funcs, isValid, -1);
+  } else {
+    return MakeGraphState(funcs, isValid, funcs.length - 1);
+  }
 };
 
 // Gives you 4 pieces: the functions before & after the "center"
@@ -159,16 +228,12 @@ const sliceTwoOut = (funcs:FuncArray, pos:number):{bArr:FuncArray, f1:?UserFunct
 const changeDividerReducer = (state:GraphState, action:ChangeDividerAction):GraphState => {
   const funcs = state.funcs;
   const pos = action.position;
-  const first = pos === 0;
-  const last = pos === funcs.length;
   if (pos > funcs.length || pos < 0) {
     console.log('Invalid change divider request for current state');
     return state;
   }
-
   // Get the two functions we're modifying
   let {bArr, f1:hiFunc, f2:loFunc, eArr} = sliceTwoOut(funcs, pos);
-
   // Modify the hi & lo ranges
   let result:FuncArray = [];
   if (hiFunc) {
@@ -184,7 +249,7 @@ const changeDividerReducer = (state:GraphState, action:ChangeDividerAction):Grap
   } else if (loFunc) {
     result = [loFunc, ...eArr];
   }
-  return {funcs:result, displayState:ValidateFuncs(result)};
+  return MakeValidGraphState(result, state.currentEdit);
 };
 
 const moveFunctionReducer = (state:GraphState, action:MoveFunctionAction):GraphState => {
@@ -203,10 +268,14 @@ const moveFunctionReducer = (state:GraphState, action:MoveFunctionAction):GraphS
   const n1 = CopyUserFunc(f2, f1.range.low, f1.range.high);
   const n2 = CopyUserFunc(f1, f2.range.low, f2.range.high);
   funcs = [...bArr, n1, n2, ...eArr];
-  return {funcs, displayState:ValidateFuncs(funcs)};
+  return MakeValidGraphState(funcs, state.currentEdit);
 };
 
-const CoasterReducer = (state:GraphState = initialState, action:CoasterAction): GraphState => {
+const selectFunctionReducer = (state:GraphState, action:SelectFunctionAction):GraphState => {
+  return MakeValidGraphState(state.funcs, action.position);
+};
+
+const internalCoasterReducer = (state:GraphState = initialState, action:CoasterAction): GraphState => {
   switch (action.type) {
     case 'ADD_FUNCTION':
       return addFunctionReducer(state, action);
@@ -218,7 +287,21 @@ const CoasterReducer = (state:GraphState = initialState, action:CoasterAction): 
       return changeDividerReducer(state, action);
     case 'MOVE_FUNCTION':
       return moveFunctionReducer(state, action);
+    case 'SELECT_FUNCTION':
+      return selectFunctionReducer(state, action);
     default:
       return state;
   }
+};
+
+export const CoasterReducer = (state:GraphState, action:CoasterAction): GraphState => {
+  console.log('***********************');
+  console.log('*** Reducer input: ***');
+  console.log(state);
+  console.log(action);
+  const res = internalCoasterReducer(state, action);
+  console.log('*** Reducer output: ***');
+  console.log(res);
+  console.log('***********************');
+  return res;
 };

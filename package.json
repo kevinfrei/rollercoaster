@@ -7,6 +7,8 @@
     "react-scripts": "0.8.5"
   },
   "dependencies": {
+    "mathjax": "^2.7.0",
+    "mathjs": "^3.9.1",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "react-redux": "^5.0.2",

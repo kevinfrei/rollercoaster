@@ -34,8 +34,8 @@ export const MakeVector =
   (origin: Point, angle: number, magnitude: number, line: boolean) =>
   ({origin, angle, magnitude, line});
 
-export const MakeUserFunc = function(
-    text: string, l: number, h: number): (UserFunction|string) {
+export const MakeUserFunc = (
+    text: string, l: number, h: number): (UserFunction|string) => {
   // Validate the range, since that's easy
   const low = Math.min(l, h);
   const high = Math.max(l, h);
@@ -52,6 +52,14 @@ export const MakeUserFunc = function(
   const func: MathFunc = eval('(x) => {try { return (' + text + ');} catch (e) {} return 0;}');
   return { text, func, range : {low, high} };
 };
+
+export const DemandUserFunc = (text: string, l: number, h: number):UserFunction => {
+  const val = MakeUserFunc(text, l, h);
+  if (typeof val === 'string') {
+    throw val;
+  }
+  return val;
+}
 
 export const CopyUserFunc =
   (func:UserFunction, low:number, high:number):UserFunction => (

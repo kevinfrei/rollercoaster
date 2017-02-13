@@ -1,49 +1,25 @@
 //@flow
-// node modules
-// Resources
-// import logo from './logo.svg';
-import './App.css';
 
-import React, {Component} from 'react';
+import React from 'react';
 
 // My modules
+import {BoundFuncList, BoundFuncGraph, FunctionState, FunctionEditor} from './ReduxControls';
 
-import {FuncGraph} from './FunctionGraph';
-import {FuncList} from './FunctionList';
-import {MakeUserFunc} from './UserFunction';
+// Resources
+import './App.css';
 
-class App extends Component {
-  render() {
-    // A couple of functions...
-    // const uf1 = MakeUserFunc('(x-1)*(x-1)/(x+.003) + 1', 0, 50);
-    // const uf1 = MakeUserFunc('Math.cos(x*x) / (x +.03) + .1 * x', 0, 10);
-    const uf1 = MakeUserFunc('5+5*Math.cos(.01+x*Math.PI*.25)/(x+.8)', 0, 6);
-    const uf2 = MakeUserFunc('.8*x+.2', 6.0, 11.0);
-    const uf3 = MakeUserFunc(
-        'Math.sqrt(Math.abs(1 - (x-20) * (x-20)))', 11.0, 30.0);
-    if (typeof uf1 === 'string' || typeof uf2 === 'string' ||
-        typeof uf3 === 'string') {
-      return (<div>Nope!{uf1} {uf2}</div>);
-    }
-    let funcList = [ uf1, uf2, uf3 ];
-    const adder = () => {window.alert('hello');};
-    return (
-      <div className='ColList'>
-        <FuncList funcs={funcList} addSaveFunc={adder}/>
-        <div className='RowList'>
-          <FuncGraph funcs={funcList} />
-          Graph Controls Down Here!
-        </div>
+const App = () => (
+    <div className='ColList'>
+      <div>
+        <FunctionState key='fs'/>
+        <BoundFuncList key='bfl'/>
+        <FunctionEditor key='fe'/>
       </div>
-    );
-  }
-}
+      <div className='RowList' key='b'>
+        <BoundFuncGraph key='bfg'/>
+        <h5 key='e'>Graph Controls Down Here!</h5>
+      </div>
+    </div>
+  );
 
 export default App;
-
-/*
-<div className='App-header'>
-  <img src={logo} className='App-logo' alt='logo' />
-  <h2>Welcome to a really cheesy little roller coaster simulator</h2>
-</div>
-*/
