@@ -50,44 +50,6 @@ export const FuncViewer =
   );
 }
 
-type FuncChangerAttribs = {
-  onClick: Function,
-  func: string,
-  pos?: number
-};
-
-export class FuncChanger extends React.Component {
-  props:FuncChangerAttribs;
-  _textarea:?Object;
-  FuncChanger() { this._textarea = null; }
-  render() {
-    let {onClick, func, pos}:FuncChangerAttribs = this.props;
-    if (!pos) pos = -1;
-
-    return (
-      <div style={{margin:'2pt'}} className='RowList'>
-        <div>{(pos >= 0) ? `Editing function #${pos}` : 'New Function'}</div>
-        <div className='ColList'>
-          f(x)&nbsp;=&nbsp;<textarea
-            ref={ta => this._textarea = ta}
-            defaultValue={(pos >= 0) ? func : 'x'}/>
-        </div>
-        <div style={{alignSelf:'auto'}}>
-          <button onClick={() =>
-            onClick(pos, this._textarea ? this._textarea.value : '')}>
-            {(pos >= 0) ? 'Save' : 'Add'} Function
-          </button>
-        </div>
-      </div>
-    );
-  }
-};
-FuncChanger.propTypes = {
-  onClick: React.PropTypes.func.isRequired,
-  func: React.PropTypes.string.isRequired,
-  pos: React.PropTypes.number
-};
-
 type FuncListAttribs = {
   funcs: Array<UserFunction>,
   onEdit: (id:number)=>void,

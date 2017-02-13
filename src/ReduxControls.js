@@ -3,7 +3,8 @@
 import {connect} from 'react-redux';
 
 import {FuncGraph} from './FunctionGraph';
-import {FuncList, StateDisplay, FuncChanger} from './FunctionList';
+import {FuncList, StateDisplay} from './FunctionList';
+import {FuncChanger} from './FuncChanger';
 import {Actions} from './coasterRedux';
 
 import type {GraphState} from './coasterRedux';
@@ -39,7 +40,7 @@ export const FunctionState = connect(displayStateToProps)(StateDisplay);
 const changerStateToProps = (state:GraphState) => {
   return {
     pos: state.currentEdit,
-    func: state.currentEdit >= 0 ? state.funcs[state.currentEdit].text : 'x'
+    func: state.currentEdit < 0 ? 'x' : state.funcs[state.currentEdit].text
   }
 };
 
