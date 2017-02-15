@@ -11,13 +11,13 @@ import './App.css';
 const App = () => (
     <div className='ColList'>
       <div>
-        <FunctionState key='fs'/>
-        <BoundFuncList key='bfl'/>
-        <FunctionEditor key='fe'/>
+        <FunctionState/>
+        <BoundFuncList/>
+        <FunctionEditor/>
       </div>
-      <div className='RowList' key='b'>
-        <BoundFuncGraph key='bfg'/>
-        <h5 key='e'>Graph Controls Down Here!</h5>
+      <div className='RowList'>
+        <BoundFuncGraph/>
+        <h5>Graph Controls Down Here!</h5>
       </div>
     </div>
   );

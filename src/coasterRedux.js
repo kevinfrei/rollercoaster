@@ -295,13 +295,13 @@ const internalCoasterReducer = (state:GraphState = initialState, action:CoasterA
 };
 
 export const CoasterReducer = (state:GraphState, action:CoasterAction): GraphState => {
-  console.log('***********************');
+  /*console.log('***********************');
   console.log('*** Reducer input: ***');
   console.log(state);
-  console.log(action);
+  console.log(action);*/
   const res = internalCoasterReducer(state, action);
-  console.log('*** Reducer output: ***');
+  /*console.log('*** Reducer output: ***');
   console.log(res);
-  console.log('***********************');
+  console.log('***********************');*/
   return res;
 };

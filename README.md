@@ -43,10 +43,9 @@ It all lives under `src`. From there, `App.js` is the main entry point.
 
 ### TODO:
 
-* Add Redux so that the whole thing actually works properly with state.
+* Get Redux to update the graph as functions are edited
 * Animate the coaster (rather than just drawing the discrete time
 locations).
-* Add data entry for the functions.
 * Do something better (**safer**) than using `eval()` to calculate
 the functions? Probably do some validation of the AST and then produce the JS
 function to be executed.

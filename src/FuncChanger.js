@@ -2,33 +2,36 @@
 import React, {Component, PropTypes} from 'react';
 
 type FuncChangerAttribs = {
-  onClick: Function,
+  onClick: (pos:number, func:string)=>void,
   func: string,
   pos: number
 };
 
 export class FuncChanger extends Component {
   props:FuncChangerAttribs;
-  _textarea:?Object;
-  FuncChanger() { this._textarea = null; }
+  _textarea:?HTMLTextAreaElement;
+  click = (event:Event) => {
+    if (this._textarea)
+      this.props.onClick(this.props.pos, this._textarea.value);
+    event.preventDefault();
+  }
   render() {
-    const {onClick, func, pos}:FuncChangerAttribs = this.props;
+    const pos = this.props.pos;
     const add = pos < 0;
+    const ta = <textarea defaultValue={this.props.func} ref={ta => this._textarea = ta}/>;
+    // Okay, this is a royal PITA.
+    // textarea is NOT re-rendered when the value updates. Seems like a bug.
+    // Not sure *whose* bug (mine, React, Redux, probably mine, honestly)
+    // So, if it's already been displayed, set the value explicitly.
+    if (this._textarea)
+      this._textarea.value = this.props.func;
     return (
-      <div style={{margin:'2pt'}} className='RowList'>
-        <div>{add ? 'New Function' : `Editing function #${pos}`}</div>
-        <div className='ColList'>
-          f(x)&nbsp;=&nbsp;
-            <textarea  ref={ta => this._textarea = ta}
-            defaultValue={func}/>
-        </div>
-        <div style={{alignSelf:'auto'}}>
-          <button onClick={() =>
-            onClick(pos, this._textarea ? this._textarea.value : '')}>
-            {add ? 'Add' : 'Save'} Function
-          </button>
-        </div>
-      </div>
+      <form onSubmit={this.click}>
+        <label>{add ? 'New Function' : `Editing Function #${pos}`}<br/>
+        f(x)&nbsp;=&nbsp;{ta}
+        </label>
+        <input type='submit' value={`${add ? 'Add' : 'Save'} Function`}/>
+      </form>
     );
   }
 };

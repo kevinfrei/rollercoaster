@@ -11,6 +11,6 @@ import {Provider} from 'react-redux';
 const store = createStore(CoasterReducer);
 
 ReactDOM.render(
-  (<div><Provider store={store}><App /></Provider></div>),
+  (<Provider store={store}><App /></Provider>),
   document.getElementById('root')
 );

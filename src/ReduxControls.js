@@ -38,10 +38,11 @@ const displayStateToProps = (state:GraphState) => {
 export const FunctionState = connect(displayStateToProps)(StateDisplay);
 
 const changerStateToProps = (state:GraphState) => {
-  return {
+  const res = {
     pos: state.currentEdit,
-    func: state.currentEdit < 0 ? 'x' : state.funcs[state.currentEdit].text
-  }
+    func: (state.currentEdit < 0) ? '' : String(state.funcs[state.currentEdit].text)
+  };
+  return res;
 };
 
 const changerDispatchToProps = (dispatch:Function) => {

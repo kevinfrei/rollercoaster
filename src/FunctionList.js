@@ -48,7 +48,7 @@ export const FuncViewer =
       </div>
     </div>
   );
-}
+};
 
 type FuncListAttribs = {
   funcs: Array<UserFunction>,
@@ -63,7 +63,13 @@ type FuncListAttribs = {
 export const FuncList =
   ({funcs, onEdit, onPrev, onNext, onDel, onChange, selected}:FuncListAttribs) => {
   // Should I assert that they're sorted?
-  const MapOfFuncs = funcs.map(
+  const firstDivider =
+    <FuncDivider
+      key={-1}
+      value={0}
+      pos={0}
+      onChange={onChange}/>;
+  const MapOfFuncs = [firstDivider, ...funcs.map(
     (uf, index) =>
       (<div key={index} className='RowList'>
         <FuncViewer
@@ -81,10 +87,9 @@ export const FuncList =
           onChange={onChange}/>
         </div>
       )
-    );
+    )];
   return (
     <div style={{margin:'2pt'}} className='RowList'>
-      <FuncDivider key={-1} value={0} pos={0} onChange={onChange}/>
       {MapOfFuncs}
     </div>
   );
