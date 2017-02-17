@@ -89,3 +89,8 @@ export const FuncListRange = (funcList: Array<UserFunction>): Range => {
   }
   return {low, high};
 };
+
+export const FuncArrayString = (funcs:Array<UserFunction>): string => {
+    return funcs.map(f =>
+      f.text + `{${f.range.low},${f.range.high}}`).join('*');
+};

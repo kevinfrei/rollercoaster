@@ -2,6 +2,7 @@
 
 import React, {Component} from 'react';
 import {getPosition} from './PhysicSim';
+import {FuncArrayString} from './UserFunction';
 
 import type {UserFunction, Vector} from './UserFunction';
 
@@ -85,14 +86,32 @@ const b = (i: number): string => {
   return hx(Math.abs(255 - (i % 510)));
 }
 
+type FuncGraphProps = {funcs:Array<UserFunction>, selected:number};
+
 export class FuncGraph extends Component {
+  props:FuncGraphProps;
+  state:{lastFuncs:string};
+  constructor(props:FuncGraphProps) {
+    super(props);
+    this.state = {lastFuncs:''};
+  }
   componentDidMount() {
     this.updateCanvas();
   }
+  componentDidUpdate() {
+    this.updateCanvas();
+  }
   updateCanvas() {
-    const ctx: CanvasRenderingContext2D = this.refs.FuncGraph.getContext('2d');
+    const canvas = this.refs.FuncGraph;
+    const ctx: CanvasRenderingContext2D = canvas.getContext('2d');
     const funcs: Array<UserFunction> = this.props.funcs;
-    drawGraphPaper(ctx);
+    const funcStr = FuncArrayString(funcs);
+    if (this.state.lastFuncs === funcStr) {
+      // We want an early exit, because we're overriding the rendering logic...
+      return;
+    }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawGraphPaper(ctx, this.refs.FuncGraph);
     drawFunctions(ctx, funcs);
     for (let t = 0; t <= 60; t += .03125) {
       const vec: Vector = getPosition(funcs, t);
@@ -101,6 +120,7 @@ export class FuncGraph extends Component {
       ctx.fillStyle = `#${b(n)}${b((n + 128) * 5)}${b(n * 3)}`;
       ctx.arc(xf(vec.origin.x), yf(vec.origin.y), 1.5, 0, twoPi);
       ctx.fill();
+      /*
       if (false) {
         // This draws the velocity vector on the graph
         ctx.beginPath();
@@ -113,8 +133,9 @@ export class FuncGraph extends Component {
         const ye = yo + Math.sin(vec.angle + Math.PI / 2) * vec.magnitude;
         ctx.lineTo(xf(xe), yf(ye));
         ctx.stroke();
-      }
+      }*/
     }
+    this.setState({lastFuncs:funcStr});
   }
   render() {
     const s = {border : '1px solid #91f', height : '600px', width : '600px'};

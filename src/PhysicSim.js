@@ -1,6 +1,6 @@
 // @flow
 
-import {GetFunc, MakePoint, MakeVector} from './UserFunction';
+import {GetFunc, MakePoint, MakeVector, FuncArrayString} from './UserFunction';
 
 import type {UserFunction, MathFunc, Vector, Point} from './UserFunction';
 
@@ -89,6 +89,7 @@ const CalcForceVectors =
 };
 
 let resMap: Array<Vector> = [];
+let resMapKey: string = '';
 
 export const getPosition =
   (funcs: Array<UserFunction>, time: number): Vector => {
@@ -98,7 +99,11 @@ export const getPosition =
   const firstFunc = funcs[0];
   const start = firstFunc.range.low;
   let vec: Vector = MakeVector(MakePoint(start, firstFunc.func(start)), initialAngle, initialSpeed, true);
-
+  const fas = FuncArrayString(funcs);
+  if (fas !== resMapKey) {
+    resMap = [];
+    resMapKey = fas;
+  }
   for (let idx = 0; idx <= time / timeSlice; idx++) {
     if (resMap[idx]) {
       // Dynamic programming, FTW...
