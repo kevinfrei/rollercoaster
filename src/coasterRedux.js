@@ -21,7 +21,10 @@ export type DisplayStateType = {
 export type GraphState = {
   funcs: Array<UserFunction>,
   displayState: DisplayStateType,
-  currentEdit: number
+  currentEdit: number,
+  scale: number,
+  time: number,
+  running: boolean
 };
 
 type FuncArray = Array<UserFunction>;
@@ -34,76 +37,104 @@ type FuncArray = Array<UserFunction>;
 // Change X divider value
 // Move a function up/down
 
-export type AddFunctionAction = {
+type AddFunctionAction = {
   type: 'ADD_FUNCTION',
   expr: string
 };
 
-export type DeleteFunctionAction = {
+type DeleteFunctionAction = {
   type: 'DELETE_FUNCTION',
   position: number
 };
 
-export type EditFunctionAction = {
+type EditFunctionAction = {
   type: 'EDIT_FUNCTION',
   position: number,
   funcBody: string
 };
 
-export type ChangeDividerAction = {
+type ChangeDividerAction = {
   type: 'CHANGE_LIMIT',
-  position: number,
+  position: string,
   value: number
 };
 
-export type MoveFunctionAction = {
+type MoveFunctionAction = {
   type: 'MOVE_FUNCTION',
   position: number,
   up: boolean
 };
 
-export type SelectFunctionAction = {
+type SelectFunctionAction = {
   type: 'SELECT_FUNCTION',
   position: number
 };
 
-export type ClearEditorAction = {
+type ClearEditorAction = {
   type: 'CLEAR_EDITOR'
 };
 
-export const Actions = {
-  AddFunction: (expr:string):AddFunctionAction => {
-    return {type: 'ADD_FUNCTION', expr};
-  },
-  DeleteFunction: (position:number):DeleteFunctionAction => {
-    return {type: 'DELETE_FUNCTION', position};
-  },
-  EditFunction: (position:number, funcBody:string):EditFunctionAction => {
-    return {type: 'EDIT_FUNCTION', position, funcBody};
-  },
-  ChangeDivider: (position:number, value: number):ChangeDividerAction => {
-    console.log({position,value});
-    return {type: 'CHANGE_LIMIT', position, value};
-  },
-  MoveFunction: (position:number, up:boolean): MoveFunctionAction => {
-    return {type: 'MOVE_FUNCTION', position, up};
-  },
-  SelectFunction: (position:number): SelectFunctionAction => {
-    return {type: 'SELECT_FUNCTION', position};
-  },
-  ClearEditor: ():ClearEditorAction => {
-    return {type: 'CLEAR_EDITOR'};
-  }
+type StartAction = {
+  type: 'START_ANIMATION'
 };
 
-type CoasterAction =
+type StopAction = {
+  type: 'STOP_ANIMATION'
+};
+
+type ScaleChangeAction = {
+  type: 'CHANGE_SCALE',
+  value: string
+}
+export type CoasterAction =
   AddFunctionAction |
   DeleteFunctionAction |
   EditFunctionAction |
   ChangeDividerAction |
   MoveFunctionAction |
   SelectFunctionAction |
-  ClearEditorAction;
+  ClearEditorAction |
+  StartAction |
+  StopAction |
+  ScaleChangeAction;
+
+export const Actions = {
+  AddFunction: (expr:string):AddFunctionAction => ({
+    type: 'ADD_FUNCTION',
+    expr
+  }),
+  DeleteFunction: (position:number):DeleteFunctionAction => ({
+    type: 'DELETE_FUNCTION',
+    position
+  }),
+  EditFunction: (position:number, funcBody:string):EditFunctionAction => ({
+    type: 'EDIT_FUNCTION',
+    position,
+    funcBody
+  }),
+  ChangeDivider: (position:string, value: number):ChangeDividerAction => ({
+    type: 'CHANGE_LIMIT',
+    position,
+    value
+  }),
+  MoveFunction: (position:number, up:boolean): MoveFunctionAction => ({
+    type: 'MOVE_FUNCTION',
+    position,
+    up
+  }),
+  SelectFunction: (position:number): SelectFunctionAction => ({
+    type: 'SELECT_FUNCTION',
+    position
+  }),
+  ClearEditor: ():ClearEditorAction => ({type: 'CLEAR_EDITOR'}),
+  Start: ():StartAction => ({type: 'START_ANIMATION'}),
+  Stop: ():StopAction => ({type: 'STOP_ANIMATION'}),
+  ChangeScale: (value:string):ScaleChangeAction => ({
+    type:'CHANGE_SCALE',
+    value
+  })
+};
+
 
 const MakeStateError =
   (message:string): DisplayStateType => ({state: 'ERROR', message});
@@ -114,9 +145,12 @@ const MakeStateGood =
 
 
 const initialState:GraphState = {
-  funcs: [DemandUserFunc('Math.cos(x+.01)', 0, 7)],
+  funcs: [DemandUserFunc('Math.cos(x)/(x+.15) + x/3', 0, 20)],
   displayState: MakeStateGood(),
-  currentEdit: -1
+  currentEdit: -1,
+  scale: 25,
+  time: -1,
+  running: false
 };
 
 const ValidateFuncs = (funcs:FuncArray):DisplayStateType => {
@@ -144,15 +178,23 @@ const ValidateFuncs = (funcs:FuncArray):DisplayStateType => {
   return MakeStateGood();
 }
 
-const MakeGraphState = (
+const UpdateFunctions = (
+    originalState: GraphState,
     funcs: FuncArray,
     displayState:DisplayStateType,
     currentEdit:number): GraphState => {
-  return { funcs, displayState, currentEdit};
+  return {
+    funcs,
+    displayState,
+    currentEdit,
+    scale: originalState.scale,
+    time: originalState.time,
+    running: originalState.running
+  };
 };
 
-const MakeValidGraphState = (funcs: FuncArray, currentEdit:number):GraphState =>
-  MakeGraphState(funcs, ValidateFuncs(funcs), currentEdit);
+const CheckFunctions = (origState:GraphState, funcs: FuncArray, currentEdit:number):GraphState =>
+  UpdateFunctions(origState, funcs, ValidateFuncs(funcs), currentEdit);
 
 const sliceOut = (funcs:FuncArray, pos:number):{bArr:FuncArray,func:UserFunction,eArr:FuncArray} => {
   const bArr = funcs.slice(0,pos);
@@ -170,11 +212,11 @@ const editFunctionReducer = (state:GraphState, action:EditFunctionAction):GraphS
   const {bArr, func, eArr} = sliceOut(funcs, pos);
   const newFunc:(UserFunction|string) = MakeUserFunc(action.funcBody, func.range.low, func.range.high);
   if (typeof newFunc === 'string') {
-    return MakeGraphState(funcs, MakeStateWarning('Function does not appear to work'), state.currentEdit);
+    return UpdateFunctions(state, funcs, MakeStateWarning('Function does not appear to work'), state.currentEdit);
   }
   funcs = [...bArr, newFunc, ...eArr];
   const displayState = ValidateFuncs(funcs);
-  return MakeGraphState(funcs, displayState, (displayState.state === 'GOOD') ? -1 : state.currentEdit);
+  return UpdateFunctions(state, funcs, displayState, (displayState.state === 'GOOD') ? -1 : state.currentEdit);
 };
 
 const deleteFunctionReducer = (state:GraphState, action:DeleteFunctionAction):GraphState => {
@@ -201,7 +243,7 @@ const deleteFunctionReducer = (state:GraphState, action:DeleteFunctionAction):Gr
   } else if (currentEdit > pos) {
     currentEdit--;
   }
-  return MakeValidGraphState(funcs, currentEdit);
+  return CheckFunctions(state, funcs, currentEdit);
 };
 
 const addFunctionReducer = (state:GraphState, action:AddFunctionAction):GraphState => {
@@ -209,15 +251,14 @@ const addFunctionReducer = (state:GraphState, action:AddFunctionAction):GraphSta
   const r = funcs[funcs.length - 1].range.high;
   const func = MakeUserFunc(action.expr, r, r+1);
   if (typeof func === 'string') {
-    return {funcs, displayState:MakeStateError(func), currentEdit: state.currentEdit};
+    return UpdateFunctions(state, funcs, MakeStateError(func), state.currentEdit);
   }
   funcs = [...funcs, func];
   const isValid = ValidateFuncs(funcs);
   if (isValid.state === 'GOOD') {
-    return MakeGraphState(funcs, isValid, -1);
-  } else {
-    return MakeGraphState(funcs, isValid, funcs.length - 1);
+    return UpdateFunctions(state, funcs, isValid, -1);
   }
+  return UpdateFunctions(state, funcs, isValid, funcs.length - 1);
 };
 
 // Gives you 4 pieces: the functions before & after the "center"
@@ -231,11 +272,11 @@ const sliceTwoOut = (funcs:FuncArray, pos:number):{bArr:FuncArray, f1:?UserFunct
     return {bArr:funcs.slice(0, funcs.length - 1), f1:funcs[funcs.length-1], f2:undefined, eArr:[]};
   }
   return {bArr:funcs.slice(0,pos-1), f1:funcs[pos-1], f2:funcs[pos], eArr:funcs.slice(pos+1)};
-}
+};
 
 const changeDividerReducer = (state:GraphState, action:ChangeDividerAction):GraphState => {
   const funcs = state.funcs;
-  const pos = action.position;
+  const pos = parseFloat(action.position);
   if (pos > funcs.length || pos < 0) {
     console.log('Invalid change divider request for current state');
     return state;
@@ -257,7 +298,7 @@ const changeDividerReducer = (state:GraphState, action:ChangeDividerAction):Grap
   } else if (loFunc) {
     result = [loFunc, ...eArr];
   }
-  return MakeValidGraphState(result, state.currentEdit);
+  return CheckFunctions(state, result, state.currentEdit);
 };
 
 const moveFunctionReducer = (state:GraphState, action:MoveFunctionAction):GraphState => {
@@ -276,16 +317,28 @@ const moveFunctionReducer = (state:GraphState, action:MoveFunctionAction):GraphS
   const n1 = CopyUserFunc(f2, f1.range.low, f1.range.high);
   const n2 = CopyUserFunc(f1, f2.range.low, f2.range.high);
   funcs = [...bArr, n1, n2, ...eArr];
-  return MakeValidGraphState(funcs, state.currentEdit);
+  return CheckFunctions(state, funcs, state.currentEdit);
 };
 
 const selectFunctionReducer = (state:GraphState, action:SelectFunctionAction):GraphState => {
-  return MakeValidGraphState(state.funcs, action.position);
+  return CheckFunctions(state, state.funcs, action.position);
 };
 
 const clearEditorReducer = (state:GraphState, action:ClearEditorAction): GraphState => {
   console.log('clearing');
-  return MakeValidGraphState(state.funcs, -1);
+  return CheckFunctions(state, state.funcs, -1);
+};
+
+const changeScaleReducer = (state:GraphState, action:ScaleChangeAction): GraphState => {
+  const val = parseFloat(action.value);
+  if (val > 1e-2) {
+    return Object.assign({}, state, {scale: val});
+  }
+  return state;
+};
+
+const changeAnimationReducer = (state:GraphState, start:boolean): GraphState => {
+  return Object.assign({}, state, {running: start});
 }
 
 const internalCoasterReducer = (state:GraphState = initialState, action:CoasterAction): GraphState => {
@@ -304,16 +357,22 @@ const internalCoasterReducer = (state:GraphState = initialState, action:CoasterA
       return selectFunctionReducer(state, action);
     case 'CLEAR_EDITOR':
       return clearEditorReducer(state, action);
+    case 'START_ANIMATION':
+      return changeAnimationReducer(state, true);
+    case 'STOP_ANIMATION':
+      return changeAnimationReducer(state, false);
+    case 'CHANGE_SCALE':
+      return changeScaleReducer(state, action);
     default:
       return state;
   }
 };
 
 export const CoasterReducer = (state:GraphState, action:CoasterAction): GraphState => {
-  console.log('***********************');
-  console.log({name:'***reducer input', state, action});
+  /*console.log('***********************');
+  console.log({name:'***reducer input', state, action});*/
   const res = internalCoasterReducer(state, action);
-  console.log({name:'***reducer output', state:res});
-  console.log('***********************')
+  /*console.log({name:'***reducer output', state:res});
+  console.log('***********************')*/
   return res;
 };

@@ -40,6 +40,9 @@ It all lives under `src`. From there, `App.js` is the main entry point.
 `FunctionList.js` contains the UI for the functions.
 `FunctionGraph.js` contains the UI for the graph.
 `UserFunction.js` contains the data for the functions.
+`PhysicSim.js` contains the majority of the interesting math.
+`ReduxControls.js` and `coasterRedux.js` are where the UI state management stuff
+lives.
 
 ### TODO:
 
@@ -50,10 +53,9 @@ locations).
 * Do something better (**safer**) than using `eval()` to calculate
 the functions? Probably do some validation of the AST and then produce the JS
 function to be executed. MathJS looks promising
-* Parameterize various aspects of the system including:
- * The scale of the graph.
- * Gravity? (How would my roller coaster behave on Mars?)
-* Maybe allow the animation to just be a 'slider'.
+* Make the time be a slider instead of an unchangeable clock?
 * Integrate a better formula editor. (The kids are apparently accustomed to
   desmos.com, and it really is a pretty awesome formula editor.
   It either uses mathjax or mathquill.
+* Once that's all done, make the thing pretty.
+* Tests. Tests would be good.

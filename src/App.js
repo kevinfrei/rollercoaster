@@ -3,7 +3,7 @@
 import React from 'react';
 
 // My modules
-import {BoundFuncList, BoundFuncGraph, FunctionState, FunctionEditor} from './ReduxControls';
+import {FunctionList, FunctionGraph, FunctionState, FunctionEditor, GraphConfiguration} from './ReduxControls';
 
 // Resources
 import './App.css';
@@ -12,12 +12,12 @@ const App = () => (
     <div className='ColList'>
       <div>
         <FunctionState/>
-        <BoundFuncList/>
+        <FunctionList/>
         <FunctionEditor/>
       </div>
       <div className='RowList'>
-        <BoundFuncGraph/>
-        <h5>Graph Controls Down Here!</h5>
+        <FunctionGraph/>
+        <GraphConfiguration/>
       </div>
     </div>
   );
