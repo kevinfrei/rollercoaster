@@ -48,11 +48,9 @@ lives.
 
 * Do some better data validation, and prevent the graph from attempting to draw
   if the functions are at least calculable.
-* Animate the coaster (rather than just drawing the discrete time
-locations).
 * Do something better (**safer**) than using `eval()` to calculate
 the functions? Probably do some validation of the AST and then produce the JS
-function to be executed. MathJS looks promising
+function to be executed. MathJS looks promising.
 * Make the time be a slider instead of an unchangeable clock?
 * Integrate a better formula editor. (The kids are apparently accustomed to
   desmos.com, and it really is a pretty awesome formula editor.

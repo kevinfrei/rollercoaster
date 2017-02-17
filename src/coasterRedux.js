@@ -85,7 +85,12 @@ type StopAction = {
 type ScaleChangeAction = {
   type: 'CHANGE_SCALE',
   value: string
-}
+};
+
+type TickAction = {
+  type: 'TICK'
+};
+
 export type CoasterAction =
   AddFunctionAction |
   DeleteFunctionAction |
@@ -96,7 +101,8 @@ export type CoasterAction =
   ClearEditorAction |
   StartAction |
   StopAction |
-  ScaleChangeAction;
+  ScaleChangeAction |
+  TickAction;
 
 export const Actions = {
   AddFunction: (expr:string):AddFunctionAction => ({
@@ -132,7 +138,8 @@ export const Actions = {
   ChangeScale: (value:string):ScaleChangeAction => ({
     type:'CHANGE_SCALE',
     value
-  })
+  }),
+  Tick: ():TickAction => ({type:'TICK'})
 };
 
 
@@ -338,8 +345,21 @@ const changeScaleReducer = (state:GraphState, action:ScaleChangeAction): GraphSt
 };
 
 const changeAnimationReducer = (state:GraphState, start:boolean): GraphState => {
-  return Object.assign({}, state, {running: start});
-}
+  if (start) {
+    return Object.assign({}, state, {running: true, time: 0});
+  } else {
+    return Object.assign({}, state, {running: false});
+  }
+};
+
+const tickReducer = (state: GraphState): GraphState => {
+  const time = state.time;
+  if (state.running) {
+    return Object.assign({}, state, {time: time + 1});
+  } else {
+    return Object.assign({}, state, {time: -1});
+  }
+};
 
 const internalCoasterReducer = (state:GraphState = initialState, action:CoasterAction): GraphState => {
   switch (action.type) {
@@ -363,6 +383,8 @@ const internalCoasterReducer = (state:GraphState = initialState, action:CoasterA
       return changeAnimationReducer(state, false);
     case 'CHANGE_SCALE':
       return changeScaleReducer(state, action);
+    case 'TICK':
+      return tickReducer(state);
     default:
       return state;
   }

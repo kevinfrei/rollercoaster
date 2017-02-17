@@ -30,13 +30,16 @@ let graphStep = 1/scale; // The steps used for drawing the graph
 const xf = (x: number): number => 10.0 + x * scale;
 const yf = (y: number): number => 500.0 - y * scale;
 
-type FuncGraphProps = {funcs:Array<UserFunction>, selected:number, scale:number};
+type FuncGraphProps = {
+  funcs:Array<UserFunction>,
+  selected:number,
+  scale:number,
+  time:number
+};
 
 export class FuncGraph extends Component {
   props:FuncGraphProps;
   state:{lastFuncs:string};
-
-
   // TODO: Add some numeric labels, maybe?
   drawGraphPaper(ctx: CanvasRenderingContext2D) {
     for (let pos = -100; pos <= 120; pos += .5) {
@@ -103,46 +106,58 @@ export class FuncGraph extends Component {
     this.updateCanvas();
   }
   updateCanvas() {
-    const canvas = this.refs.FuncGraph;
-    const ctx: CanvasRenderingContext2D = canvas.getContext('2d');
+    let canvas = this.refs.FuncGraph;
+    let ctx: CanvasRenderingContext2D = canvas.getContext('2d');
     const funcs: Array<UserFunction> = this.props.funcs;
     const funcStr = FuncArrayString(funcs) + scale;
-    if (this.state.lastFuncs === funcStr) {
+    if (this.state.lastFuncs !== funcStr) {
       // We want an early exit, because we're overriding the rendering logic...
-      return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      this.drawGraphPaper(ctx);
+      this.drawFunctions(ctx, funcs);
+      this.setState({lastFuncs:funcStr});
     }
+    canvas = this.refs.CarGraph;
+    ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    this.drawGraphPaper(ctx, this.refs.FuncGraph);
-    this.drawFunctions(ctx, funcs);
-    for (let t = 0; t <= 5; t += .03125) {
-      const vec: Vector = getPosition(funcs, t);
-      ctx.beginPath();
-      const n = Math.round(t * 32);
-      ctx.fillStyle = `#${b(n)}${b((n + 128) * 5)}${b(n * 3)}`;
-      ctx.arc(xf(vec.origin.x), yf(vec.origin.y), 1.5, 0, twoPi);
-      ctx.fill();
+    // If we're stopped, don't draw the dot
+    if (this.props.time < 0)
+      return;
+    const t = this.props.time / 32;
+    //for (let t = 0; t <= 5; t += .03125) {
+    const vec: Vector = getPosition(funcs, t);
+    ctx.beginPath();
+  //  const n = Math.round(t * 32);
+    ctx.fillStyle = vec.line ? '#000' : '#F00';
+//    ctx.fillStyle = `#${b(n)}${b((n + 128) * 5)}${b(n * 3)}`;
+    ctx.arc(xf(vec.origin.x), yf(vec.origin.y), 5, 0, twoPi);
+    ctx.fill();
 
-      if (false) {
-        // This draws the velocity vector on the graph
-        ctx.beginPath();
-        ctx.strokeStyle = '#000000';
-        ctx.lineWidth = .2;
-        const xo = vec.origin.x;
-        const yo = vec.origin.y;
-        ctx.moveTo(xf(xo), yf(yo));
-        const xe = xo + Math.cos(vec.angle) * vec.magnitude;
-        const ye = yo + Math.sin(vec.angle) * vec.magnitude;
-        ctx.lineTo(xf(xe), yf(ye));
-        ctx.stroke();
-      }
+    if (false) {
+      // This draws the velocity vector on the graph
+      ctx.beginPath();
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = .2;
+      const xo = vec.origin.x;
+      const yo = vec.origin.y;
+      ctx.moveTo(xf(xo), yf(yo));
+      const xe = xo + Math.cos(vec.angle) * vec.magnitude;
+      const ye = yo + Math.sin(vec.angle) * vec.magnitude;
+      ctx.lineTo(xf(xe), yf(ye));
+      ctx.stroke();
     }
-    this.setState({lastFuncs:funcStr});
+    //}
   }
   render() {
     scale = this.props.scale || 30;
     graphStep = 1/scale;
-    const s = {border : '1px solid #91f', height : '600px', width : '600px'};
-    return (<canvas ref='FuncGraph' width={600} height={600} style={s}/>);
+    const s = {border : '1px solid #91f', height : '600px', width : '600px', position:'absolute', top:0, left:0};
+    return (
+      <div style={{position:'relative', height: '600px', width:'600px'}}>
+        <canvas ref='FuncGraph' width={600} height={600} style={s}/>
+        <canvas ref='CarGraph' width={600} height={600} style={s}/>
+      </div>
+    );
   }
 };
 
@@ -155,9 +170,13 @@ type GraphSettingsProps = {
 };
 
 export const GraphSettings = ({onScaleChange, onPlay, scale, time, running}:GraphSettingsProps) => {
+  const timeInSeconds = time / 32;
+  const min = Math.floor(timeInSeconds / 60);
+  const sec = Math.round(100 * (timeInSeconds - min * 60)) / 100;
+  const timeExpr = `${min}:${(sec<10)?'0':''}${sec}`;
   return (<div>
     <label>Scale:</label><input type='text' value={scale} onChange={e => onScaleChange(e.target.value)}/>
     <button onClick={() => onPlay(!running)}>{running?'Stop':'Play'}</button><br/>
-    <label>Current time: {(time > 0) ? time : 'Stopped'}</label>
+    <label>Current time: {(time > 0) ? timeExpr : 'Stopped'}</label>
   </div>);
 };
