@@ -43,12 +43,13 @@ It all lives under `src`. From there, `App.js` is the main entry point.
 
 ### TODO:
 
-* Get Redux to update the graph as functions are edited
+* Do some better data validation, and prevent the graph from attempting to draw
+  if the functions are at least calculable.
 * Animate the coaster (rather than just drawing the discrete time
 locations).
 * Do something better (**safer**) than using `eval()` to calculate
 the functions? Probably do some validation of the AST and then produce the JS
-function to be executed.
+function to be executed. MathJS looks promising
 * Parameterize various aspects of the system including:
  * The scale of the graph.
  * Gravity? (How would my roller coaster behave on Mars?)
