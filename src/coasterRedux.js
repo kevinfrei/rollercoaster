@@ -67,6 +67,10 @@ export type SelectFunctionAction = {
   position: number
 };
 
+export type ClearEditorAction = {
+  type: 'CLEAR_EDITOR'
+};
+
 export const Actions = {
   AddFunction: (expr:string):AddFunctionAction => {
     return {type: 'ADD_FUNCTION', expr};
@@ -86,6 +90,9 @@ export const Actions = {
   },
   SelectFunction: (position:number): SelectFunctionAction => {
     return {type: 'SELECT_FUNCTION', position};
+  },
+  ClearEditor: ():ClearEditorAction => {
+    return {type: 'CLEAR_EDITOR'};
   }
 };
 
@@ -95,7 +102,8 @@ type CoasterAction =
   EditFunctionAction |
   ChangeDividerAction |
   MoveFunctionAction |
-  SelectFunctionAction;
+  SelectFunctionAction |
+  ClearEditorAction;
 
 const MakeStateError =
   (message:string): DisplayStateType => ({state: 'ERROR', message});
@@ -275,6 +283,11 @@ const selectFunctionReducer = (state:GraphState, action:SelectFunctionAction):Gr
   return MakeValidGraphState(state.funcs, action.position);
 };
 
+const clearEditorReducer = (state:GraphState, action:ClearEditorAction): GraphState => {
+  console.log('clearing');
+  return MakeValidGraphState(state.funcs, -1);
+}
+
 const internalCoasterReducer = (state:GraphState = initialState, action:CoasterAction): GraphState => {
   switch (action.type) {
     case 'ADD_FUNCTION':
@@ -289,19 +302,18 @@ const internalCoasterReducer = (state:GraphState = initialState, action:CoasterA
       return moveFunctionReducer(state, action);
     case 'SELECT_FUNCTION':
       return selectFunctionReducer(state, action);
+    case 'CLEAR_EDITOR':
+      return clearEditorReducer(state, action);
     default:
       return state;
   }
 };
 
 export const CoasterReducer = (state:GraphState, action:CoasterAction): GraphState => {
-  /*console.log('***********************');
-  console.log('*** Reducer input: ***');
-  console.log(state);
-  console.log(action);*/
+  console.log('***********************');
+  console.log({name:'***reducer input', state, action});
   const res = internalCoasterReducer(state, action);
-  /*console.log('*** Reducer output: ***');
-  console.log(res);
-  console.log('***********************');*/
+  console.log({name:'***reducer output', state:res});
+  console.log('***********************')
   return res;
 };

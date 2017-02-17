@@ -2,7 +2,8 @@
 import React, {Component, PropTypes} from 'react';
 
 type FuncChangerAttribs = {
-  onClick: (pos:number, func:string)=>void,
+  onSave: (pos:number, func:string)=>void,
+  onClear: () => void,
   func: string,
   pos: number
 };
@@ -12,10 +13,11 @@ export class FuncChanger extends Component {
   _textarea:?HTMLTextAreaElement;
   click = (event:Event) => {
     if (this._textarea)
-      this.props.onClick(this.props.pos, this._textarea.value);
+      this.props.onSave(this.props.pos, this._textarea.value);
     event.preventDefault();
   }
   render() {
+    console.log(this.props)
     const pos = this.props.pos;
     const add = pos < 0;
     const ta = <textarea defaultValue={this.props.func} ref={ta => this._textarea = ta}/>;
@@ -26,18 +28,21 @@ export class FuncChanger extends Component {
     if (this._textarea)
       this._textarea.value = this.props.func;
     return (
-      <form onSubmit={this.click}>
-        <label>{add ? 'New Function' : `Editing Function #${pos}`}<br/>
-        f(x)&nbsp;=&nbsp;{ta}
-        </label>
-        <input type='submit' value={`${add ? 'Add' : 'Save'} Function`}/>
-      </form>
+      <div className='RowList'>
+        {add ? 'New Function' : `Editing Function #${pos}`}<br/>
+        <div className='ColList'>f(x)&nbsp;=&nbsp;{ta}</div>
+        <div className='ColList'>
+          <button onClick={this.click}>{`${add ? 'Add' : 'Save'} Function`}</button>
+          <button onClick={this.props.onClear}>Clear</button>
+        </div>
+      </div>
     );
   }
 };
 
 FuncChanger.propTypes = {
-  onClick: PropTypes.func.isRequired,
+  onClear: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired,
   func: PropTypes.string.isRequired,
   pos: PropTypes.number.isRequired
 };

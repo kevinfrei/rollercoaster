@@ -46,11 +46,13 @@ const changerStateToProps = (state:GraphState) => {
 };
 
 const changerDispatchToProps = (dispatch:Function) => {
+  console.log('cdtp');
   return {
-    onClick: (id:number, expr:string) => dispatch(
+    onSave: (id:number, expr:string) => dispatch(
       (id >= 0)
         ? Actions.EditFunction(id, expr)
-        : Actions.AddFunction(expr))
+        : Actions.AddFunction(expr)),
+    onClear: () => dispatch(Actions.ClearEditor())
   };
 };
 
