@@ -3,8 +3,11 @@
 import React, {Component} from 'react';
 import {getPosition} from './PhysicSim';
 import {FuncArrayString} from './UserFunction';
-
+import {Button} from 'react-bootstrap';
+import ReactBootstrapSlider from 'react-bootstrap-slider';
 import type {UserFunction, Vector} from './UserFunction';
+
+import './bootstrap-slider-min.css';
 
 // Super duper exciting constant
 const twoPi = Math.PI * 2;
@@ -14,15 +17,17 @@ const strokes = [
   '#A00', '#0A0', '#00A', '#0AA', '#A0A', '#AA0'
 ];
 
+/*
 const hx = (i: number): string => {
   const str = Math.round(i).toString(16);
   return str.length === 1 ? `0${str}` : str;
 };
-
-const b = (i: number): string => {
+*/
+/*const b = (i: number): string => {
   // This 'bounces' a value between 0 and 255, and returns it in hex
   return hx(Math.abs(255 - (i % 510)));
 }
+*/
 
 // This isn't particularly safe, but I hate typing "this.xf(x)" everywhere :(
 let scale = 30; // Scale of the graph
@@ -172,11 +177,14 @@ type GraphSettingsProps = {
 export const GraphSettings = ({onScaleChange, onPlay, scale, time, running}:GraphSettingsProps) => {
   const timeInSeconds = time / 32;
   const min = Math.floor(timeInSeconds / 60);
-  const sec = Math.round(100 * (timeInSeconds - min * 60)) / 100;
+  const sec = Math.round(10 * (timeInSeconds - min * 60)) / 10;
   const timeExpr = `${min}:${(sec<10)?'0':''}${sec}`;
-  return (<div>
-    <label>Scale:</label><input type='text' value={scale} onChange={e => onScaleChange(e.target.value)}/>
-    <button onClick={() => onPlay(!running)}>{running?'Stop':'Play'}</button><br/>
-    <label>Current time: {(time > 0) ? timeExpr : 'Stopped'}</label>
+  const pad = {padding:'2pt'};
+  return (<div className='ColList' style={{alignItems:'center', padding:'2pt'}}>
+    <Button onClick={() => onPlay(!running)}>{running ? 'Stop' : 'Start'}</Button><br/>
+    <div style={pad}>Scale:&nbsp;</div>
+    <ReactBootstrapSlider style={pad} value={scale} min={5} max={100} step={1} orientation='horizontal'
+      change={e => onScaleChange(e.target.value)} slideStop={e =>onScaleChange(e.target.value)}/>
+    <div style={pad}>Current time: {(time > 0) ? timeExpr : 'Stopped'}</div>
   </div>);
 };

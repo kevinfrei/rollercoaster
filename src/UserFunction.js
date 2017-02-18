@@ -1,5 +1,7 @@
 //@flow
 
+import mathjs from 'mathjs';
+
 export type Point = {
   x : number,
   y : number
@@ -49,7 +51,8 @@ export const MakeUserFunc = (
   // It certainly seems faster while I'm debugging
 
   // eslint-disable-next-line
-  const func: MathFunc = eval('(x) => {try { return (' + text + ');} catch (e) {} return 0;}');
+  const compiled = mathjs.compile(text);
+  const func: MathFunc = (a) => compiled.eval({x:a});
   return { text, func, range : {low, high} };
 };
 

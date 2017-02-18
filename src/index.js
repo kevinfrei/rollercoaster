@@ -12,9 +12,9 @@ const store = createStore(CoasterReducer);
 const timer = () => {
   store.dispatch(Actions.Tick());
 };
-let interval:Object;
+//let interval:Object;
 ReactDOM.render(
   (<Provider store={store}><App /></Provider>),
   document.getElementById('root')
 );
-interval = window.setInterval(timer, 1000/32);
+/*interval =*/ window.setInterval(timer, 1000/32);

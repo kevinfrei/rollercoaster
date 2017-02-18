@@ -18,8 +18,18 @@ export type DisplayStateType = {
   message: string
 };
 
+
+const MakeStateError =
+  (message:string): DisplayStateType => ({state: 'ERROR', message});
+const MakeStateWarning =
+  (message:string): DisplayStateType => ({state: 'WARNING', message});
+const MakeStateGood =
+  (message:string = ''): DisplayStateType => ({state: 'GOOD', message});
+
+export type FuncArray = Array<UserFunction>;
+
 export type GraphState = {
-  funcs: Array<UserFunction>,
+  funcs: FuncArray,
   displayState: DisplayStateType,
   currentEdit: number,
   scale: number,
@@ -27,7 +37,14 @@ export type GraphState = {
   running: boolean
 };
 
-type FuncArray = Array<UserFunction>;
+const initialState:GraphState = {
+  funcs: [DemandUserFunc('cos(x)/(x+.15) + x/3', 0, 20)],
+  displayState: MakeStateGood(),
+  currentEdit: -1,
+  scale: 25,
+  time: -1,
+  running: false
+};
 
 // And various messages that it needs to respond to:
 
@@ -143,23 +160,6 @@ export const Actions = {
 };
 
 
-const MakeStateError =
-  (message:string): DisplayStateType => ({state: 'ERROR', message});
-const MakeStateWarning =
-  (message:string): DisplayStateType => ({state: 'WARNING', message});
-const MakeStateGood =
-  (message:string = ''): DisplayStateType => ({state: 'GOOD', message});
-
-
-const initialState:GraphState = {
-  funcs: [DemandUserFunc('Math.cos(x)/(x+.15) + x/3', 0, 20)],
-  displayState: MakeStateGood(),
-  currentEdit: -1,
-  scale: 25,
-  time: -1,
-  running: false
-};
-
 const ValidateFuncs = (funcs:FuncArray):DisplayStateType => {
   let prevHi:?number;
   let prevY:?number;
@@ -239,7 +239,7 @@ const deleteFunctionReducer = (state:GraphState, action:DeleteFunctionAction):Gr
   if (bArr.length > 0) {
     bArr[bArr.length-1].range.high = high;
   } else if (eArr.length > 0) {
-    eArr[0].range.low = high;
+    eArr[0].range.low = 0;
   } else {
     console.log('Invalid delete function results');
   }
@@ -284,6 +284,7 @@ const sliceTwoOut = (funcs:FuncArray, pos:number):{bArr:FuncArray, f1:?UserFunct
 const changeDividerReducer = (state:GraphState, action:ChangeDividerAction):GraphState => {
   const funcs = state.funcs;
   const pos = parseFloat(action.position);
+  const val = parseFloat(action.value.toString());
   if (pos > funcs.length || pos < 0) {
     console.log('Invalid change divider request for current state');
     return state;
@@ -293,10 +294,10 @@ const changeDividerReducer = (state:GraphState, action:ChangeDividerAction):Grap
   // Modify the hi & lo ranges
   let result:FuncArray = [];
   if (hiFunc) {
-    hiFunc = CopyUserFunc(hiFunc, hiFunc.range.low, action.value);
+    hiFunc = CopyUserFunc(hiFunc, hiFunc.range.low, val);
   }
   if (loFunc) {
-    loFunc = CopyUserFunc(loFunc, action.value, loFunc.range.high);
+    loFunc = CopyUserFunc(loFunc, val, loFunc.range.high);
   }
   if (hiFunc && loFunc) {
     result = [...bArr, hiFunc, loFunc, ...eArr];
@@ -391,10 +392,18 @@ const internalCoasterReducer = (state:GraphState = initialState, action:CoasterA
 };
 
 export const CoasterReducer = (state:GraphState, action:CoasterAction): GraphState => {
-  /*console.log('***********************');
-  console.log({name:'***reducer input', state, action});*/
+  ///*
+  if (action.type !== 'TICK') {
+    console.log('***********************');
+    console.log({name:'***reducer input', state, action});
+  }
+  //*/
   const res = internalCoasterReducer(state, action);
-  /*console.log({name:'***reducer output', state:res});
-  console.log('***********************')*/
+  ///*
+  if (action.type !== 'TICK') {
+    console.log({name:'***reducer output', state:res});
+    console.log('***********************')
+  }
+  //*/
   return res;
 };

@@ -1,5 +1,6 @@
 // @flow
 import React, {Component, PropTypes} from 'react';
+import {Button, ListGroupItem} from 'react-bootstrap';
 
 type FuncChangerAttribs = {
   onSave: (pos:number, func:string)=>void,
@@ -7,6 +8,10 @@ type FuncChangerAttribs = {
   func: string,
   pos: number
 };
+
+const FuncChangerHeader = ({add, pos}:{add:boolean, pos:number}) => (
+  <div>{add ? 'Add a Function' : `Editing Function #${pos+1}`}</div>
+);
 
 export class FuncChanger extends Component {
   props:FuncChangerAttribs;
@@ -17,25 +22,24 @@ export class FuncChanger extends Component {
     event.preventDefault();
   }
   render() {
-    console.log(this.props)
     const pos = this.props.pos;
     const add = pos < 0;
-    const ta = <textarea defaultValue={this.props.func} ref={ta => this._textarea = ta}/>;
+    const ta = <textarea style={{flexGrow:3}} defaultValue={this.props.func} ref={ta => this._textarea = ta}/>;
     // Okay, this is a royal PITA.
     // textarea is NOT re-rendered when the value updates. Seems like a bug.
     // Not sure *whose* bug (mine, React, Redux, probably mine, honestly)
     // So, if it's already been displayed, set the value explicitly.
     if (this._textarea)
       this._textarea.value = this.props.func;
+    const hdr = <FuncChangerHeader add={add} pos={pos}/>;
     return (
-      <div className='RowList'>
-        {add ? 'New Function' : `Editing Function #${pos}`}<br/>
-        <div className='ColList'>f(x)&nbsp;=&nbsp;{ta}</div>
-        <div className='ColList'>
-          <button onClick={this.click}>{`${add ? 'Add' : 'Save'} Function`}</button>
-          <button onClick={this.props.onClear}>Clear</button>
+      <ListGroupItem header={hdr}>
+        <div className='ColJust' style={{padding:'4pt'}}>y&nbsp;=&nbsp;{ta}</div>
+        <div className='ColJust' style={{padding:'4pt'}}>
+          <Button bsSize='small' bsStyle='primary' style={{width:'40pt'}} onClick={this.click}>{`${add ? 'Add' : 'Save'}`}</Button>
+          <Button bsSize='small' bsStyle='danger' style={{width:'40pt'}} onClick={this.props.onClear}>Clear</Button>
         </div>
-      </div>
+      </ListGroupItem>
     );
   }
 };

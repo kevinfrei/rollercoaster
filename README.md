@@ -46,14 +46,12 @@ lives.
 
 ### TODO:
 
-* Do some better data validation, and prevent the graph from attempting to draw
-  if the functions are at least calculable.
-* Do something better (**safer**) than using `eval()` to calculate
-the functions? Probably do some validation of the AST and then produce the JS
-function to be executed. MathJS looks promising.
+* Do some better function and data validation
+* Prevent the graph from attempting to draw
+  if the functions aren't at least calculable.
+* Add numeric labels to the graph
 * Make the time be a slider instead of an unchangeable clock?
-* Integrate a better formula editor. (The kids are apparently accustomed to
-  desmos.com, and it really is a pretty awesome formula editor.
-  It either uses mathjax or mathquill.
-* Once that's all done, make the thing pretty.
+* Make the thing prettier.
+* Make the graphing canvas fill the rest of the screen
+* Color-code the functions with the graph
 * Tests. Tests would be good.

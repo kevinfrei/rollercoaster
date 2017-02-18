@@ -3,7 +3,7 @@
 import React from 'react';
 
 // My modules
-import {FunctionList, FunctionGraph, FunctionState, FunctionEditor, GraphConfiguration} from './ReduxControls';
+import {FunctionList, FunctionGraph, FunctionState, GraphConfiguration} from './ReduxControls';
 
 // Resources
 import './App.css';
@@ -13,7 +13,6 @@ const App = () => (
       <div>
         <FunctionState/>
         <FunctionList/>
-        <FunctionEditor/>
       </div>
       <div className='RowList'>
         <FunctionGraph/>
