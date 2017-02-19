@@ -5,6 +5,7 @@ import {Button} from 'react-bootstrap';
 import ReactBootstrapSlider from 'react-bootstrap-slider';
 
 import './bootstrap-slider-min.css';
+import './App.css';
 
 type GraphSettingsProps = {
   onScaleChange: (a:string)=>void,
@@ -24,7 +25,7 @@ export const GraphSettings = (
   const label = running ? '◾' : '▶'; // UTF8 Files :)
   const handler = e => onScaleChange(e.target.value);
   return (
-    <div className='ColList' style={{alignItems:'center', padding:'2pt'}}>
+    <div className='ColJust' style={{alignItems:'center', padding:'2pt'}}>
       <Button onClick={() => onPlay(!running)} style={{width:'30pt'}}>
         {label}
       </Button>

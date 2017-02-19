@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import {FuncGraph} from '../FunctionGraph';
+import {FuncGraph} from '../FuncGraph';
 import {DemandUserFunc} from '../UserFunction';
 
 it('renders without crashing', () => {

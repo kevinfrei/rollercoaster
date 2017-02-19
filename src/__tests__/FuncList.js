@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-//import {FuncList, StateDisplay} from './FunctionList';
+//import {FuncList, StateDisplay} from '../FuncList';
 import {DemandUserFunc} from '../UserFunction';
 
 // TODO: This doesn't do anything, because of a problem with using a
