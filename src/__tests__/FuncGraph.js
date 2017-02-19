@@ -8,5 +8,6 @@ it('renders without crashing', () => {
   const div = document.createElement('div');
   const funcs = [ DemandUserFunc('x', 0, 1) ];
   ReactDOM.render(
-    <FuncGraph funcs={funcs} selected={0} scale={20} time={0}/>, div);
+    <FuncGraph funcs={funcs} selected={0}
+      scale={20} time={0} size={{width:-1,height:-1}}/>, div);
 });

@@ -17,6 +17,7 @@ const timer = () => {
     store.dispatch(Actions.Tick());
 };
 // Click every 60th of a second...
+// Keep this in sync with the value in FuncGraph about FPS!
 window.setInterval(timer, 1000/60);
 const canvasResize = () => {
   store.dispatch(Actions.WindowResize(window.innerWidth, window.innerHeight));

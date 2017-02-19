@@ -10,7 +10,7 @@ import './App.css';
 
 const App = () => (
     <div className='ColList'>
-      <div>
+      <div id='left'>
         <FunctionState/>
         <FunctionList/>
       </div>

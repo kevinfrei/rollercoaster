@@ -59,7 +59,8 @@ export const FunctionGraph = connect(
     scale: state.scale,
     funcs: state.funcs,
     time: state.time,
-    selected: state.currentEdit
+    selected: state.currentEdit,
+    size: state.size
   })
 )(FuncGraph);
 

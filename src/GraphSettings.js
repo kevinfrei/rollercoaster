@@ -25,7 +25,7 @@ export const GraphSettings = (
   const label = running ? '◾' : '▶'; // UTF8 Files :)
   const handler = e => onScaleChange(e.target.value);
   return (
-    <div className='ColJust' style={{alignItems:'center', padding:'2pt'}}>
+    <div id='bottom' className='ColJust' style={{alignItems:'center', padding:'2pt'}}>
       <Button onClick={() => onPlay(!running)} style={{width:'30pt'}}>
         {label}
       </Button>
