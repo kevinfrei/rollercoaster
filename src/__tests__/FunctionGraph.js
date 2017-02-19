@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {FuncGraph} from './FunctionGraph';
-import {DemandUserFunc} from './UserFunction';
+
+import {FuncGraph} from '../FunctionGraph';
+import {DemandUserFunc} from '../UserFunction';
 
 it('renders without crashing', () => {
   const div = document.createElement('div');

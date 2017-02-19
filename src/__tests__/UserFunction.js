@@ -7,7 +7,7 @@ import {
   GetFunc,
   FuncListRange,
   FuncArrayString
-} from './UserFunction';
+} from '../UserFunction';
 
 it ('makes stuff without failing', () => {
   const pt = MakePoint(1,1);

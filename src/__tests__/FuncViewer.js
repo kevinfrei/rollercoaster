@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import {DemandUserFunc} from './UserFunction';
-import {FuncViewer} from './FuncViewer';
+import {DemandUserFunc} from '../UserFunction';
+import {FuncViewer} from '../FuncViewer';
 
 it('renders without crashing', () => {
   const div = document.createElement('div');
