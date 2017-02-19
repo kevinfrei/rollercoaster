@@ -1,6 +1,6 @@
 //@flow
 
-import mathjs from 'mathjs';
+import math from 'mathjs';
 
 export type Point = {
   x : number,
@@ -30,6 +30,8 @@ export type UserFunction = {
   range : Range,
 };
 
+export type FuncArray = Array<UserFunction>;
+
 export const MakePoint = (x: number, y: number): Point => ({x, y});
 
 export const MakeVector =
@@ -41,35 +43,27 @@ export const MakeUserFunc = (
   // Validate the range, since that's easy
   const low = Math.min(l, h);
   const high = Math.max(l, h);
-  // TODO: Parse/validate the function expression
-  // For now, just to make it fast, I'm using eval, which is a HUGE no no.
-  // Kids, don't do what I'm doing here.
 
-  // Rather than have 'theFunc' be an eval, I'm evaluating the expression
-  // such that theFunc will be a routine that invokes the function directly
-  // I *believe* this has the effect of compiling the expression.
-  // It certainly seems faster while I'm debugging
-
-  // eslint-disable-next-line
-  const compiled = mathjs.compile(text);
+  // TODO: validate the function expression
+  const compiled = math.compile(text);
   const func: MathFunc = (a) => compiled.eval({x:a});
   return { text, func, range : {low, high} };
 };
 
-export const DemandUserFunc = (text: string, l: number, h: number):UserFunction => {
+export const DemandUserFunc =
+  (text: string, l: number, h: number):UserFunction => {
   const val = MakeUserFunc(text, l, h);
   if (typeof val === 'string') {
     throw val;
   }
   return val;
-}
+};
 
 export const CopyUserFunc =
-  (func:UserFunction, low:number, high:number):UserFunction => (
-    { text:func.text, func:func.func, range: {low, high} });
+  (func:UserFunction, low:number, high:number):UserFunction =>
+  ({text:func.text, func:func.func, range: {low, high}});
 
-export const GetFunc =
-  (funcList: Array<UserFunction>, x: number): ? UserFunction => {
+export const GetFunc = (funcList: FuncArray, x: number): ?UserFunction => {
   // TODO: Make this more efficient than a linear search through the
   // array...
   for (let f of funcList) {
@@ -79,7 +73,7 @@ export const GetFunc =
   }
 };
 
-export const FuncListRange = (funcList: Array<UserFunction>): Range => {
+export const FuncListRange = (funcList: FuncArray): Range => {
   let high = funcList[0].range.high;
   let low = funcList[0].range.low;
   for (let f of funcList) {
@@ -93,7 +87,5 @@ export const FuncListRange = (funcList: Array<UserFunction>): Range => {
   return {low, high};
 };
 
-export const FuncArrayString = (funcs:Array<UserFunction>): string => {
-    return funcs.map(f =>
-      f.text + `{${f.range.low},${f.range.high}}`).join('*');
-};
+export const FuncArrayString = (funcs:FuncArray): string =>
+  funcs.map(f => f.text + `{${f.range.low},${f.range.high}}`).join('*');

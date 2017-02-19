@@ -1,6 +1,6 @@
 // @flow
 import React, {Component, PropTypes} from 'react';
-import {Button, ListGroupItem} from 'react-bootstrap';
+import {Button, Panel} from 'react-bootstrap';
 
 type FuncChangerAttribs = {
   onSave: (pos:number, func:string)=>void,
@@ -24,7 +24,11 @@ export class FuncChanger extends Component {
   render() {
     const pos = this.props.pos;
     const add = pos < 0;
-    const ta = <textarea style={{flexGrow:3}} defaultValue={this.props.func} ref={ta => this._textarea = ta}/>;
+    const btn = {width:'40pt'};
+    const ta = <textarea
+      style={{flexGrow:3}}
+      defaultValue={this.props.func}
+      ref={ta => this._textarea = ta}/>;
     // Okay, this is a royal PITA.
     // textarea is NOT re-rendered when the value updates. Seems like a bug.
     // Not sure *whose* bug (mine, React, Redux, probably mine, honestly)
@@ -32,14 +36,22 @@ export class FuncChanger extends Component {
     if (this._textarea)
       this._textarea.value = this.props.func;
     const hdr = <FuncChangerHeader add={add} pos={pos}/>;
+    const clr = this.props.onClear;
+    const clk = this.click;
     return (
-      <ListGroupItem header={hdr}>
-        <div className='ColJust' style={{padding:'4pt'}}>y&nbsp;=&nbsp;{ta}</div>
+      <Panel header={hdr}>
         <div className='ColJust' style={{padding:'4pt'}}>
-          <Button bsSize='small' bsStyle='primary' style={{width:'40pt'}} onClick={this.click}>{`${add ? 'Add' : 'Save'}`}</Button>
-          <Button bsSize='small' bsStyle='danger' style={{width:'40pt'}} onClick={this.props.onClear}>Clear</Button>
+          y&nbsp;=&nbsp;{ta}
         </div>
-      </ListGroupItem>
+        <div className='ColJust' style={{padding:'4pt'}}>
+          <Button bsSize='small' bsStyle='primary' style={btn} onClick={clk}>
+            {`${add ? 'Add' : 'Save'}`}
+          </Button>
+          <Button bsSize='small' bsStyle='danger' style={btn} onClick={clr}>
+            Clear
+          </Button>
+        </div>
+      </Panel>
     );
   }
 };

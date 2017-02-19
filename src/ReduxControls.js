@@ -2,7 +2,8 @@
 // import redux from 'redux';
 import {connect} from 'react-redux';
 
-import {FuncGraph, GraphSettings} from './FunctionGraph';
+import {FuncGraph} from './FunctionGraph';
+import {GraphSettings} from './GraphSettings';
 import {FuncList, StateDisplay} from './FunctionList';
 import {FuncChanger} from './FuncChanger';
 import {Actions} from './coasterRedux';

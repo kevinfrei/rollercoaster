@@ -2,7 +2,7 @@
 
 import {GetFunc, MakePoint, MakeVector, FuncArrayString} from './UserFunction';
 
-import type {UserFunction, MathFunc, Vector, Point} from './UserFunction';
+import type {MathFunc, Vector, Point, FuncArray} from './UserFunction';
 
 type PointData = {
   tangent : number,
@@ -92,7 +92,7 @@ let resMap: Array<Vector> = [];
 let resMapKey: string = '';
 
 export const getPosition =
-  (funcs: Array<UserFunction>, time: number): Vector => {
+  (funcs: FuncArray, time: number): Vector => {
   // Okay, reasonable way to simulate gravity? Just calculate it
   // cumulatively because I've forgotten the Calculus necessary to do it
   // accurately :/

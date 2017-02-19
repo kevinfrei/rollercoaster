@@ -2,8 +2,8 @@
 
 import React from 'react';
 
-// My modules
-import {FunctionList, FunctionGraph, FunctionState, GraphConfiguration} from './ReduxControls';
+import {FunctionList, FunctionGraph,
+  FunctionState, GraphConfiguration} from './ReduxControls';
 
 // Resources
 import './App.css';

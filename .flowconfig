@@ -1,4 +1,9 @@
 [ignore]
+.*/enzyme-matchers/.*/assertions/.*
+.*/enzyme-matchers/src/utils/.*
+.*/jest-enzyme/src/index.js
+# This one seems potentially bad :/
+.*/node_modules/fbjs/lib/partitionObjectByKey.js.flow
 
 [include]
 

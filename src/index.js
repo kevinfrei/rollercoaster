@@ -8,13 +8,22 @@ import {createStore} from 'redux';
 import {CoasterReducer, Actions} from './coasterRedux';
 import {Provider} from 'react-redux';
 
+import type {GraphState} from './coasterRedux';
+
 const store = createStore(CoasterReducer);
 const timer = () => {
-  store.dispatch(Actions.Tick());
+  const state:GraphState = store.getState();
+  if (state.running)
+    store.dispatch(Actions.Tick());
 };
-//let interval:Object;
+// Click every 60th of a second...
+window.setInterval(timer, 1000/60);
+const canvasResize = () => {
+  store.dispatch(Actions.WindowResize(window.innerWidth, window.innerHeight));
+};
+window.addEventListener('resize', canvasResize, false);
+canvasResize();
 ReactDOM.render(
   (<Provider store={store}><App /></Provider>),
   document.getElementById('root')
 );
-/*interval =*/ window.setInterval(timer, 1000/32);
