@@ -1,9 +1,9 @@
 //@flow
 
 import React from 'react';
-import MathJax from 'react-mathjax';
 import {Button, ButtonGroup} from 'react-bootstrap';
 
+import {MathJaxReact} from './MathJaxReact';
 import type {UserFunction} from './UserFunction';
 
 type FuncViewerAttribs = {
@@ -28,13 +28,7 @@ const FuncMover = ({first, last, id, onPrev, onNext}) => (
   </ButtonGroup>
 );
 
-const FuncDisplayer = ({text}) => (
-  <MathJax.Context>
-    <MathJax.Node>
-      {`y = ${text}`}
-    </MathJax.Node>
-  </MathJax.Context>
-);
+const FuncDisplayer = ({text}) => (<MathJaxReact formula={`y = ${text}`}/>);
 
 const FuncChangeButtons = ({first, last, id, onDel, onEdit}) => (
   <ButtonGroup vertical>

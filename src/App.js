@@ -9,16 +9,16 @@ import {FunctionList, FunctionGraph,
 import './App.css';
 
 const App = () => (
-    <div className='ColList'>
-      <div id='left'>
-        <FunctionState/>
-        <FunctionList/>
-      </div>
-      <div className='RowList'>
-        <FunctionGraph/>
-        <GraphConfiguration/>
-      </div>
+  <div className='ColList'>
+    <div id='left'>
+      <FunctionState/>
+      <FunctionList/>
     </div>
-  );
+    <div className='RowList'>
+      <FunctionGraph/>
+      <GraphConfiguration/>
+    </div>
+  </div>
+);
 
 export default App;

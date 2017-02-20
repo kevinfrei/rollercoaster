@@ -46,12 +46,13 @@ lives.
 
 ### TODO:
 
-* Do some better function and data validation
+* Do some better function and data validation.
+* Switch to the built-in canvas scaling & translation.
 * Prevent the graph from attempting to draw
   if the functions aren't at least calculable.
-* Add numeric labels to the graph
+* Get MathJax rendering working properly with asciimath formulas.
+* Add numeric labels to the graph.
 * Make the time be a slider instead of an unchangeable clock?
 * Make the thing prettier.
-* Make the graphing canvas fill the rest of the screen
-* Color-code the functions with the graph
-* Tests. Tests would be good.
+* Color-code the functions with the graph.
+* Improve the tests. A lot.
