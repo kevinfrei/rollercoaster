@@ -46,13 +46,30 @@ lives.
 
 ### TODO:
 
-* Do some better function and data validation.
 * Switch to the built-in canvas scaling & translation.
+* Do some better function and data validation.
+* Allow saving & loading of function lists
+  * (to files, or just to cookies?)
+* Handle non-derivable tangents
+  * Smooth them, perhaps?
+* Handle non-continuous functions
+  * You can fall onto them
+  * Dropping off the track completely should be an error
+* Make a better, semi-modal function editor:
+  * with help
+  * continuity assistance
+  * derivability guidance, perhaps
+* Handle animation better: drop frames, base on wall clock, not assumed
+  timer accuracy (try it on an iphone and watch it not seem quite right)
 * Prevent the graph from attempting to draw
   if the functions aren't at least calculable.
-* Get MathJax rendering working properly with asciimath formulas.
 * Add numeric labels to the graph.
 * Make the time be a slider instead of an unchangeable clock?
 * Make the thing prettier.
 * Color-code the functions with the graph.
 * Improve the tests. A lot.
+* MathJS and AsciiMath aren't _quite_ compatible. The fix is to probably
+  parse the AsciiMath and compile it myself. This seems like a lot of work.
+  An alternative would be to translate the common mathjs expressions into their
+  corresponding asciimath representation. This is probably less work. Both are
+  going to take a fair bit of time...

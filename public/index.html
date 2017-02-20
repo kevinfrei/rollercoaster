@@ -19,6 +19,18 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap-theme.min.css">
 
     <!--
+      MathJax doesn't play nice with WebPack, so I have to just configure and
+      load it here, instead
+    -->
+    <!-- If you need to configure MathJax, do it here:
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        asciimath2jax: { inlineMath: [['`','`']] },
+        ascii2jax: {inlineMath:  [['`','`']] }
+      });
+    </script> -->
+    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=AM_CHTML"></script>
+    <!--
     Put this in the webpack.config.prod.js file in the react-scripts folder
     in order to NOT bundle everything into a gigantic JS file
     externals: {
@@ -32,9 +44,6 @@
     <script src="https://unpkg.com/react@15/dist/react.min.js"></script>
     <script src="https://unpkg.com/react-dom@15/dist/react-dom.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-bootstrap/0.30.7/react-bootstrap.min.js"></script>
-    <script>
-      var ReactBootstrap = window.ReactBootstrap;
-    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/3.9.2/math.min.js"></script>
     <!-- End of stuff needed to minimize single gigantic chunk of javascript -->
     <title>Rollercoaster Simulator</title>
