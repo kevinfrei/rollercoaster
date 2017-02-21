@@ -46,14 +46,13 @@ lives.
 
 ### TODO:
 
-* Do some better function and data validation.
 * Allow saving & loading of function lists
   * (to files, or just to cookies?)
-* Handle non-derivable tangents
-  * Smooth them, perhaps?
 * Handle non-continuous functions
   * You can fall onto them
   * Dropping off the track completely should be an error
+* Handle non-derivable tangents
+  * Smooth them, perhaps?
 * Make a better, semi-modal function editor:
   * with help
   * continuity assistance
@@ -62,7 +61,6 @@ lives.
   timer accuracy (try it on an iphone and watch it not seem quite right)
 * Prevent the graph from attempting to draw
   if the functions aren't at least calculable.
-* Add numeric labels to the graph.
 * Make the time be a slider instead of an unchangeable clock?
 * Make the thing prettier.
 * Color-code the functions with the graph.

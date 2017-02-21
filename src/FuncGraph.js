@@ -34,8 +34,18 @@ let scale = 20; // Scale of the graph
 let graphStep = 0.25/scale; // The steps used for drawing the graph
 let xo = 10;
 let yo = 500;
+const tx = (x: number): number => x * scale + xo;
+const ty = (y: number): number => yo - y * scale;
 const xu = (a: number): number => (a - xo) / scale;
 const yu = (b: number): number => (b - yo) / -scale;
+
+const textScale = (ctx:CanvasRenderingContext2D) => {
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+}
+
+const drawScale = (ctx:CanvasRenderingContext2D) => {
+  ctx.setTransform(scale, 0, 0, -scale, xo, yo);
+}
 
 const freshContext = (canvas:?HTMLCanvasElement):CanvasRenderingContext2D => {
   if (!canvas) {console.log('oops');throw String('oops');}
@@ -43,7 +53,7 @@ const freshContext = (canvas:?HTMLCanvasElement):CanvasRenderingContext2D => {
   if (!ctx) throw String('testOnly');
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.setTransform(scale, 0, 0, -scale, xo, yo);
+  drawScale(ctx);
   return ctx;
 };
 
@@ -87,15 +97,31 @@ const drawGraphPaper = (
   for (let pos = Math.round(low); pos <= high; pos += .5) {
     ctx.beginPath();
     ctx.strokeStyle = '#000';
-    if (Math.round(pos + .05) === Math.round(pos - .05)) {
-      ctx.lineWidth = pos ? 1/64 : 1/16;
+    if (!pos) {
+      ctx.lineWidth = .1; // 0 : darkest on the axes
+    } else if (Math.round(Math.round(pos*.2)*10) === Math.round(pos*2)) {
+      ctx.lineWidth = 5e-2; // multiples of 5
+    } else if (Math.round(pos + .05) === Math.round(pos - .05)) {
+      ctx.lineWidth = 2e-2; // on every 1
     } else {
-      ctx.lineWidth = 1/256;
+      ctx.lineWidth = 5e-3; // one every .5
     }
     path(ctx, pos, yu(0), pos, yu(h));
     path(ctx, xu(0), pos, xu(w), pos);
     ctx.stroke();
   }
+  // Need to undo both the reversed transform & shrink the scaling a fair bit...
+  textScale(ctx);
+  const textSize = scale;
+  ctx.font = `${textSize*.75}pt Courier`;
+  for (let val = 5; val < high; val += 5) {
+    ctx.textAlign = 'right';
+    ctx.fillText(val.toString(), tx(-.1), ty(val-.3));
+    ctx.fillText((-val).toString(), tx(-.1), ty(-val-.3));
+    ctx.textAlign = 'center';
+    ctx.fillText(val.toString(), tx(val), ty(-.9));
+  }
+  drawScale(ctx);
 };
 
 const drawVector = (ctx: CanvasRenderingContext2D, vec:Vector) => {
@@ -216,7 +242,7 @@ export class FuncGraph extends Component {
   updateSize(w:number, h:number) {
     this.curSize = {w,h};
     yo = h * .75;
-    xo = w * .01
+    xo = w * .002 * scale + 10;
   }
   render() {
     scale = this.props.scale || 30;
