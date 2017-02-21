@@ -28,7 +28,7 @@ export class FuncChanger extends Component {
     const ta = <textarea
       style={{flexGrow:3}}
       defaultValue={this.props.func}
-      ref={ta => this._textarea = ta}/>;
+      ref={(ta:HTMLTextAreaElement) => this._textarea = ta}/>;
     // Okay, this is a royal PITA.
     // textarea is NOT re-rendered when the value updates. Seems like a bug.
     // Not sure *whose* bug (mine, React, Redux, probably mine, honestly)

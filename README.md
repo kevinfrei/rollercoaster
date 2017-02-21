@@ -46,7 +46,6 @@ lives.
 
 ### TODO:
 
-* Switch to the built-in canvas scaling & translation.
 * Do some better function and data validation.
 * Allow saving & loading of function lists
   * (to files, or just to cookies?)

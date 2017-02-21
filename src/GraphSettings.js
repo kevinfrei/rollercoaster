@@ -1,35 +1,58 @@
 // @flow
 
 import React from 'react';
-import {Button} from 'react-bootstrap';
+import {Button, Checkbox} from 'react-bootstrap';
 import ReactBootstrapSlider from 'react-bootstrap-slider';
 
 import './bootstrap-slider-min.css';
 import './App.css';
 
 type GraphSettingsProps = {
-  onScaleChange: (a:string)=>void,
-  onPlay: (a:boolean)=>void,
   scale: number,
   time: number,
-  running: boolean
+  running: boolean,
+  showVector:boolean,
+  showCart:boolean,
+  onScaleChange: (a:string)=>void,
+  onPlay: (a:boolean)=>void,
+  onShowVector: (a:boolean)=>void,
+  onShowCart: (a:boolean)=>void
 };
 
-export const GraphSettings = (
-  {onScaleChange, onPlay, scale, time, running}:GraphSettingsProps) => {
+export const GraphSettings = ({
+  scale,
+  time,
+  running,
+  showVector,
+  showCart,
+  onShowVector,
+  onShowCart,
+  onScaleChange,
+  onPlay
+}:GraphSettingsProps) => {
   const timeInSeconds = time / 32;
   const min = Math.floor(timeInSeconds / 60);
   const sec = Math.round(10 * (timeInSeconds - min * 60)) / 10;
   const timeExpr = `${min}:${(sec<10)?'0':''}${sec}`;
   const pad = {padding:'3pt'};
   const label = running ? '◾' : '▶'; // UTF8 Files :)
-  const handler = e => onScaleChange(e.target.value);
+  const handler = (e:HTMLInputEvent) => onScaleChange(e.target.value);
   return (
     <div id='bottom' className='ColJust' style={{alignItems:'center', padding:'2pt'}}>
       <Button onClick={() => onPlay(!running)} style={{width:'30pt'}}>
         {label}
       </Button>
       <div style={pad}>Zoom:&nbsp;</div>
+      <div className='RowJust'>
+        <Checkbox checked={showCart} onChange={
+          ()=>{console.log(showCart);onShowCart(!showCart);}
+        }>
+          Show Cart on Track
+        </Checkbox>
+        <Checkbox checked={showVector} onChange={()=>onShowVector(!showVector)}>
+          Show Velocity Vector
+        </Checkbox>
+      </div>
       <ReactBootstrapSlider
         style={pad}
         value={scale}

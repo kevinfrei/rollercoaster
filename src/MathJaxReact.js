@@ -6,17 +6,17 @@ export class MathJaxReact extends Component {
   props:{formula:string};
   MathOutput:HTMLElement;
   QueueForRendering() {
-    if (!window.MathJax) {
-      console.error('MathJax should be loaded on the window object');
-      throw String('fail');
-    }
     window.MathJax.Hub.Queue(["Typeset", window.MathJax.Hub, this.MathOutput]);
   }
   componentDidUpdate() {
     this.QueueForRendering();
   }
   render() {
-    return <div ref='MathOutput'>{'`' + this.props.formula + '`'}</div>;
+    return (
+      <div ref={(m:HTMLDivElement) => this.MathOutput = m}>
+        {'`' + this.props.formula + '`'}
+      </div>
+    );
   }
 }
 

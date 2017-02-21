@@ -45,7 +45,7 @@ export const MakeUserFunc = (
   const high = Math.max(l, h);
 
   // TODO: validate the function expression
-  const compiled = math.compile(text);
+  const compiled:Expression = math.compile(text);
   const func: MathFunc = (a) => compiled.eval({x:a});
   return { text, func, range : {low, high} };
 };

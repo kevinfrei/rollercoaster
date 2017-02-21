@@ -8,7 +8,7 @@ import {FuncList, StateDisplay} from './FuncList';
 import {FuncChanger} from './FuncChanger';
 import {Actions} from './coasterRedux';
 
-import type {GraphState} from './coasterRedux';
+import type {GraphState, CoasterAction} from './coasterRedux';
 
 // This is just a bunch of maps from state to properties and actions to dispatch
 // which create the 'stateful' UI components
@@ -23,12 +23,12 @@ export const FunctionList = connect(
     selected: state.currentEdit
   }),
   // Dispatch To Handler Props
-  (dispatch:Function) => ({
-    onPrev: (id) => dispatch(Actions.MoveFunction(id, true)),
-    onNext: (id) => dispatch(Actions.MoveFunction(id, false)),
-    onDel: (id) => dispatch(Actions.DeleteFunction(id)),
-    onEdit: (id) => dispatch(Actions.SelectFunction(id)),
-    onChange: (id, value) => dispatch(Actions.ChangeDivider(id, value))
+  (dispatch:(a:CoasterAction)=>void) => ({
+    onPrev: (id:number) => dispatch(Actions.MoveFunction(id, true)),
+    onNext: (id:number) => dispatch(Actions.MoveFunction(id, false)),
+    onDel: (id:number) => dispatch(Actions.DeleteFunction(id)),
+    onEdit: (id:number) => dispatch(Actions.SelectFunction(id)),
+    onChange: (id:number, value:number|string) => dispatch(Actions.ChangeDivider(id, value))
   })
 )(FuncList);
 
@@ -44,7 +44,7 @@ export const FunctionEditor = connect(
     func: (state.currentEdit < 0) ? '' : String(state.funcs[state.currentEdit].text)
   }),
   // Dispatch to Handler Props
-  (dispatch:Function) => ({
+  (dispatch:(a:CoasterAction)=>void) => ({
     onSave: (id:number, expr:string) => dispatch(
       (id >= 0)
         ? Actions.EditFunction(id, expr)
@@ -60,6 +60,8 @@ export const FunctionGraph = connect(
     funcs: state.funcs,
     time: state.time,
     selected: state.currentEdit,
+    showVector: state.showVector,
+    showCart: state.showCart,
     size: state.size
   })
 )(FuncGraph);
@@ -69,11 +71,15 @@ export const GraphConfiguration = connect(
   (state:GraphState) => ({
     scale: state.scale,
     time: state.time,
-    running: state.running
+    running: state.running,
+    showVector: state.showVector,
+    showCart: state.showCart
   }),
   // Dispatch to Handler Prop
-  (dispatch:Function) => ({
+  (dispatch:(a:CoasterAction)=>void) => ({
     onPlay: (play:boolean) => dispatch(play ? Actions.Start() : Actions.Stop()),
-    onScaleChange: (value:string) => dispatch(Actions.ChangeScale(value))
+    onScaleChange: (value:string) => dispatch(Actions.ChangeScale(value)),
+    onShowVector: (show:boolean) => dispatch(Actions.Vector(show)),
+    onShowCart: (show:boolean) => dispatch(Actions.Cart(show))
   })
 )(GraphSettings);

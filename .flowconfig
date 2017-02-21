@@ -6,6 +6,7 @@
 .*/node_modules/fbjs/lib/partitionObjectByKey.js.flow
 
 [include]
+./flow-typed/ExtraTypes.js
 
 [libs]
 ./flow-typed/npm/*.js

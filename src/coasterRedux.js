@@ -21,6 +21,8 @@ export type GraphState = {
   scale: number,
   time: number,
   running: boolean,
+  showVector: boolean,
+  showCart: boolean,
   size: {width:number, height:number}
 };
 
@@ -40,6 +42,8 @@ const initialState:GraphState = {
   scale: 25,
   time: -1,
   running: false,
+  showVector: false,
+  showCart: true,
   size: {width: -1, height: -1}
 };
 
@@ -72,8 +76,8 @@ type EditFunctionAction = {
 
 type ChangeDividerAction = {
   type: 'CHANGE_LIMIT',
-  position: string,
-  value: number
+  position: number,
+  value: number|string
 };
 
 type MoveFunctionAction = {
@@ -114,6 +118,16 @@ type WindowsResizeAction = {
   height: number
 };
 
+type VectorAction = {
+  type: 'SET_VECTOR',
+  value: boolean
+};
+
+type CartAction = {
+  type: 'SET_CART',
+  value: boolean
+};
+
 export type CoasterAction =
   AddFunctionAction |
   DeleteFunctionAction |
@@ -126,7 +140,9 @@ export type CoasterAction =
   StopAction |
   ScaleChangeAction |
   TickAction |
-  WindowsResizeAction;
+  WindowsResizeAction |
+  VectorAction |
+  CartAction;
 
 export const Actions = {
   AddFunction: (expr:string):AddFunctionAction => ({
@@ -135,7 +151,7 @@ export const Actions = {
     type: 'DELETE_FUNCTION', position}),
   EditFunction: (position:number, funcBody:string):EditFunctionAction => ({
     type: 'EDIT_FUNCTION', position, funcBody}),
-  ChangeDivider: (position:string, value: number):ChangeDividerAction => ({
+  ChangeDivider: (position:number, value: number|string):ChangeDividerAction => ({
     type: 'CHANGE_LIMIT', position, value}),
   MoveFunction: (position:number, up:boolean): MoveFunctionAction => ({
     type: 'MOVE_FUNCTION', position, up}),
@@ -152,12 +168,16 @@ export const Actions = {
   Tick: ():TickAction => ({
     type: 'TICK'}),
   WindowResize: (width:number, height:number):WindowsResizeAction => ({
-    type: 'WINDOW_RESIZE', width, height})
+    type: 'WINDOW_RESIZE', width, height}),
+  Vector: (value: boolean):VectorAction => ({
+    type: 'SET_VECTOR', value}),
+  Cart: (value: boolean) => ({
+    type: 'SET_CART', value})
 };
 
 const ValidateFuncs = (funcs:FuncArray):DisplayStateType => {
-  let prevHi:?number;
-  let prevY:?number;
+  let prevHi:?number = undefined;
+  let prevY:?number = undefined;
   // TODO: Check for smoothness of transitions and warn
   let i = 0;
   for (let func of funcs) {
@@ -384,6 +404,12 @@ const windowResizeReducer =
   (state: GraphState, action: WindowsResizeAction): GraphState =>
   nobj(state, { size: { width:action.width, height:action.height } });
 
+const setVectorReducer = (state: GraphState, action: VectorAction):GraphState =>
+nobj(state, { showVector: action.value });
+
+const setCartReducer = (state: GraphState, action: CartAction):GraphState =>
+  nobj(state, { showCart: action.value });
+
 const internalCoasterReducer =
   (state:GraphState = initialState, action:CoasterAction): GraphState => {
   switch (action.type) {
@@ -411,6 +437,10 @@ const internalCoasterReducer =
       return tickReducer(state);
     case 'WINDOW_RESIZE':
       return windowResizeReducer(state, action);
+    case 'SET_VECTOR':
+      return setVectorReducer(state, action);
+    case 'SET_CART':
+      return setCartReducer(state, action);
     default:
       return state;
   }

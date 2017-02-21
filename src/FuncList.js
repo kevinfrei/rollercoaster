@@ -16,7 +16,7 @@ type FuncListAttribs = {
   onPrev: (id:number)=>void,
   onNext: (id:number)=>void,
   onDel: (id:number)=>void,
-  onChange: (id:number, value:number)=>void,
+  onChange: (id:number, value:string|number)=>void,
   selected: number
 };
 

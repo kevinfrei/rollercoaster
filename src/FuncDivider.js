@@ -6,7 +6,7 @@ type FuncDividerTypes = {
   pos: number,
   low: number,
   high: number,
-  onChange: (pos:number, val:number) => void
+  onChange: (pos:number, val:string|number) => void
 };
 
 export const FuncDivider = ({pos, low, high, onChange}:FuncDividerTypes) => {
@@ -20,13 +20,13 @@ export const FuncDivider = ({pos, low, high, onChange}:FuncDividerTypes) => {
         value={low}
         style={{width:lowDig * 12 + 5, textAlign:'center'}}
         disabled={low === 0}
-        onChange={(a) => onChange(pos, a.target.value)}/>
+        onChange={(a:HTMLInputEvent) => onChange(pos, a.target.value)}/>
       &nbsp;-&nbsp;
       <input
         type='text'
         value={high}
         style={{width:hiDig * 12 + 5, textAlign:'center'}}
-        onChange={(a) => onChange(pos + 1, a.target.value)}/>
+        onChange={(a:HTMLInputEvent) => onChange(pos + 1, a.target.value)}/>
     </span>);
 };
 
