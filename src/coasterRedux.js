@@ -46,7 +46,11 @@ const MakeStateGood =
     state: 'GOOD', message});
 
 const initialState:GraphState = {
-  funcs: [DemandUserFunc('cos(x)/(x+.15) + x/3', 0, 20)],
+  funcs: [
+    DemandUserFunc('x^2-16x+64', 0, 8),
+    DemandUserFunc('(sin((pi x)/2-pi/2)+1)/5', 8, 12),
+    DemandUserFunc('x^2/2-12x+72',12,20)
+  ],
   displayState: MakeStateGood(),
   currentEdit: -1,
   scale: 25,

@@ -42,8 +42,7 @@ export const GraphSettings = ({
       <Button onClick={() => onPlay(!running)} style={{width:'30pt'}}>
         {label}
       </Button>
-      <div style={pad}>Zoom:&nbsp;</div>
-      <div className='RowJust'>
+      <div className='RowJust' style={{padding:'2pt'}}>
         <Checkbox checked={showCart} onChange={()=>onShowCart(!showCart)}>
           Show Cart on Track
         </Checkbox>
@@ -51,6 +50,7 @@ export const GraphSettings = ({
           Show Velocity Vector
         </Checkbox>
       </div>
+      <div style={pad}>Zoom:&nbsp;</div>
       <ReactBootstrapSlider
         style={pad}
         value={scale}
