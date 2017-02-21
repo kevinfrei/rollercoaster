@@ -40,7 +40,7 @@ const yu = (b: number): number => (b - yo) / -scale;
 const freshContext = (canvas:?HTMLCanvasElement):CanvasRenderingContext2D => {
   if (!canvas) {console.log('oops');throw String('oops');}
   const ctx:?CanvasRenderingContext2D = canvas.getContext('2d');
-  if (!ctx) {console.log('oops');throw String('oops');}
+  if (!ctx) throw String('testOnly');
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.setTransform(scale, 0, 0, -scale, xo, yo);

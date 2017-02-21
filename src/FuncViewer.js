@@ -20,10 +20,10 @@ type FuncViewerAttribs = {
 const FuncMover = ({first, last, id, onPrev, onNext}) => (
   <ButtonGroup vertical>
     <Button block bsSize='xsmall' disabled={first} onClick={() => onPrev(id)}>
-      &uarr;
+      &nbsp;&uarr;&nbsp;
     </Button>
     <Button block bsSize='xsmall' disabled={last} onClick={() => onNext(id)}>
-      &darr;
+      &nbsp;&darr;&nbsp;
     </Button>
   </ButtonGroup>
 );

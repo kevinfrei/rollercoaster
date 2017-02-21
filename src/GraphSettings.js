@@ -44,9 +44,7 @@ export const GraphSettings = ({
       </Button>
       <div style={pad}>Zoom:&nbsp;</div>
       <div className='RowJust'>
-        <Checkbox checked={showCart} onChange={
-          ()=>{console.log(showCart);onShowCart(!showCart);}
-        }>
+        <Checkbox checked={showCart} onChange={()=>onShowCart(!showCart)}>
           Show Cart on Track
         </Checkbox>
         <Checkbox checked={showVector} onChange={()=>onShowVector(!showVector)}>

@@ -25,13 +25,11 @@ const initialSpeed = 0;
 const initialAngle = -halfPi;
 
 // How many slices used to calculate random stuff
-// More slices == more accuracy
+// More slices == more accuracy, but only to a point
+// because time^2, will cause things to fall off the end of the
+// floating point value...
 const timeSlice = 1 / 1024;
 const timeSliceSquared = timeSlice * timeSlice;
-
-// console.log helpers: text digits, text angle
-// const td = (n:number):number => Math.round(n * 10000) / 10000;
-// const ta = (n:number):number => td(n * Math.PI / 180);
 
 // Helper functions
 const distSquare = (pt: Point, x: number, y: number): number => {

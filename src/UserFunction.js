@@ -45,9 +45,13 @@ export const MakeUserFunc = (
   const high = Math.max(l, h);
 
   // TODO: validate the function expression
-  const compiled:Expression = math.compile(text);
-  const func: MathFunc = (a) => compiled.eval({x:a});
-  return { text, func, range : {low, high} };
+  try {
+    const compiled:Expression = math.compile(text);
+    const func: MathFunc = (a) => compiled.eval({x:a});
+    return { text, func, range : {low, high} };
+  } catch (e) {
+    return `Problem occurred processing function '${text}'`;
+  }
 };
 
 export const DemandUserFunc =

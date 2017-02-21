@@ -9,9 +9,16 @@ import type {UserFunction, FuncArray} from './UserFunction';
 // Are those functions good to graph?
 // An optional 'selected' user function for editing
 
+// Knowne fu
+
+export type FunctionProblem = {
+  func: number,
+  problem: string|number
+};
+
 export type DisplayStateType = {
   state: 'ERROR' | 'WARNING' | 'GOOD',
-  message: string
+  message: string | FunctionProblem;
 };
 
 export type GraphState = {
@@ -29,11 +36,14 @@ export type GraphState = {
 const nobj = (a:Object, b:Object):Object => Object.assign({}, a, b);
 
 const MakeStateError =
-  (message:string): DisplayStateType => ({state: 'ERROR', message});
+  (message:string|FunctionProblem): DisplayStateType => ({
+    state: 'ERROR', message});
 const MakeStateWarning =
-  (message:string): DisplayStateType => ({state: 'WARNING', message});
+  (message:string|FunctionProblem): DisplayStateType => ({
+    state: 'WARNING', message});
 const MakeStateGood =
-  (message:string = ''): DisplayStateType => ({state: 'GOOD', message});
+  (message:string = ''): DisplayStateType => ({
+    state: 'GOOD', message});
 
 const initialState:GraphState = {
   funcs: [DemandUserFunc('cos(x)/(x+.15) + x/3', 0, 20)],
@@ -175,6 +185,16 @@ export const Actions = {
     type: 'SET_CART', value})
 };
 
+export const FuncProblems = {
+  UnorderedRange: 0,
+  Discontinuous: 1,
+  ParseFailure: 2,
+  EvaluationFail: 3,
+  Make: (func:number, problem: string|number): FunctionProblem => ({
+    func, problem
+  })
+};
+
 const ValidateFuncs = (funcs:FuncArray):DisplayStateType => {
   let prevHi:?number = undefined;
   let prevY:?number = undefined;
@@ -184,20 +204,23 @@ const ValidateFuncs = (funcs:FuncArray):DisplayStateType => {
     i++;
     try {
       if (func.range.low > func.range.high) {
-        return MakeStateError(`Low greater than high for function #${i}`);
+        return MakeStateError(
+          FuncProblems.Make(i, FuncProblems.UnorderedRange));
       }
       if (prevHi && Math.abs(prevHi - func.range.low) > 1e-6) {
-        return MakeStateError('X range is not continuous (Software Bug)');
+        return MakeStateError(
+          FuncProblems.Make(i, 'X range is not continuous (Bug in app!)'));
       }
       const curY = func.func(func.range.low);
       if (prevY && Math.abs(prevY - curY) > 1e-6) {
         return MakeStateWarning(
-          `Functions do not appear continuous at point ${func.range.low}`);
+          FuncProblems.Make(i, FuncProblems.Discontinuous));
       }
       prevHi = func.range.high;
       prevY = func.func(prevHi);
     } catch (e) {
-      return MakeStateError(`Function '${i}' appears to be failing: ${e}`);
+      return MakeStateError(
+        FuncProblems.Make(i, FuncProblems.EvaluationFail));
     }
   }
   return MakeStateGood();
@@ -237,7 +260,8 @@ const editFunctionReducer =
     return UpdateFunctions(
       state,
       funcs,
-      MakeStateWarning('Function does not appear to work'), state.currentEdit);
+      MakeStateWarning(
+        FuncProblems.Make(pos, FuncProblems.ParseFailure)), state.currentEdit);
   }
   funcs = [...bArr, newFunc, ...eArr];
   const displayState = ValidateFuncs(funcs);
@@ -283,7 +307,10 @@ const addFunctionReducer =
   const func = MakeUserFunc(action.expr, r, r+1);
   if (typeof func === 'string') {
     return UpdateFunctions(
-      state, funcs, MakeStateError(func), state.currentEdit);
+      state,
+      funcs,
+      MakeStateError(FuncProblems.Make(-1, FuncProblems.EvaluationFail)),
+      state.currentEdit);
   }
   funcs = [...funcs, func];
   const isValid = ValidateFuncs(funcs);
@@ -380,7 +407,6 @@ const selectFunctionReducer =
 
 const clearEditorReducer =
   (state:GraphState, action:ClearEditorAction): GraphState => {
-  console.log('clearing');
   return CheckFunctions(state, state.funcs, -1);
 };
 

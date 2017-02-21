@@ -20,6 +20,7 @@ export const FunctionList = connect(
   // State to Props
   (state:GraphState) => ({
     funcs: state.funcs,
+    status: state.displayState,
     selected: state.currentEdit
   }),
   // Dispatch To Handler Props
