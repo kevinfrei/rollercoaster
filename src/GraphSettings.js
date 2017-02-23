@@ -4,6 +4,8 @@ import React from 'react';
 import {Button, Checkbox} from 'react-bootstrap';
 import ReactBootstrapSlider from 'react-bootstrap-slider';
 
+import {FileDialog} from './FileDialog';
+
 import './bootstrap-slider-min.css';
 import './App.css';
 
@@ -63,6 +65,7 @@ export const GraphSettings = ({
       <div style={pad}>
         Current time: {(time > 0) ? timeExpr : 'Stopped'}
       </div>
+      <FileDialog/>
     </div>
   );
 };
