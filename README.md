@@ -51,8 +51,11 @@ lives.
 * Handle non-continuous functions
   * You can fall onto them
   * Dropping off the track completely should be an error
+    (as opposed to what happens now, where the cart just flies straight up...)
 * Handle non-derivable tangents
-  * Smooth them, perhaps?
+  * Smooth them, probably. mathjs seems to be able to produce the derivative.
+    Given that capability, I could stop estimating the derivative, and just use
+    mathjs to do it...
 * Make a better, semi-modal function editor:
   * with help
   * continuity assistance
@@ -63,10 +66,11 @@ lives.
   if the functions aren't at least calculable.
 * Make the time be a slider instead of an unchangeable clock?
 * Make the thing prettier.
-* Color-code the functions with the graph.
+* Color-code the function list with the graph line.
 * Improve the tests. A lot.
 * MathJS and AsciiMath aren't _quite_ compatible. The fix is to probably
   parse the AsciiMath and compile it myself. This seems like a lot of work.
   An alternative would be to translate the common mathjs expressions into their
   corresponding asciimath representation. This is probably less work. Both are
   going to take a fair bit of time...
+* Do I want to try to make it work on IE? Edge seems to work just fine...
