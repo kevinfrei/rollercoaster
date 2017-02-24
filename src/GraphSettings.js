@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react';
-import {Button, Checkbox} from 'react-bootstrap';
+import {Grid, Row, Col, Button, Checkbox} from 'react-bootstrap';
 import ReactBootstrapSlider from 'react-bootstrap-slider';
 
 import {FileDialog} from './FileDialog';
@@ -13,22 +13,14 @@ type GraphSettingsProps = {
   scale: number,
   time: number,
   running: boolean,
-  showVector:boolean,
-  showCart:boolean,
   onScaleChange: (a:string)=>void,
   onPlay: (a:boolean)=>void,
-  onShowVector: (a:boolean)=>void,
-  onShowCart: (a:boolean)=>void
 };
 
 export const GraphSettings = ({
   scale,
   time,
   running,
-  showVector,
-  showCart,
-  onShowVector,
-  onShowCart,
   onScaleChange,
   onPlay
 }:GraphSettingsProps) => {
@@ -40,30 +32,30 @@ export const GraphSettings = ({
   const label = running ? '◾' : '▶'; // UTF8 Files :)
   const handler = (e:HTMLInputEvent) => onScaleChange(e.target.value);
   return (
-    <div id='bottom' className='ColJust' style={{alignItems:'center', padding:'2pt'}}>
-      <Button onClick={() => onPlay(!running)} style={{width:'30pt'}}>
+    <div className='ColJust' style={{
+      padding:'3pt',
+      alignSelf:'stretch',
+      justifyContent:'space-between',
+      alignItems:'stretch',
+      alignContent:'center'
+    }}>
+      <Button onClick={() => onPlay(!running)} style={{flexGrow:1}}>
         {label}
       </Button>
-      <div className='RowJust' style={{padding:'2pt'}}>
-        <Checkbox checked={showCart} onChange={()=>onShowCart(!showCart)}>
-          Show Cart on Track
-        </Checkbox>
-        <Checkbox checked={showVector} onChange={()=>onShowVector(!showVector)}>
-          Show Velocity Vector
-        </Checkbox>
-      </div>
-      <div style={pad}>Zoom:&nbsp;</div>
-      <ReactBootstrapSlider
-        style={pad}
-        value={scale}
-        min={5}
-        max={100}
-        step={.01}
-        orientation='horizontal'
-        change={handler}
-        slideStop={handler}/>
-      <div style={pad}>
+      <div style={{width:'120pt',padding:'3pt'}}>
         Current time: {(time > 0) ? timeExpr : 'Stopped'}
+      </div>
+      <div style={{padding:'3pt'}}>Zoom:&nbsp;</div>
+      <div style={{flexGrow:10}}>
+        <ReactBootstrapSlider
+          style={pad}
+          value={scale}
+          min={1}
+          max={100}
+          step={.01}
+          orientation='horizontal'
+          change={handler}
+          slideStop={handler}/>
       </div>
       <FileDialog/>
     </div>

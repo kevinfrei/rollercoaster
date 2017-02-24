@@ -7,6 +7,7 @@ import {GraphSettings} from './GraphSettings';
 import {FuncList, StateDisplay} from './FuncList';
 import {FuncChanger} from './FuncChanger';
 import {Actions} from './coasterRedux';
+import {FileDialog} from './FileDialog';
 
 import type {GraphState, CoasterAction} from './coasterRedux';
 
@@ -84,3 +85,18 @@ export const GraphConfiguration = connect(
     onShowCart: (show:boolean) => dispatch(Actions.Cart(show))
   })
 )(GraphSettings);
+/*
+export FileIO = connect(
+  // State to Props
+  (state:GraphState) => ({
+    cart: state.showCart,
+    velocity: state.showVector,
+    labels: false, //TODO: Add this as state
+    curFuncs: state.funcs
+  }),
+  //TODO: Dispatch to Handler Props
+  (dispatch:(a:CoasterAction)=>void) => ({
+    onSave: (cart: boolean, velocity: boolean, labels: boolean) => void,
+    onLoad: (funcSet: FuncArray) => void,
+  })
+)(FileDialog);*/

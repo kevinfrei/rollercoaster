@@ -16,7 +16,9 @@ const App = () => (
     </div>
     <div className='RowList'>
       <FunctionGraph/>
-      <GraphConfiguration/>
+      <div id='bottom' className='RowList' style={{alignSelf:'stretch'}}>
+        <GraphConfiguration />
+      </div>
     </div>
   </div>
 );

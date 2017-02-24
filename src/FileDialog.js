@@ -2,22 +2,27 @@
 
 import React, {Component, PropTypes} from 'react';
 import {
-  Modal,
   Button,
-  DropdownButton,
-  Tabs,
-  Tab,
-  MenuItem,
-  Panel,
-  Form,
-  FormGroup,
-  FormControl,
   Checkbox,
+  Col,
   ControlLabel,
-  Col
+  DropdownButton,
+  Form,
+  FormControl,
+  FormGroup,
+  MenuItem,
+  Modal,
+  Panel,
+  Tab,
+  Tabs,
 } from 'react-bootstrap';
 
+import {
+  LoadFuncSets, SaveFuncSets, FuncSetToArray, ArrayToFuncSet
+} from './LoadSave';
+
 import type {FuncArray} from './UserFunction';
+import type {FuncSetsType} from './LoadSave';
 
 /*
 const loadState = ():LoadSaveState => ({
@@ -29,16 +34,24 @@ const saveState = (st: LoadState, funcs:FuncArray, name:string) => {
   //CONTINUE HERE$$$ ### @@@
 };
 */
+
 type FileDialogState = {
   showModal:boolean,
   selected:number,
-  loadSelection:string,
-  saveName:string,
-  cart:boolean,
-  velocity:boolean,
-  labels:boolean,
-  funcsets: Map<string,string>
+  //settings: {
+    cart:boolean,
+    velocity:boolean,
+    labels:boolean,
+  //},
+  //loader: {
+    loadSelection:string,
+    funcsets: FuncSetsType;
+  //},
+  //saver: {
+    saveName:string,
+  //},
 };
+
 type FileDialogProps = {
   cart: boolean,
   velocity: boolean,
@@ -46,31 +59,29 @@ type FileDialogProps = {
   curFuncs: FuncArray,
   onSave: (cart: boolean, velocity: boolean, labels: boolean) => void,
   onLoad: (funcSet: FuncArray) => void,
-}
+};
 
 export class FileDialog extends Component {
-  state:FileDialogState = {
-    showModal:false,
-    selected:1,
-    loadSelection:'',
-    saveName:'',
-    cart:true,
-    velocity:false,
-    labels:true,
-    funcsets:new Map()
-  }
+  state:FileDialogState;
   constructor(props:FileDialogProps) {
     super(props);
-    this.state.cart = props.cart;
-    this.state.velocity = !props.velocity;
-    this.state.labels = props.labels;
-    const map:Map<string,string> = new Map([
-      ['set numero uno', '1;2;sin(x)'],
-      ['le set deux', '2;3;cos(x)'],
-      ['troisieme', '3;5;x^2']
-    ]);
-    this.state.funcsets = map;
-    this.state.loadSelection = 'le set deux';
+    this.state = {
+      showModal:false,
+      selected:1,
+
+        cart: props.cart,
+        velocity: props.velocity,
+        labels: props.labels,
+
+        loadSelection: 'le set deux',
+        funcsets: new Map()/*props.curFuncs.map([
+          ['set numero uno', '1;2;sin(x)'],
+          ['le set deux', '2;3;cos(x)'],
+          ['troisieme', '3;5;x^2']
+        ]))*/,
+
+        saveName:''
+    };
   }
   open = () => {
     this.setState({showModal:true});
@@ -88,11 +99,11 @@ export class FileDialog extends Component {
   velocity = () => this.setState({velocity:!this.state.velocity});
   labels = () => this.setState({labels:!this.state.labels});
   changeName = (e) => this.setState({saveName:e.target.value});
-  saveFuncSets = () => {
+  saveFuncSet = () => {
     // TODO: Save the func sets as name
-    const m = this.state.funcsets;
-    m.set(this.state.saveName, '1;2;3^x');
-    this.setState({funcsets:m});
+  }
+  delFuncSet = () => {
+    // TODO: Build a UI, and add the capability to delete a saved FuncSet
   }
   loadFuncSets = () => {
     // TODO: Load the func sets from name
@@ -104,34 +115,16 @@ export class FileDialog extends Component {
   }
   render() {
     const ButtonInfo = '⚙/💾'; // I love UTF8...
-    const map:Map<string, string> = this.state.funcsets;
+    const map:FuncSetsType = this.state.funcsets;
     const FuncSets = Array.from(map.keys()).map((k,i) => (
       <MenuItem key={i} eventKey={k} onSelect={this.loadSelect}>{k}</MenuItem>
     ));
     const FuncSetTitle = (map.size > 0) ? this.state.loadSelection :
       'No function sets available!';
-    let disabled =
-      (this.props.velocity === this.state.velocity) &&
-      (this.props.cart === this.state.cart) &&
-      (this.props.labels === this.state.labels);
-    let buttonTitle = 'Save Settings';
-    let doit = this.saveSettings;
-    if (this.state.selected === 2) {
-      buttonTitle = 'Load Function Set';
-      disabled = (map.size === 0);
-      doit = this.loadFuncSets;
-    } else if (this.state.selected === 3) {
-      buttonTitle = 'Save Function Set';
-      disabled = this.state.saveName.length === 0;
-      doit = this.saveFuncSets;
-    }
     return (
       <div>
         <Button onClick={this.open}>{ButtonInfo}</Button>
         <Modal show={this.state.showModal} onHide={this.close}>
-          <Modal.Header>
-            <Modal.Title>Load &amp; Save your functions</Modal.Title>
-          </Modal.Header>
           <Modal.Body>
             <Tabs defaultActiveKey={1} id='LoadSaveSettings' onSelect={this.tabSelect}>
               <Tab eventKey={1} title='Graph Settings'>
@@ -161,6 +154,21 @@ export class FileDialog extends Component {
                         </Checkbox>
                       </Col>
                     </FormGroup>
+                    <FormGroup>
+                      <Col smOffset={3} sm={2}>
+                        <Button onClick={this.close}>Close</Button>
+                      </Col>
+                      <Col smOffset={1} sm={2}>
+                        <Button
+                          bsStyle='primary'
+                          disabled={(this.props.velocity === this.state.velocity) &&
+                            (this.props.cart === this.state.cart) &&
+                            (this.props.labels === this.state.labels)}
+                          onClick={this.loadFuncSets}>
+                          Save Settings
+                        </Button>
+                      </Col>
+                    </FormGroup>
                   </Form>
                 </Panel>
               </Tab>
@@ -177,6 +185,19 @@ export class FileDialog extends Component {
                       </DropdownButton>
                     </Col>
                     </FormGroup>
+                    <FormGroup>
+                      <Col smOffset={4} sm={2}>
+                        <Button onClick={this.close}>Close</Button>
+                      </Col>
+                      <Col sm={6}>
+                        <Button
+                          bsStyle='primary'
+                          disabled={map.size === 0}
+                          onClick={this.loadFuncSets}>
+                          Load Selected Function Set
+                        </Button>
+                      </Col>
+                    </FormGroup>
                   </Form>
                 </Panel>
               </Tab>
@@ -192,19 +213,40 @@ export class FileDialog extends Component {
                         onChange={this.changeName}/>
                       </Col>
                     </FormGroup>
+                    <FormGroup>
+                      <Col smOffset={4} sm={2}>
+                        <Button onClick={this.close}>Close</Button>
+                      </Col>
+                      <Col sm={6}>
+                      <Button
+                        bsStyle='primary'
+                        disabled={this.state.saveName.length === 0}
+                        onClick={this.saveFuncSet}>
+                        Save Current Function Set
+                      </Button>
+                      </Col>
+                    </FormGroup>
                   </Form>
                 </Panel>
               </Tab>
             </Tabs>
           </Modal.Body>
-          <Modal.Footer>
-            <Button onClick={this.close}>Close</Button>
-            <Button bsStyle='primary' disabled={disabled} onClick={this.doit}>
-              {buttonTitle}
-            </Button>
-          </Modal.Footer>
         </Modal>
       </div>
     );
   }
 }
+
+FileDialog.propTypes = {
+  cart: PropTypes.bool.isRequired,
+  velocity: PropTypes.bool.isRequired,
+  labels: PropTypes.bool.isRequired,
+  curFuncs: PropTypes.arrayOf(PropTypes.shape({
+    text: PropTypes.string.isRequired,
+    func: PropTypes.func.isRequired,
+    range: PropTypes.shape({
+      low: PropTypes.number.isRequired,
+      high: PropTypes.number.isRequired
+    })
+  }))
+};

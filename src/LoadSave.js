@@ -1,30 +1,11 @@
 //@flow
+import {DemandUserFunc} from './UserFunction';
 
 import type {FuncArray} from './UserFunction';
 
-type FuncListElem = {
-  low: number,
-  high: number,
-  expr: string
-};
-
-type FLArrayElem = {
-  name: string,
-  funcs: Array<FuncListElem>
-};
-
-type ObjMapToFLElem = {
-  [key:string]: Array<FuncListElem>
-};
-
-type LoadState = {
-  selected: number,
-  funcLists: Map<string, Array<FuncListElem>>
-};
-
-type checker = (i:mixed) => boolean;
+//type checker = (i:mixed) => boolean;
 type filter<T> = (i:mixed) => ?T;
-type selector<T,K> = (t:T) => K;
+//type selector<T,K> = (t:T) => K;
 type objmap<K,V> = {[key:K]: V};
 
 // Some simple filters
@@ -72,37 +53,48 @@ export function Map2Obj<K, V>(m:Map<K, V>):objmap<K,V> {
   return res;
 };
 
-/*
-const ValidateFuncListElem = (o:mixed): ?FuncListElem => {
-  if (!o || typeof o !== 'object') return;
-  if (o.low || typeof o.low !== 'string') return;
-  const low = parseFloat(o.low);
-  if (o.high || typeof o.high !== 'string') return;
-  const high = parseFloat(o.high);
-  if (o.expr || typeof o.expr !== 'string') return;
-  const expr = o.expr;
-  if (Number.isNaN(low) || Number.isNaN(high)) {
+export type FlatFunc = {
+  low:number,
+  high:number,
+  expr:string
+};
+
+export type FuncSetsType = Map<string, Array<FlatFunc>>;
+
+const flatFuncFilter:filter<FlatFunc> = (i:mixed): ?FlatFunc => {
+  const o = objectFilter(i);
+  if (!o) return;
+  if (!o.hasOwnProperty('low') ||
+      !o.hasOwnProperty('high') ||
+      !o.hasOwnProperty('expr'))
     return;
-  }
+  const low = parseFloat(o.low);
+  const high = parseFloat(o.high);
+  const expr = o.expr;
+  if (isNaN(low) || isNaN(high)) return;
   return {low, high, expr};
 };
 
-const ValidateFuncList = (o:mixed): ?Array<FuncListElem> => {
-  return MapValid(o, ValidateFuncListElem);
+export const LoadFuncSets = ():FuncSetsType => {
+  const data = localStorage.getItem('funcLists');
+  if (!data)
+    return new Map();
+  const obj = objectFilter(JSON.parse(data));
+  return obj ? Obj2Map(obj, arrayOfFilter(flatFuncFilter)) : new Map();
 };
 
-const mapFromArrays = (
-  a:Array<Array<OutputElem>>):Map<string, Array<FuncListElem>> => {
-  const res:Map<string, Array<FuncListElem>> = new Map();
-  a.forEach(i => {
-    res.set()
-  })
+export const SaveFuncSets = (funcSets:FuncSetsType) => {
+  localStorage.setItem('funcLists', JSON.stringify(Map2Obj(funcSets)));
 };
 
-const loadStateArray = ():Array<Array<FuncListElem>> => {
-  data = localStorage.getItem('funcLists');
-  if (!data) return [];
-  const obj = JSON.parse(data);
-  return MapValid(obj, ValidateFuncList);
+export const FuncSetToArray =
+  (funcSet:FuncSetsType, which:string):FuncArray => {
+  const funcStrings:?Array<FlatFunc> = funcSet.get(which);
+  if (!funcStrings) {
+    return [];
+  }
+  return funcStrings.map(fs => DemandUserFunc(fs.expr, fs.low, fs.high));
 };
-*/
+
+export const ArrayToFuncSet = (fa:FuncArray): Array<FlatFunc> =>
+  fa.map(f => ({low:f.range.low, high:f.range.high, expr:f.text}));
