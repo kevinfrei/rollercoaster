@@ -7,5 +7,10 @@ const localStorageMock = {
   setItem: (k, v) => storage.set(k, v),
   clear: () => storage.clear()
 };
-
+const mathJaxMock = {
+  Hub: {
+    Queue: () => {}
+  }
+}
 global.localStorage = localStorageMock;
+global.window = {MathJax: mathJaxMock};

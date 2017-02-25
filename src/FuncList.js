@@ -2,14 +2,19 @@
 
 import React, {PropTypes} from 'react';
 import {Panel} from 'react-bootstrap';
+import {connect} from 'react-redux';
 
-import {FunctionEditor} from './ReduxControls';
-import {FuncDivider} from './FuncDivider';
-import {FuncViewer} from './FuncViewer';
-import {FuncProblems} from './coasterRedux';
+import FunctionEditor from './FuncEditor';
+import FunctionDivider from './FuncDivider';
+import FunctionViewer from './FuncViewer';
+import {Actions} from './coasterRedux';
 
 import type {FuncArray} from './UserFunction';
-import type {DisplayStateType, FunctionProblem} from './coasterRedux';
+import type {
+  GraphState,
+  CoasterAction,
+  DisplayStateType
+} from './coasterRedux';
 
 type FuncListAttribs = {
   funcs: FuncArray,
@@ -22,14 +27,14 @@ type FuncListAttribs = {
   selected: number
 };
 
-export const FuncList = ({
+export const UnboundFunctionList = ({
   funcs, status, onEdit, onPrev, onNext, onDel, onChange, selected
 }:FuncListAttribs) => {
   // Should I assert that they're sorted?
   const MapOfFuncs = funcs.map(
     (uf, index) => {
       const header = (
-        <FuncDivider pos={index} low={uf.range.low} high={uf.range.high}
+        <FunctionDivider pos={index} low={uf.range.low} high={uf.range.high}
           onChange={onChange}/>);
       let btnStyle = (selected === index) ? 'info' : 'default';
       if (status.state !== 'GOOD' && typeof status.message !== 'string') {
@@ -39,7 +44,7 @@ export const FuncList = ({
       }
       return (
         <Panel key={index} header={header} bsStyle={btnStyle}>
-          <FuncViewer
+          <FunctionViewer
             id={index}
             first={index===0}
             last={index===funcs.length-1}
@@ -55,7 +60,7 @@ export const FuncList = ({
   return (<div>{withEditor}</div>);
 };
 
-FuncList.propTypes = {
+UnboundFunctionList.propTypes = {
   funcs: PropTypes.arrayOf(PropTypes.object).isRequired,
   status: PropTypes.object.isRequired,
   selected: PropTypes.number.isRequired,
@@ -66,37 +71,21 @@ FuncList.propTypes = {
   onChange: PropTypes.func.isRequired
 };
 
-export const StateDisplay = ({state}:{state:DisplayStateType}) => {
-  if (state.state === 'GOOD') {
-    return <div/>;
-  }
-  const color = state.state === 'WARNING' ? '#FF0' : '#F00';
-  let msg = state.message;
-  const message:string | FunctionProblem = state.message;
-  if (typeof message !== 'string') {
-    msg = ' in function #' + message.func;
-    switch (message.problem) {
-      case FuncProblems.UnorderedRange:
-        msg += ": the low and high values are out of order.";
-        break;
-      case FuncProblems.Discontinuous:
-        msg += ": the function appears to not be continuous.";
-        break;
-      case FuncProblems.ParseFailure:
-        msg += ": the function doesn't parse properly.";
-        break;
-      case FuncProblems.EvaluationFail:
-        msg += ": the function doesn't evaluate properly";
-        break;
-      default:
-        msg += message.problem;
-    }
-  }
-  return (<div style={{padding:'3pt', backgroundColor:color}}>
-    {state.state}: {msg}
-  </div>);
-};
+const FunctionList = connect(
+  // State to Props
+  (state:GraphState) => ({
+    funcs: state.funcs,
+    status: state.displayState,
+    selected: state.currentEdit
+  }),
+  // Dispatch To Handler Props
+  (dispatch:(a:CoasterAction)=>void) => ({
+    onPrev: (id:number) => dispatch(Actions.MoveFunction(id, true)),
+    onNext: (id:number) => dispatch(Actions.MoveFunction(id, false)),
+    onDel: (id:number) => dispatch(Actions.DeleteFunction(id)),
+    onEdit: (id:number) => dispatch(Actions.SelectFunction(id)),
+    onChange: (id:number, value:number|string) => dispatch(Actions.ChangeDivider(id, value))
+  })
+)(UnboundFunctionList);
 
-StateDisplay.propTypes = {
-  state: PropTypes.object.isRequired
-};
+export default FunctionList;

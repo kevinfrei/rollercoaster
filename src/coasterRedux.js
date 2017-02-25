@@ -28,6 +28,7 @@ export type GraphState = {
   scale: number,
   time: number,
   running: boolean,
+  showLabels: boolean,
   showVector: boolean,
   showCart: boolean,
   size: {width:number, height:number}
@@ -35,13 +36,13 @@ export type GraphState = {
 
 const nobj = (a:Object, b:Object):Object => Object.assign({}, a, b);
 
-const MakeStateError =
+export const MakeStateError =
   (message:string|FunctionProblem): DisplayStateType => ({
     state: 'ERROR', message});
-const MakeStateWarning =
+export const MakeStateWarning =
   (message:string|FunctionProblem): DisplayStateType => ({
     state: 'WARNING', message});
-const MakeStateGood =
+export const MakeStateGood =
   (message:string = ''): DisplayStateType => ({
     state: 'GOOD', message});
 
@@ -56,6 +57,7 @@ const initialState:GraphState = {
   scale: 25,
   time: -1,
   running: false,
+  showLabels: true,
   showVector: false,
   showCart: true,
   size: {width: -1, height: -1}
@@ -132,14 +134,16 @@ type WindowsResizeAction = {
   height: number
 };
 
-type VectorAction = {
-  type: 'SET_VECTOR',
-  value: boolean
+type SettingsTuple = {cart: boolean, velocity: boolean, labels: boolean};
+
+type SettingsAction = {
+  type: 'SETTINGS',
+  value: SettingsTuple
 };
 
-type CartAction = {
-  type: 'SET_CART',
-  value: boolean
+type AllFuncsAction = {
+  type: 'ALL_FUNCS',
+  value: FuncArray
 };
 
 export type CoasterAction =
@@ -155,8 +159,8 @@ export type CoasterAction =
   ScaleChangeAction |
   TickAction |
   WindowsResizeAction |
-  VectorAction |
-  CartAction;
+  SettingsAction |
+  AllFuncsAction;
 
 export const Actions = {
   AddFunction: (expr:string):AddFunctionAction => ({
@@ -183,10 +187,10 @@ export const Actions = {
     type: 'TICK'}),
   WindowResize: (width:number, height:number):WindowsResizeAction => ({
     type: 'WINDOW_RESIZE', width, height}),
-  Vector: (value: boolean):VectorAction => ({
-    type: 'SET_VECTOR', value}),
-  Cart: (value: boolean) => ({
-    type: 'SET_CART', value})
+  Settings: (cart: boolean, velocity: boolean, labels: boolean):SettingsAction => ({
+    type: 'SETTINGS', value:{cart, velocity, labels}}),
+  AllFuncs: (value: FuncArray) => ({
+    type: 'ALL_FUNCS', value})
 };
 
 export const FuncProblems = {
@@ -324,6 +328,10 @@ const addFunctionReducer =
   return UpdateFunctions(state, funcs, isValid, funcs.length - 1);
 };
 
+const allFuncsReducer =
+  (state:GraphState, action:AllFuncsAction):GraphState =>
+  CheckFunctions(state, action.value, -1);
+
 // Gives you 4 pieces: the functions before & after the "center"
 // As well as the func array before & after those two
 // If you pass it the beginning or end, it f1 or f2 will be undefined
@@ -434,11 +442,12 @@ const windowResizeReducer =
   (state: GraphState, action: WindowsResizeAction): GraphState =>
   nobj(state, { size: { width:action.width, height:action.height } });
 
-const setVectorReducer = (state: GraphState, action: VectorAction):GraphState =>
-nobj(state, { showVector: action.value });
-
-const setCartReducer = (state: GraphState, action: CartAction):GraphState =>
-  nobj(state, { showCart: action.value });
+const settingsReducer = (state: GraphState, action: SettingsAction):GraphState =>
+  nobj(state, {
+    showCart: action.value.cart,
+    showVector: action.value.velocity,
+    showLabels: action.value.labels
+  });
 
 const internalCoasterReducer =
   (state:GraphState = initialState, action:CoasterAction): GraphState => {
@@ -467,10 +476,10 @@ const internalCoasterReducer =
       return tickReducer(state);
     case 'WINDOW_RESIZE':
       return windowResizeReducer(state, action);
-    case 'SET_VECTOR':
-      return setVectorReducer(state, action);
-    case 'SET_CART':
-      return setCartReducer(state, action);
+    case 'SETTINGS':
+      return settingsReducer(state, action);
+    case 'ALL_FUNCS':
+      return allFuncsReducer(state, action);
     default:
       return state;
   }

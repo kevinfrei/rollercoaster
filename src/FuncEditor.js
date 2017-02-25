@@ -1,20 +1,25 @@
 // @flow
 import React, {Component, PropTypes} from 'react';
 import {Button, Panel} from 'react-bootstrap';
+import {connect} from 'react-redux';
 
-type FuncChangerAttribs = {
+import {Actions} from './coasterRedux';
+
+import type {GraphState, CoasterAction} from './coasterRedux';
+
+type FuncEditorProps = {
   onSave: (pos:number, func:string)=>void,
   onClear: () => void,
   func: string,
   pos: number
 };
 
-const FuncChangerHeader = ({add, pos}:{add:boolean, pos:number}) => (
+export const FunctionEditorHeader = ({add, pos}:{add:boolean, pos:number}) => (
   <div>{add ? 'Add a Function' : `Editing Function #${pos+1}`}</div>
 );
 
-export class FuncChanger extends Component {
-  props:FuncChangerAttribs;
+export class UnboundFunctionEditor extends Component {
+  props:FuncEditorProps;
   _textarea:?HTMLTextAreaElement;
   click = (event:Event) => {
     if (this._textarea)
@@ -35,7 +40,7 @@ export class FuncChanger extends Component {
     // So, if it's already been displayed, set the value explicitly.
     if (this._textarea)
       this._textarea.value = this.props.func;
-    const hdr = <FuncChangerHeader add={add} pos={pos}/>;
+    const hdr = <FunctionEditorHeader add={add} pos={pos}/>;
     const clr = this.props.onClear;
     const clk = this.click;
     return (
@@ -56,9 +61,27 @@ export class FuncChanger extends Component {
   }
 };
 
-FuncChanger.propTypes = {
+UnboundFunctionEditor.propTypes = {
   onClear: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
   func: PropTypes.string.isRequired,
   pos: PropTypes.number.isRequired
 };
+
+const FunctionEditor = connect(
+  // State to Props
+  (state:GraphState) => ({
+    pos: state.currentEdit,
+    func: (state.currentEdit < 0) ? '' : String(state.funcs[state.currentEdit].text)
+  }),
+  // Dispatch to Handler Props
+  (dispatch:(a:CoasterAction)=>void) => ({
+    onSave: (id:number, expr:string) => dispatch(
+      (id >= 0)
+        ? Actions.EditFunction(id, expr)
+        : Actions.AddFunction(expr)),
+    onClear: () => dispatch(Actions.ClearEditor())
+  })
+)(UnboundFunctionEditor);
+
+export default FunctionEditor;

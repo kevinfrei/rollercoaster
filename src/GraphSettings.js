@@ -1,26 +1,32 @@
 // @flow
 
-import React from 'react';
-import {Grid, Row, Col, Button, Checkbox} from 'react-bootstrap';
+import React, {PropTypes} from 'react';
+import {Button} from 'react-bootstrap';
 import ReactBootstrapSlider from 'react-bootstrap-slider';
+import {connect} from 'react-redux';
 
-import {FileDialog} from './FileDialog';
+import FileDialog from './FileDialog';
+import {Actions} from './coasterRedux';
 
 import './bootstrap-slider-min.css';
 import './App.css';
+
+import type {GraphState, CoasterAction} from './coasterRedux';
 
 type GraphSettingsProps = {
   scale: number,
   time: number,
   running: boolean,
+  openDialogButton: mixed,
   onScaleChange: (a:string)=>void,
   onPlay: (a:boolean)=>void,
 };
 
-export const GraphSettings = ({
+export const UnboundGraphSettings = ({
   scale,
   time,
   running,
+  openDialogButton,
   onScaleChange,
   onPlay
 }:GraphSettingsProps) => {
@@ -28,7 +34,6 @@ export const GraphSettings = ({
   const min = Math.floor(timeInSeconds / 60);
   const sec = Math.round(10 * (timeInSeconds - min * 60)) / 10;
   const timeExpr = `${min}:${(sec<10)?'0':''}${sec}`;
-  const pad = {padding:'3pt'};
   const label = running ? '◾' : '▶'; // UTF8 Files :)
   const handler = (e:HTMLInputEvent) => onScaleChange(e.target.value);
   return (
@@ -39,25 +44,45 @@ export const GraphSettings = ({
       alignItems:'stretch',
       alignContent:'center'
     }}>
-      <Button onClick={() => onPlay(!running)} style={{flexGrow:1}}>
+      <Button onClick={() => onPlay(!running)} style={{width:50}}>
         {label}
       </Button>
-      <div style={{width:'120pt',padding:'3pt'}}>
+      <div style={{width:'120pt', padding:'5pt'}}>
         Current time: {(time > 0) ? timeExpr : 'Stopped'}
       </div>
-      <div style={{padding:'3pt'}}>Zoom:&nbsp;</div>
-      <div style={{flexGrow:10}}>
+      <div style={{padding:'5pt'}}>Zoom:&nbsp;</div>
+      <div style={{flexGrow:10, padding:'5pt'}}>
         <ReactBootstrapSlider
-          style={pad}
-          value={scale}
-          min={1}
-          max={100}
-          step={.01}
-          orientation='horizontal'
-          change={handler}
-          slideStop={handler}/>
+          value={scale} orientation='horizontal'
+          min={1} max={100} step={.01}
+          change={handler} slideStop={handler}/>
       </div>
-      <FileDialog/>
+      {openDialogButton}
     </div>
   );
 };
+
+UnboundGraphSettings.propTypes = {
+  scale: PropTypes.number.isRequired,
+  time: PropTypes.number.isRequired,
+  openDialogButton: PropTypes.element.isRequired,
+  onScaleChange: PropTypes.func.isRequired,
+  onPlay: PropTypes.func.isRequired
+};
+
+const GraphSettings = connect(
+  // State to Props:
+  (state:GraphState) => ({
+    scale: state.scale,
+    time: state.time,
+    running: state.running,
+    openDialogButton: <FileDialog/>
+  }),
+  // Dispatch to Handler Prop
+  (dispatch:(a:CoasterAction)=>void) => ({
+    onPlay: (play:boolean) => dispatch(play ? Actions.Start() : Actions.Stop()),
+    onScaleChange: (value:string) => dispatch(Actions.ChangeScale(value))
+  })
+)(UnboundGraphSettings);
+
+export default GraphSettings;

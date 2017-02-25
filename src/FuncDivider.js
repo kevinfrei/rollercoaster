@@ -9,7 +9,7 @@ type FuncDividerTypes = {
   onChange: (pos:number, val:string|number) => void
 };
 
-export const FuncDivider = ({pos, low, high, onChange}:FuncDividerTypes) => {
+const FunctionDivider = ({pos, low, high, onChange}:FuncDividerTypes) => {
   const lowDig = Math.min(low.toString().length, low.toFixed(5).length);
   const hiDig = Math.min(high.toString().length, high.toFixed(5).length);
   return (
@@ -30,9 +30,11 @@ export const FuncDivider = ({pos, low, high, onChange}:FuncDividerTypes) => {
     </span>);
 };
 
-FuncDivider.propTypes = {
+FunctionDivider.propTypes = {
   pos:React.PropTypes.number.isRequired,
   low:React.PropTypes.number.isRequired,
   high:React.PropTypes.number.isRequired,
   onChange:React.PropTypes.func.isRequired
 };
+
+export default FunctionDivider;

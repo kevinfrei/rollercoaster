@@ -2,11 +2,14 @@
 
 import React, {Component, PropTypes} from 'react';
 
-export class MathJaxReact extends Component {
+class MathJaxReact extends Component {
   props:{formula:string};
   MathOutput:HTMLElement;
-  QueueForRendering() {
+  QueueForRendering = () => {
     window.MathJax.Hub.Queue(["Typeset", window.MathJax.Hub, this.MathOutput]);
+  }
+  componentDidMount() {
+    this.QueueForRendering();
   }
   componentDidUpdate() {
     this.QueueForRendering();
@@ -23,3 +26,5 @@ export class MathJaxReact extends Component {
 MathJaxReact.propTypes = {
   formula: PropTypes.string.isRequired
 };
+
+export default MathJaxReact;

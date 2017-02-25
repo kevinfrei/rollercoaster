@@ -2,8 +2,8 @@
 
 import React from 'react';
 import {Button, ButtonGroup} from 'react-bootstrap';
+import MathJaxReact from './MathJaxReact';
 
-import {MathJaxReact} from './MathJaxReact';
 import type {UserFunction} from './UserFunction';
 
 type FuncViewerAttribs = {
@@ -42,17 +42,17 @@ const FuncChangeButtons = ({first, last, id, onDel, onEdit}) => (
   </ButtonGroup>
 );
 
-export const FuncViewer =
-({id,userFunc,first,last,onEdit,onPrev,onNext,onDel}:FuncViewerAttribs) => {
-  return (
-    <div className='ColJust'>
-      <FuncMover id={id} first={first} last={last}
-        onPrev={onPrev} onNext={onNext}/>
-      <div style={{padding:'4pt'}}>
-        <FuncDisplayer text={userFunc.text}/>
-      </div>
-      <FuncChangeButtons id={id} first={first} last={last}
-        onDel={onDel} onEdit={onEdit}/>
+const FunctionViewer =
+({id,userFunc,first,last,onEdit,onPrev,onNext,onDel}:FuncViewerAttribs) => (
+  <div className='ColJust'>
+    <FuncMover id={id} first={first} last={last}
+      onPrev={onPrev} onNext={onNext}/>
+    <div style={{padding:'4pt'}}>
+      <FuncDisplayer text={userFunc.text}/>
     </div>
-  );
-};
+    <FuncChangeButtons id={id} first={first} last={last}
+      onDel={onDel} onEdit={onEdit}/>
+  </div>
+);
+
+export default FunctionViewer;

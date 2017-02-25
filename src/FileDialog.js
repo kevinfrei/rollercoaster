@@ -12,102 +12,97 @@ import {
   FormGroup,
   MenuItem,
   Modal,
-  Panel,
-  Tab,
-  Tabs,
 } from 'react-bootstrap';
+import {connect} from 'react-redux';
 
 import {
-  LoadFuncSets, SaveFuncSets, FuncSetToArray, ArrayToFuncSet
+  ArrayToFuncSet,
+  FuncSetToArray,
+  LoadFuncSets,
+  SaveFuncSets
 } from './LoadSave';
+import {Actions} from './coasterRedux';
 
 import type {FuncArray} from './UserFunction';
-import type {FuncSetsType} from './LoadSave';
-
-/*
-const loadState = ():LoadSaveState => ({
-  selected:-1,
-  funcLists:[]
-});
-
-const saveState = (st: LoadState, funcs:FuncArray, name:string) => {
-  //CONTINUE HERE$$$ ### @@@
-};
-*/
+import type {FuncSetsType, FlatFunc} from './LoadSave';
+import type {GraphState, CoasterAction} from './coasterRedux';
 
 type FileDialogState = {
-  showModal:boolean,
-  selected:number,
-  //settings: {
-    cart:boolean,
-    velocity:boolean,
-    labels:boolean,
+  showModal : boolean,
+  // settings: {
+  cart : boolean,
+  velocity : boolean,
+  labels : boolean,
   //},
-  //loader: {
-    loadSelection:string,
-    funcsets: FuncSetsType;
+  // loader: {
+  loadSelection : string,
+  funcsets : FuncSetsType;
   //},
-  //saver: {
-    saveName:string,
+  // saver: {
+  saveName : string,
   //},
 };
 
 type FileDialogProps = {
-  cart: boolean,
-  velocity: boolean,
-  labels: boolean,
-  curFuncs: FuncArray,
-  onSave: (cart: boolean, velocity: boolean, labels: boolean) => void,
-  onLoad: (funcSet: FuncArray) => void,
+  cart : boolean,
+  velocity : boolean,
+  labels : boolean,
+  curFuncs : FuncArray,
+  onSave : (cart: boolean, velocity: boolean, labels: boolean) => void,
+  onLoad : (funcSet: FuncArray) => void,
 };
 
-export class FileDialog extends Component {
-  state:FileDialogState;
-  constructor(props:FileDialogProps) {
+export class UnboundFileDialog extends Component {
+  state: FileDialogState;
+  constructor(props: FileDialogProps) {
     super(props);
     this.state = {
-      showModal:false,
-      selected:1,
+      showModal : false,
 
-        cart: props.cart,
-        velocity: props.velocity,
-        labels: props.labels,
+      cart : props.cart,
+      velocity : props.velocity,
+      labels : props.labels,
 
-        loadSelection: 'le set deux',
-        funcsets: new Map()/*props.curFuncs.map([
-          ['set numero uno', '1;2;sin(x)'],
-          ['le set deux', '2;3;cos(x)'],
-          ['troisieme', '3;5;x^2']
-        ]))*/,
+      loadSelection : '',
+      funcsets : new Map(),
 
-        saveName:''
+      saveName : ''
     };
   }
   open = () => {
-    this.setState({showModal:true});
+    this.setState({showModal : true});
   }
   close = () => {
-    this.setState({showModal:false});
+    this.setState({showModal : false});
   }
-  tabSelect = (which:number) => {
-    this.setState({selected: which});
+  loadSelect = (which: string) => {
+    this.setState({loadSelection : which})
   }
-  loadSelect = (which:string) => {
-    this.setState({loadSelection:which})
+  cart = () => {
+    this.props.onSave(!this.state.cart, this.state.velocity, this.state.labels);
+    this.setState({cart: !this.state.cart});
   }
-  cart = () => this.setState({cart:!this.state.cart});
-  velocity = () => this.setState({velocity:!this.state.velocity});
-  labels = () => this.setState({labels:!this.state.labels});
-  changeName = (e) => this.setState({saveName:e.target.value});
+  velocity = () => {
+    this.props.onSave(this.state.cart, !this.state.velocity, this.state.labels);
+    this.setState({velocity: !this.state.velocity});
+  }
+  labels = () => {
+    this.props.onSave(this.state.cart, this.state.velocity, !this.state.labels);
+    this.setState({labels: !this.state.labels});
+  }
+  changeName = (e) => this.setState({saveName : e.target.value});
   saveFuncSet = () => {
-    // TODO: Save the func sets as name
+    const funcSet:Array<FlatFunc> = ArrayToFuncSet(this.props.curFuncs);
+    const fs = this.state.funcsets;
+    fs.set(this.state.saveName, funcSet);
+    SaveFuncSets(fs);
+    this.setState({funcsets: fs, loadSelection:this.state.saveName});
   }
   delFuncSet = () => {
     // TODO: Build a UI, and add the capability to delete a saved FuncSet
   }
   loadFuncSets = () => {
-    // TODO: Load the func sets from name
-    //this.props.onLoad(FuncArray);
+    this.props.onLoad(this.state.loadSelection);
   }
   saveSettings = () => {
     this.props.onSave(this.state.cart, this.state.velocity, this.state.labels);
@@ -115,7 +110,7 @@ export class FileDialog extends Component {
   }
   render() {
     const ButtonInfo = '⚙/💾'; // I love UTF8...
-    const map:FuncSetsType = this.state.funcsets;
+    const map: FuncSetsType = this.state.funcsets;
     const FuncSets = Array.from(map.keys()).map((k,i) => (
       <MenuItem key={i} eventKey={k} onSelect={this.loadSelect}>{k}</MenuItem>
     ));
@@ -125,111 +120,81 @@ export class FileDialog extends Component {
       <div>
         <Button onClick={this.open}>{ButtonInfo}</Button>
         <Modal show={this.state.showModal} onHide={this.close}>
+          <Modal.Header closeButton>
+            <Modal.Title>Settings, Loading, Saving (and eventually import/export)</Modal.Title>
+          </Modal.Header>
           <Modal.Body>
-            <Tabs defaultActiveKey={1} id='LoadSaveSettings' onSelect={this.tabSelect}>
-              <Tab eventKey={1} title='Graph Settings'>
-                <Panel>
-                  <Form horizontal>
-                    <FormGroup>
-                      <Col smOffset={3} sm={6}>
-                        <Checkbox checked={this.state.cart}
-                          onChange={this.cart}>
-                          Show cart
-                        </Checkbox>
-                      </Col>
-                    </FormGroup>
-                    <FormGroup>
-                      <Col smOffset={3} sm={6}>
-                        <Checkbox checked={this.state.velocity}
-                          onChange={this.velocity}>
-                          Show velocity vector
-                        </Checkbox>
-                      </Col>
-                    </FormGroup>
-                    <FormGroup>
-                      <Col smOffset={3} sm={6}>
-                        <Checkbox checked={this.state.labels}
-                          onChange={this.labels}>
-                          Draw numeric labels
-                        </Checkbox>
-                      </Col>
-                    </FormGroup>
-                    <FormGroup>
-                      <Col smOffset={3} sm={2}>
-                        <Button onClick={this.close}>Close</Button>
-                      </Col>
-                      <Col smOffset={1} sm={2}>
-                        <Button
-                          bsStyle='primary'
-                          disabled={(this.props.velocity === this.state.velocity) &&
-                            (this.props.cart === this.state.cart) &&
-                            (this.props.labels === this.state.labels)}
-                          onClick={this.loadFuncSets}>
-                          Save Settings
-                        </Button>
-                      </Col>
-                    </FormGroup>
-                  </Form>
-                </Panel>
-              </Tab>
-              <Tab eventKey={2} title='Load Functions'>
-                <Panel>
-                  <Form horizontal>
-                    <FormGroup controlId='formLoadFuncSet'>
-                      <Col componentClass={ControlLabel} sm={4}>
-                        Function&nbsp;Set&nbsp;Name
-                      </Col>
-                      <Col sm={8}>
-                      <DropdownButton title={FuncSetTitle} id='ddb'>
-                        {FuncSets}
-                      </DropdownButton>
-                    </Col>
-                    </FormGroup>
-                    <FormGroup>
-                      <Col smOffset={4} sm={2}>
-                        <Button onClick={this.close}>Close</Button>
-                      </Col>
-                      <Col sm={6}>
-                        <Button
-                          bsStyle='primary'
-                          disabled={map.size === 0}
-                          onClick={this.loadFuncSets}>
-                          Load Selected Function Set
-                        </Button>
-                      </Col>
-                    </FormGroup>
-                  </Form>
-                </Panel>
-              </Tab>
-              <Tab eventKey={3} title='Save Functions'>
-                <Panel>
-                  <Form horizontal>
-                    <FormGroup controlId='formSaveFuncSet'>
-                      <Col componentClass={ControlLabel} sm={4}>
-                        Function&nbsp;Set&nbsp;Name
-                      </Col>
-                      <Col sm={8}>
-                        <FormControl type='text' value={this.state.saveName}
-                        onChange={this.changeName}/>
-                      </Col>
-                    </FormGroup>
-                    <FormGroup>
-                      <Col smOffset={4} sm={2}>
-                        <Button onClick={this.close}>Close</Button>
-                      </Col>
-                      <Col sm={6}>
-                      <Button
-                        bsStyle='primary'
-                        disabled={this.state.saveName.length === 0}
-                        onClick={this.saveFuncSet}>
-                        Save Current Function Set
-                      </Button>
-                      </Col>
-                    </FormGroup>
-                  </Form>
-                </Panel>
-              </Tab>
-            </Tabs>
+            <Form horizontal>
+              <FormGroup>
+                <Col smOffset={1} sm={4}>
+                  <Checkbox checked={this.state.labels}
+                    onChange={this.labels}>
+                    Show labels on axes
+                  </Checkbox>
+                </Col>
+                <Col sm={4}>
+                  <Checkbox checked={this.state.velocity}
+                    onChange={this.velocity}>
+                    Show velocity vector
+                  </Checkbox>
+                </Col>
+                <Col sm={3}>
+                  <Checkbox checked={this.state.cart}
+                    onChange={this.cart}>
+                    Show cart
+                  </Checkbox>
+                </Col>
+              </FormGroup>
+              <FormGroup controlId='formLoadFuncSet'>
+                <Col componentClass={ControlLabel} sm={3}>
+                  Available&nbsp;sets&nbsp;to&nbsp;load
+                </Col>
+                <Col sm={5}>
+                  <DropdownButton
+                    title={FuncSetTitle}
+                    disabled={map.size === 0}
+                    id='ddb'>
+                    {FuncSets}
+                  </DropdownButton>
+                </Col>
+                <Col sm={2}>
+                    <Button
+                      bsStyle='primary'
+                      disabled={map.size === 0}
+                      style={{width:78}}
+                      onClick={this.loadFuncSets}>
+                      Load
+                    </Button>
+                  </Col>
+                  <Col sm={2}>
+                    <Button
+                      bsStyle='danger'
+                      disabled={map.size === 0}
+                      style={{width:78}}
+                      onClick={this.loadFuncSets}>
+                      Delete
+                    </Button>
+                </Col>
+              </FormGroup>
+              <FormGroup controlId='formSaveFuncSet'>
+                <Col componentClass={ControlLabel} sm={3}>
+                  Current&nbsp;set&nbsp;name
+                </Col>
+                <Col sm={5}>
+                  <FormControl type='text' value={this.state.saveName}
+                    onChange={this.changeName}/>
+                </Col>
+                <Col sm={4}>
+                  <Button
+                    bsStyle='primary'
+                    style={{width:78}}
+                    disabled={this.state.saveName.length === 0}
+                    onClick={this.saveFuncSet}>
+                    Save Set
+                  </Button>
+                </Col>
+              </FormGroup>
+            </Form>
           </Modal.Body>
         </Modal>
       </div>
@@ -237,7 +202,7 @@ export class FileDialog extends Component {
   }
 }
 
-FileDialog.propTypes = {
+UnboundFileDialog.propTypes = {
   cart: PropTypes.bool.isRequired,
   velocity: PropTypes.bool.isRequired,
   labels: PropTypes.bool.isRequired,
@@ -248,5 +213,25 @@ FileDialog.propTypes = {
       low: PropTypes.number.isRequired,
       high: PropTypes.number.isRequired
     })
-  }))
+  })),
+  onSave: PropTypes.func.isRequired,
+  onLoad: PropTypes.func.isRequired
 };
+
+const FileDialog = connect(
+  // State to Props
+  (state:GraphState) => ({
+    cart: state.showCart,
+    velocity: state.showVector,
+    labels: state.showLabels,
+    curFuncs: state.funcs
+  }),
+  //TODO: Dispatch to Handler Props
+  (dispatch:(a:CoasterAction)=>void) => ({
+    onSave: (cart: boolean, velocity: boolean, labels: boolean):void =>
+      dispatch(Actions.Settings(cart, velocity, labels)),
+    onLoad: (funcSet: FuncArray): void => dispatch(Actions.AllFuncs(funcSet))
+  })
+)(UnboundFileDialog);
+
+export default FileDialog;

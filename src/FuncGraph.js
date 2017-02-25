@@ -1,19 +1,22 @@
 //@flow
 
 import React, {Component, PropTypes} from 'react';
+import {connect} from 'react-redux';
 
 import {getPosition} from './PhysicSim';
 import {FuncArrayString} from './UserFunction';
 
 import type {Vector, FuncArray} from './UserFunction';
+import type {GraphState} from './coasterRedux';
 
 type FuncGraphProps = {
   funcs:FuncArray,
   selected:number,
   scale:number,
   time:number,
-  showVector?:boolean,
-  showCart?:boolean,
+  showVector:boolean,
+  showCart:boolean,
+  showLabels:boolean,
   size:{width:number, height:number}
 };
 
@@ -86,8 +89,8 @@ const move = (x, y, a, m) => {
 };
 
 const drawGraphPaper = (
-  ctx: CanvasRenderingContext2D, {w, h}:{w:number, h:number}) => {
-  // TODO: Add some numeric labels
+  ctx: CanvasRenderingContext2D,
+  {w, h, lbls}:{w:number, h:number, lbls:boolean}) => {
   const x1 = xu(0);
   const y1 = yu(0);
   const x2 = xu(w);
@@ -110,18 +113,19 @@ const drawGraphPaper = (
     path(ctx, xu(0), pos, xu(w), pos);
     ctx.stroke();
   }
-  // Need to undo both the reversed transform & shrink the scaling a fair bit...
-  textScale(ctx);
-  const textSize = scale;
-  ctx.font = `${textSize*.75}pt Courier`;
-  for (let val = 5; val < high; val += 5) {
-    ctx.textAlign = 'right';
-    ctx.fillText(val.toString(), tx(-.1), ty(val-.3));
-    ctx.fillText((-val).toString(), tx(-.1), ty(-val-.3));
-    ctx.textAlign = 'center';
-    ctx.fillText(val.toString(), tx(val), ty(-.9));
+  if (lbls) {
+    textScale(ctx);
+    const textSize = scale;
+    ctx.font = `${textSize*.75}pt Courier`;
+    for (let val = 5; val < high; val += 5) {
+      ctx.textAlign = 'right';
+      ctx.fillText(val.toString(), tx(-.1), ty(val-.3));
+      ctx.fillText((-val).toString(), tx(-.1), ty(-val-.3));
+      ctx.textAlign = 'center';
+      ctx.fillText(val.toString(), tx(val), ty(-.9));
+    }
+    drawScale(ctx);
   }
-  drawScale(ctx);
 };
 
 const drawVector = (ctx: CanvasRenderingContext2D, vec:Vector) => {
@@ -164,51 +168,86 @@ const drawVehicle = (ctx: CanvasRenderingContext2D, vec:Vector, cart:?boolean) =
   dot(ctx, lWheelX, lWheelY, .15 * carWidth, '#000');
   dot(ctx, rWheelX, rWheelY, .15 * carWidth, '#000');
 };
+// This draws the lines for the function on the graph:
+const drawFunctions = (ctx: CanvasRenderingContext2D, funcs: FuncArray): void => {
+  let curStroke = 0;
+  for (let f of funcs) {
+    let x = f.range.low;
+    let y = f.func(x);
+    dot(ctx, x, y, .1, '#000');
+    ctx.beginPath();
+    ctx.strokeStyle = strokes[curStroke];
+    ctx.fillStyle = strokes[curStroke];
+    ctx.lineWidth = 1/16;
+    curStroke = (curStroke + 1) % strokes.length;
+    ctx.moveTo(x, y);
+    const e = f.range.high;
+    while (x < e) {
+      let fail = false;
+      try {
+        y = f.func(x);
+        fail = Number.isNaN(y);
+      } catch (e) {
+        fail = true;
+      }
+      if (!fail)
+        ctx.lineTo(x, y);
+      x += graphStep;
+    }
+    y = f.func(e);
+    ctx.lineTo(e, y);
+    ctx.stroke();
+    dot(ctx, e, y, .1, '#000');
+  }
+};
 
-export class FuncGraph extends Component {
+type renderState = {
+  funcs: string,
+  w: number,
+  h: number,
+  lbls: boolean,
+  time: number,
+  scale: number
+};
+const NewRenderState = (): renderState => ({
+  funcs: '',
+  w: 500,
+  h: 500,
+  lbls: false,
+  time: -1,
+  scale: 1
+});
+const RenderStateChange =
+(reqState:renderState, drawnState:renderState): boolean => (
+  reqState.w !== drawnState.w ||
+  reqState.h !== drawnState.h ||
+  reqState.funcs !== drawnState.funcs ||
+  reqState.time !== drawnState.time ||
+  reqState.lbls !== drawnState.lbls ||
+  reqState.scale !== drawnState.scale
+);
+const RedrawAxes =
+(reqState:renderState, drawnState:renderState): boolean => (
+  reqState.w !== drawnState.w ||
+  reqState.h !== drawnState.h ||
+  reqState.lbls !== drawnState.lbls ||
+  reqState.scale !== drawnState.scale
+);
+
+export class UnboundFunctionGraph extends Component {
   // Flow annotations
-  CarGraph:?HTMLCanvasElement;
-  FuncGraph:?HTMLCanvasElement;
-  props:FuncGraphProps;
-  state:{lastFuncs:string, size:{w:number, h:number}};
-  curSize:{w:number, h:number};
+  CarGraph: ?HTMLCanvasElement;
+  FuncGraph: ?HTMLCanvasElement;
+  props: FuncGraphProps;
+  // The 'requested' state of the system
+  state: renderState;
+  // The 'rendering' state of the system
+  latestState: renderState;
 
   constructor(props:FuncGraphProps) {
     super(props);
-    this.state = {lastFuncs:'', size:{w:600, h:600}};
-  }
-
-  // This draws the lines for the function on the graph:
-  drawFunctions(ctx: CanvasRenderingContext2D, funcs: FuncArray): void {
-    let curStroke = 0;
-    for (let f of funcs) {
-      let x = f.range.low;
-      let y = f.func(x);
-      dot(ctx, x, y, .1, '#000');
-      ctx.beginPath();
-      ctx.strokeStyle = strokes[curStroke];
-      ctx.fillStyle = strokes[curStroke];
-      ctx.lineWidth = 1/16;
-      curStroke = (curStroke + 1) % strokes.length;
-      ctx.moveTo(x, y);
-      const e = f.range.high;
-      while (x < e) {
-        let fail = false;
-        try {
-          y = f.func(x);
-          fail = Number.isNaN(y);
-        } catch (e) {
-          fail = true;
-        }
-        if (!fail)
-          ctx.lineTo(x, y);
-        x += graphStep;
-      }
-      y = f.func(e);
-      ctx.lineTo(e, y);
-      ctx.stroke();
-      dot(ctx, e, y, .1, '#000');
-    }
+    this.state = NewRenderState();
+    this.latestState = NewRenderState();
   }
   componentDidMount() {
     this.updateCanvas();
@@ -217,30 +256,36 @@ export class FuncGraph extends Component {
     this.updateCanvas();
   }
   updateCanvas() {
-    const funcs: FuncArray = this.props.funcs;
-    const funcStr = FuncArrayString(funcs) + scale;
-    if (this.state.lastFuncs !== funcStr ||
-      this.state.size.w !== this.curSize.w ||
-      this.state.size.h !== this.curSize.h) {
-      // We want an early exit, because we're overriding the rendering logic...
+    const drawnState = this.state;
+    const reqState = this.latestState;
+    if (!RenderStateChange(reqState, drawnState)) {
+      return;
+    }
+    this.setState(reqState);
+    if (RedrawAxes(reqState, drawnState)) {
       const ctx:CanvasRenderingContext2D = freshContext(this.FuncGraph);
-      drawGraphPaper(ctx, this.curSize);
-      this.drawFunctions(ctx, funcs);
-      this.setState({lastFuncs:funcStr, size:this.curSize});
+      drawGraphPaper(ctx, {w: reqState.w, h: reqState.h, lbls: reqState.lbls});
+      drawFunctions(ctx, this.props.funcs);
     }
     const ctx:CanvasRenderingContext2D = freshContext(this.CarGraph);
-    // If we're stopped, don't draw the dot
-    if (this.props.time < 0)
+    // If we're stopped, don't draw the cart
+    if (reqState.time < 0)
       return;
-    const t = this.props.time / FPS;
-    const vec: Vector = getPosition(funcs, t);
+    const t = reqState.time / FPS;
+    const vec: Vector = getPosition(this.props.funcs, t);
     drawVehicle(ctx, vec, this.props.showCart);
     if (this.props.showVector) {
       drawVector(ctx, vec);
     }
   }
-  updateSize(w:number, h:number) {
-    this.curSize = {w,h};
+  // This specifies the state that affects whether we redraw the graph paper
+  stateUpdateRequest = (w:number, h:number) => {
+    this.latestState.w = w;
+    this.latestState.h = h;
+    this.latestState.lbls = this.props.showLabels;
+    this.latestState.funcs = FuncArrayString(this.props.funcs);
+    this.latestState.scale = this.props.scale;
+    this.latestState.time = this.props.time;
     yo = h * .75;
     xo = w * .002 * scale + 10;
   }
@@ -249,15 +294,15 @@ export class FuncGraph extends Component {
     graphStep = 1/scale;
     const left = document.getElementById('left');
     const bottom = document.getElementById('bottom');
-    let w = 600;
-    let h = 600;
+    let w = 500;
+    let h = 500;
     if (left && this.props.size.width > 0 && left.clientWidth > 0) {
       w = Math.max(w, this.props.size.width - left.clientWidth - 4);
     }
     if (bottom && this.props.size.height > 0 && bottom.scrollHeight > 0) {
       h = Math.max(h, this.props.size.height - bottom.scrollHeight - 4);
     }
-    this.updateSize(w,h);
+    this.stateUpdateRequest(w, h);
     const hpx = `${h}px`;
     const wpx = `${w}px`;
     const s = {
@@ -279,15 +324,32 @@ export class FuncGraph extends Component {
   }
 };
 
-FuncGraph.propTypes = {
+UnboundFunctionGraph.propTypes = {
   funcs: PropTypes.arrayOf(PropTypes.object).isRequired,
   selected: PropTypes.number.isRequired,
   scale: PropTypes.number.isRequired,
   time: PropTypes.number.isRequired,
-  showVector: PropTypes.bool,
-  showCart: PropTypes.bool,
+  showVector: PropTypes.bool.isRequired,
+  showCart: PropTypes.bool.isRequired,
+  showLabels: PropTypes.bool.isRequired,
   size: PropTypes.shape({
     width:PropTypes.number.isRequired,
     height:PropTypes.number.isRequired}
   ).isRequired
 };
+
+const FunctionGraph = connect(
+  // State to Props
+  (state:GraphState) => ({
+    scale: state.scale,
+    funcs: state.funcs,
+    time: state.time,
+    selected: state.currentEdit,
+    showVector: state.showVector,
+    showCart: state.showCart,
+    showLabels: state.showLabels,
+    size: state.size
+  })
+)(UnboundFunctionGraph);
+
+export default FunctionGraph;
