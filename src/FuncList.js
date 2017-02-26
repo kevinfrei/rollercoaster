@@ -24,11 +24,12 @@ type FuncListAttribs = {
   onNext: (id:number)=>void,
   onDel: (id:number)=>void,
   onChange: (id:number, value:string|number)=>void,
-  selected: number
+  selected: number,
+  editor: React$Element<*>
 };
 
 export const UnboundFunctionList = ({
-  funcs, status, onEdit, onPrev, onNext, onDel, onChange, selected
+  funcs, status, onEdit, onPrev, onNext, onDel, onChange, selected, editor
 }:FuncListAttribs) => {
   // Should I assert that they're sorted?
   const MapOfFuncs = funcs.map(
@@ -56,7 +57,7 @@ export const UnboundFunctionList = ({
         </Panel>
       );
   });
-  const withEditor = [...MapOfFuncs, <FunctionEditor key='TheEditor'/>];
+  const withEditor = [...MapOfFuncs, <div key='theEditor'>{editor}</div>];
   return (<div>{withEditor}</div>);
 };
 
@@ -64,6 +65,7 @@ UnboundFunctionList.propTypes = {
   funcs: PropTypes.arrayOf(PropTypes.object).isRequired,
   status: PropTypes.object.isRequired,
   selected: PropTypes.number.isRequired,
+  editor: PropTypes.element.isRequired,
   onEdit: PropTypes.func.isRequired,
   onPrev: PropTypes.func.isRequired,
   onNext: PropTypes.func.isRequired,
@@ -76,7 +78,8 @@ const FunctionList = connect(
   (state:GraphState) => ({
     funcs: state.funcs,
     status: state.displayState,
-    selected: state.currentEdit
+    selected: state.currentEdit,
+    editor: <FunctionEditor/>
   }),
   // Dispatch To Handler Props
   (dispatch:(a:CoasterAction)=>void) => ({

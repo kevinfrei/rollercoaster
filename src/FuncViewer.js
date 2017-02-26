@@ -28,7 +28,7 @@ const FuncMover = ({first, last, id, onPrev, onNext}) => (
   </ButtonGroup>
 );
 
-const FuncDisplayer = ({text}) => (<MathJaxReact formula={`y = ${text}`}/>);
+const FuncDisplayer = ({text}) => <MathJaxReact formula={`y = ${text}`}/>;
 
 const FuncChangeButtons = ({first, last, id, onDel, onEdit}) => (
   <ButtonGroup vertical>

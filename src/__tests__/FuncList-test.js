@@ -27,6 +27,7 @@ it('renders without crashing', () => {
       status={wrn}
       onChange={(a,b)=>{}}
       selected={0}
+      editor={<div>editor</div>}
     />, div);
 //  ReactDOM.render(<StateDisplay/>, div);
 });
