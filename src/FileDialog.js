@@ -18,14 +18,14 @@ import {connect} from 'react-redux';
 import {
   ArrayToFuncSet,
   FuncSetToArray,
-  LoadFuncSets,
+  //LoadFuncSets,*/
   SaveFuncSets
 } from './LoadSave';
 import {Actions} from './coasterRedux';
 
 import type {FuncArray} from './UserFunction';
 import type {FuncSetsType, FlatFunc} from './LoadSave';
-import type {GraphState, CoasterAction} from './coasterRedux';
+import type {GraphState, dispatchType} from './coasterRedux';
 
 type FileDialogState = {
   showModal : boolean,
@@ -99,13 +99,16 @@ export class UnboundFileDialog extends Component {
     this.setState({funcsets: fs, loadSelection:this.state.saveName});
   }
   delFuncSet = () => {
-    // TODO: Build a UI, and add the capability to delete a saved FuncSet
+    const mp = this.state.funcsets;
+    mp.delete(this.state.loadSelection);
+    let loadSelection:string = '';
+    for (loadSelection of mp.keys()) break;
+    this.setState({funcsets: mp, loadSelection});
   }
   loadFuncSets = () => {
-    this.props.onLoad(this.state.loadSelection);
-  }
-  saveSettings = () => {
-    this.props.onSave(this.state.cart, this.state.velocity, this.state.labels);
+    const funcArray:FuncArray =
+      FuncSetToArray(this.state.funcsets, this.state.loadSelection);
+    this.props.onLoad(funcArray);
     this.close();
   }
   render() {
@@ -114,7 +117,7 @@ export class UnboundFileDialog extends Component {
     const FuncSets = Array.from(map.keys()).map((k,i) => (
       <MenuItem key={i} eventKey={k} onSelect={this.loadSelect}>{k}</MenuItem>
     ));
-    const FuncSetTitle = (map.size > 0) ? this.state.loadSelection :
+    const FuncSetTitle = (map.size > 0) ? this.state.loadSelection.substring(0,17) :
       'No function sets available!';
     return (
       <div>
@@ -171,7 +174,7 @@ export class UnboundFileDialog extends Component {
                       bsStyle='danger'
                       disabled={map.size === 0}
                       style={{width:78}}
-                      onClick={this.loadFuncSets}>
+                      onClick={this.delFuncSet}>
                       Delete
                     </Button>
                 </Col>
@@ -227,10 +230,12 @@ const FileDialog = connect(
     curFuncs: state.funcs
   }),
   //TODO: Dispatch to Handler Props
-  (dispatch:(a:CoasterAction)=>void) => ({
+  (dispatch:dispatchType) => ({
     onSave: (cart: boolean, velocity: boolean, labels: boolean):void =>
       dispatch(Actions.Settings(cart, velocity, labels)),
-    onLoad: (funcSet: FuncArray): void => dispatch(Actions.AllFuncs(funcSet))
+    onLoad: (funcSet: FuncArray): void => {
+      dispatch(Actions.AllFuncs(funcSet));
+    }
   })
 )(UnboundFileDialog);
 

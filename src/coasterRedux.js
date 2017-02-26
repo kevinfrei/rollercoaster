@@ -162,6 +162,8 @@ export type CoasterAction =
   SettingsAction |
   AllFuncsAction;
 
+export type dispatchType = (action:CoasterAction) => void;
+
 export const Actions = {
   AddFunction: (expr:string):AddFunctionAction => ({
     type: 'ADD_FUNCTION', expr}),
@@ -329,8 +331,10 @@ const addFunctionReducer =
 };
 
 const allFuncsReducer =
-  (state:GraphState, action:AllFuncsAction):GraphState =>
-  CheckFunctions(state, action.value, -1);
+  (state:GraphState, action:AllFuncsAction):GraphState => {
+  const funcs = CheckFunctions(state, action.value, -1);
+  return funcs;
+}
 
 // Gives you 4 pieces: the functions before & after the "center"
 // As well as the func array before & after those two

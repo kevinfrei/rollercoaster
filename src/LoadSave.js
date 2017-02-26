@@ -93,7 +93,8 @@ export const FuncSetToArray =
   if (!funcStrings) {
     return [];
   }
-  return funcStrings.map(fs => DemandUserFunc(fs.expr, fs.low, fs.high));
+  const res = funcStrings.map(fs => DemandUserFunc(fs.expr, fs.low, fs.high));
+  return res;
 };
 
 export const ArrayToFuncSet = (fa:FuncArray): Array<FlatFunc> =>

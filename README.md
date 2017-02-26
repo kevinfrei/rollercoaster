@@ -52,7 +52,8 @@ lives.
   * You can fall onto them
   * Dropping off the track completely should be an error
     (as opposed to what happens now, where the cart just flies straight up...)
-* Handle non-derivable tangents
+  * Probably related to...
+* ...handle non-derivable tangents
   * Smooth them, probably. mathjs seems to be able to produce the derivative.
     Given that capability, I could stop estimating the derivative, and just use
     mathjs to do it...
