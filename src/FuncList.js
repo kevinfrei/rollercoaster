@@ -7,6 +7,7 @@ import {connect} from 'react-redux';
 import FunctionEditor from './FuncEditor';
 import FunctionDivider from './FuncDivider';
 import FunctionViewer from './FuncViewer';
+import {Colors} from './FuncGraph';
 import {Actions} from './coasterRedux';
 
 import type {FuncArray} from './UserFunction';
@@ -45,6 +46,7 @@ export const UnboundFunctionList = ({
       }
       return (
         <Panel key={index} header={header} bsStyle={btnStyle}>
+          <div style={{border:'2pt solid '+Colors[index % Colors.length], padding:'2pt'}}>
           <FunctionViewer
             id={index}
             first={index===0}
@@ -54,6 +56,7 @@ export const UnboundFunctionList = ({
             onPrev={onPrev}
             onEdit={onEdit}
             onDel={onDel}/>
+          </div>
         </Panel>
       );
   });

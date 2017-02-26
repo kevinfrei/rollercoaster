@@ -28,9 +28,11 @@ const arrowAngle = Math.PI + Math.PI / 6;
 const FPS = 60; // This should match what's set in index.js
 
 // Function colors
-const strokes = [
-  '#060', '#006', '#600', '#066', '#606', '#660',
-  '#A00', '#0A0', '#00A', '#0AA', '#A0A', '#AA0'
+export const Colors = [
+  '#080', '#008', '#800', '#088', '#808', '#880',
+  '#C00', '#0C0', '#00C', '#0CC', '#C0C', '#CC0',
+  '#C80', '#0C8', '#80C', '#C08', '#8C0', '#08C',
+  '#CC8', '#C8C', '#8CC', '#88C', '#8C8', '#C88'
 ];
 
 let scale = 20; // Scale of the graph
@@ -113,7 +115,7 @@ const drawGraphPaper = (
     path(ctx, xu(0), pos, xu(w), pos);
     ctx.stroke();
   }
-  if (lbls) {
+  if (lbls && scale > 2.5) {
     textScale(ctx);
     const textSize = scale;
     ctx.font = `${textSize*.75}pt Courier`;
@@ -176,10 +178,10 @@ const drawFunctions = (ctx: CanvasRenderingContext2D, funcs: FuncArray): void =>
     let y = f.func(x);
     dot(ctx, x, y, .1, '#000');
     ctx.beginPath();
-    ctx.strokeStyle = strokes[curStroke];
-    ctx.fillStyle = strokes[curStroke];
+    ctx.strokeStyle = Colors[curStroke];
+    ctx.fillStyle = Colors[curStroke];
     ctx.lineWidth = 1/16;
-    curStroke = (curStroke + 1) % strokes.length;
+    curStroke = (curStroke + 1) % Colors.length;
     ctx.moveTo(x, y);
     const e = f.range.high;
     while (x < e) {
@@ -230,6 +232,7 @@ const RedrawAxes =
 (reqState:renderState, drawnState:renderState): boolean => (
   reqState.w !== drawnState.w ||
   reqState.h !== drawnState.h ||
+  reqState.funcs !== drawnState.funcs ||
   reqState.lbls !== drawnState.lbls ||
   reqState.scale !== drawnState.scale
 );

@@ -96,17 +96,18 @@ export class UnboundFileDialog extends Component {
   changeName = (e) => this.setState({saveName : e.target.value});
   saveFuncSet = () => {
     const funcSet:Array<FlatFunc> = ArrayToFuncSet(this.props.curFuncs);
-    const fs = this.state.funcsets;
-    fs.set(this.state.saveName, funcSet);
-    SaveFuncSets(fs);
-    this.setState({funcsets: fs, loadSelection:this.state.saveName});
+    const funcsets = this.state.funcsets;
+    funcsets.set(this.state.saveName, funcSet);
+    SaveFuncSets(funcsets);
+    this.setState({funcsets: funcsets, loadSelection:this.state.saveName});
   }
   delFuncSet = () => {
-    const mp = this.state.funcsets;
-    mp.delete(this.state.loadSelection);
+    const funcsets = this.state.funcsets;
+    funcsets.delete(this.state.loadSelection);
     let loadSelection:string = '';
-    for (loadSelection of mp.keys()) break;
-    this.setState({funcsets: mp, loadSelection});
+    for (loadSelection of funcsets.keys()) break;
+    SaveFuncSets(funcsets);
+    this.setState({funcsets, loadSelection});
   }
   loadFuncSets = () => {
     const funcArray:FuncArray =

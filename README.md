@@ -37,41 +37,39 @@ run without needing admin privileges.
 ## The code itself
 
 It all lives under `src`. From there, `App.js` is the main entry point.
-`FunctionList.js` contains the UI for the functions.
-`FunctionGraph.js` contains the UI for the graph.
+`FuncList.js` contains the UI for the functions.
+`FuncGraph.js` contains the UI for the graph.
 `UserFunction.js` contains the data for the functions.
 `PhysicSim.js` contains the majority of the interesting math.
-`ReduxControls.js` and `coasterRedux.js` are where the UI state management stuff
-lives.
+`coasterRedux.js` are where the UI state management stuff lives.
 
 ### TODO:
 
-* Allow saving & loading of function lists
-  * (to files, or just to cookies?)
-* Handle non-continuous functions
-  * You can fall onto them
-  * Dropping off the track completely should be an error
-    (as opposed to what happens now, where the cart just flies straight up...)
-  * Probably related to...
-* ...handle non-derivable tangents
-  * Smooth them, probably. mathjs seems to be able to produce the derivative.
-    Given that capability, I could stop estimating the derivative, and just use
-    mathjs to do it...
-* Make a better, semi-modal function editor:
-  * with help
-  * continuity assistance
-  * derivability guidance, perhaps
-* Handle animation better: drop frames, base on wall clock, not assumed
-  timer accuracy (try it on an iphone and watch it not seem quite right)
-* Prevent the graph from attempting to draw
-  if the functions aren't at least calculable.
-* Make the time be a slider instead of an unchangeable clock?
-* Make the thing prettier.
-* Color-code the function list with the graph line.
-* Improve the tests. A lot.
-* MathJS and AsciiMath aren't _quite_ compatible. The fix is to probably
-  parse the AsciiMath and compile it myself. This seems like a lot of work.
-  An alternative would be to translate the common mathjs expressions into their
-  corresponding asciimath representation. This is probably less work. Both are
-  going to take a fair bit of time...
-* Do I want to try to make it work on IE? Edge seems to work just fine...
+* Math work:
+  * Handle non-continuous functions
+    * You can fall onto them
+    * Dropping off the track completely should be an error
+      (as opposed to what happens now, where the cart just flies straight up...)
+      * Probably related to...
+    * ...handle non-derivable tangents
+    * Smooth them, probably. mathjs seems to be able to produce the derivative.
+      Given that capability, I could stop estimating the derivative, and just
+      use mathjs to do it...
+    * MathJS and AsciiMath aren't _quite_ compatible. The fix is to probably
+      parse the AsciiMath and compile it myself. This seems like a lot of work.
+      An alternative would be to translate the common mathjs expressions into
+      their corresponding asciimath representation. This is probably less work.
+      Both are going to take a fair bit of time...
+* UI Work:
+  * Make a better, semi-modal function editor:
+    * with help
+    * continuity assistance
+    * derivability guidance, perhaps
+  * Handle animation better: drop frames, base on wall clock, not assumed
+    timer accuracy (try it on an iphone and watch it not seem quite right)
+  * Prevent the graph from attempting to draw
+    if the functions aren't at least calculable.
+* Other work:
+  * Improve the tests. A lot.
+  * Do I want to try to make it work on IE? Edge, Chrome, FireFox, and Safari
+    all seem to work just fine...
