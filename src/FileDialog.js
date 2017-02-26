@@ -18,7 +18,7 @@ import {connect} from 'react-redux';
 import {
   ArrayToFuncSet,
   FuncSetToArray,
-  //LoadFuncSets,*/
+  LoadFuncSets,
   SaveFuncSets
 } from './LoadSave';
 import {Actions} from './coasterRedux';
@@ -56,6 +56,9 @@ export class UnboundFileDialog extends Component {
   state: FileDialogState;
   constructor(props: FileDialogProps) {
     super(props);
+    const funcsets = LoadFuncSets();
+    let loadSelection:string = '';
+    for (loadSelection of funcsets.keys()) break;
     this.state = {
       showModal : false,
 
@@ -63,8 +66,8 @@ export class UnboundFileDialog extends Component {
       velocity : props.velocity,
       labels : props.labels,
 
-      loadSelection : '',
-      funcsets : new Map(),
+      loadSelection,
+      funcsets,
 
       saveName : ''
     };
