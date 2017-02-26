@@ -51,16 +51,17 @@ It all lives under `src`. From there, `App.js` is the main entry point.
     * Dropping off the track completely should be an error
       (as opposed to what happens now, where the cart just flies straight up...)
       * Probably related to...
-    * ...handle non-derivable tangents
+  * ...handle non-derivable tangents
     * Smooth them, probably. mathjs seems to be able to produce the derivative.
       Given that capability, I could stop estimating the derivative, and just
       use mathjs to do it...
-    * MathJS and AsciiMath aren't _quite_ compatible. The fix is to probably
-      parse the AsciiMath and compile it myself. This seems like a lot of work.
-      An alternative would be to translate the common mathjs expressions into
-      their corresponding asciimath representation. This is probably less work.
-      Both are going to take a fair bit of time...
+  * MathJS and AsciiMath aren't _quite_ compatible. The fix is to probably
+    parse the AsciiMath and compile it myself. This seems like a lot of work.
+    An alternative would be to translate the common mathjs expressions into
+    their corresponding asciimath representation. This is probably less work.
+    Both are going to take a fair bit of time...
 * UI Work:
+  * Add a "follow the cart" zoom mode
   * Make a better, semi-modal function editor:
     * with help
     * continuity assistance
