@@ -68,8 +68,9 @@ It all lives under `src`. From there, `App.js` is the main entry point.
     * derivability guidance, perhaps
   * Handle animation better: drop frames, base on wall clock, not assumed
     timer accuracy (try it on an iphone and watch it not seem quite right)
-  * Prevent the graph from attempting to draw
-    if the functions aren't at least calculable.
+  * Prevent the graph from attempting to draw if the functions aren't at least
+    calculable.
+  * The UI needs *serious* work...
 * Other work:
   * Improve the tests. A lot.
   * Do I want to try to make it work on IE? Edge, Chrome, FireFox, and Safari
