@@ -25,10 +25,9 @@ const initialSpeed = 0;
 const initialAngle = -halfPi;
 
 // How many slices used to calculate random stuff
-// More slices == more accuracy, but only to a point
-// because time^2, will cause things to fall off the end of the
-// floating point value...
-const timeSlice = 1 / 1024;
+// This value corresponds to what the 'time' value in the GraphState represents
+// It's effectively "milliseconds since beginning"
+const timeSlice = .001;
 const timeSliceSquared = timeSlice * timeSlice;
 
 // Helper functions
@@ -73,8 +72,6 @@ const GetPointData = (x: number, func: MathFunc): PointData => {
 const CalcForceVectors =
   (vec: Vector, normal: number, tangent: number):ForceVectors => {
   const normalForce = vec.line ? Math.cos(normal) : 1.0;
-  // if (!vec.line)
-  //  debugger;
   const A = gravity * normalForce; // Tangential acceleration!
   // const N = gravity * Math.sin(tangent); // This goes away (Normal force)
 
@@ -89,30 +86,35 @@ const CalcForceVectors =
 let resMap: Array<Vector> = [];
 let resMapKey: string = '';
 
-export const getPosition =
-  (funcs: FuncArray, time: number): Vector => {
+export const getPosition = (funcs: FuncArray, time: number): Vector => {
   // Okay, reasonable way to simulate gravity? Just calculate it
   // cumulatively because I've forgotten the Calculus necessary to do it
   // accurately :/
   const firstFunc = funcs[0];
   const start = firstFunc.range.low;
-  let vec: Vector = MakeVector(MakePoint(start, firstFunc.func(start)), initialAngle, initialSpeed, true);
+  let vec: Vector = MakeVector(MakePoint(start, firstFunc.func(start)),
+                               initialAngle,
+                               initialSpeed,
+                               true, false);
   const fas = FuncArrayString(funcs);
   if (fas !== resMapKey) {
     resMap = [];
     resMapKey = fas;
   }
-  for (let idx = 0; idx <= time / timeSlice; idx++) {
+  for (let idx = 0; idx <= time; idx++) {
     if (resMap[idx]) {
       // Dynamic programming, FTW...
       vec = resMap[idx];
       continue;
     }
+
     const userFunc = GetFunc(funcs, vec.origin.x);
     if (!userFunc) {
       return vec;
     }
+
     const func = userFunc.func;
+
     // First, approximate the tangent to the curve at the current location
     let {tangent, normal} = GetPointData(vec.origin.x, func);
     let {Ax, Ay, Vx, Vy} = CalcForceVectors(vec, normal, tangent);
@@ -126,16 +128,32 @@ export const getPosition =
     let yc = yd + vec.origin.y;
     let yf = func(x); // The point on the track
 
+    if (idx > 1) {
+      const prevFunc = GetFunc(funcs, resMap[idx - 2].origin.x);
+      if (prevFunc && prevFunc.text !== userFunc.text) {
+        // Figure out which values to test for continuity
+        let boundx = userFunc.range.low;
+        if (Math.abs(userFunc.range.low - x) > Math.abs(userFunc.range.high - x) ) {
+          boundx = userFunc.range.high;
+        }
+        const curBoundY = func(boundx);
+        const prvBoundY = prevFunc.func(boundx);
+        if (Math.abs(curBoundY - prvBoundY) > 1e-6) {
+          if (curBoundY > prvBoundY)
+            return MakeVector(vec.origin, 0, 0, true, true);
+        }
+      }
+    }
+
     const overTheLine = yc < yf;
     if (overTheLine) {
-      // FYI, This is the common case
-      // We need to find a 'good' point on the function that is close to
-      // the distance from the origin.
-      // This is just a best-effort. The smaller the timeSlice
-      // the more accurate this will be, at least that's the idea
+      // FYI, This is the common case. We need to find a 'good' point on the
+      // function that is close to the distance from the origin. This is just a
+      // best-effort. The smaller the timeSlice the more accurate this will be,
+      // at least that's the idea.
 
       // The idea I'm trying is that you have a vector *below* the graph.
-      // reflect that vector across the vector on the graph at the updated X
+      // Reflect that vector across the vector on the graph at the updated X
       // location, then bisect the two points and use that as your X coord.
 
       // I did a bunch of math by hand, and came up with a pretty easy forumla
@@ -152,17 +170,27 @@ export const getPosition =
       yf = func(x);
     } // else we don't care, because we're off the track, anyway...
 
-    // TODO: TO handle loop-de-loops, we'll need to override direction
-    // Since we've moved on to a new function, we need to 'smooth' the graph
-    // a bit for estimtation to work moderately well
+    // TODO: TO handle loop-de-loops, we'll need to override direction. Since
+    // we've moved on to a new function, we need to 'smooth' the graph a bit for
+    // estimtation to work moderately well
 
     const y = overTheLine ? yf : yc;
     const vectorDirection =
         NormalizeAngle(Math.atan2(y - vec.origin.y, x - vec.origin.x));
-    vec = MakeVector(MakePoint(x, y),
-                     vectorDirection,
-                     dist(vec.origin, x, y) / timeSlice,
-                     overTheLine);
+    let magnitude = dist(vec.origin, x, y) / timeSlice;
+    if (magnitude > vec.magnitude) {
+      // At this point, sometimes the estimate for collisions winds up being off
+      // in the positive direction.
+      // Because I'm lazy, instead of doing more crazy trig, I'm using
+      // basic potential vs. kinetic energy to prevent the velocity from being
+      // too high
+      const oPotential = (vec.origin.y - y) * gravity;
+      const oKinetic = vec.magnitude * vec.magnitude;
+      magnitude = Math.min(Math.sqrt(oPotential + oKinetic), magnitude)
+    }
+
+    const stopped = idx > 10 && magnitude < 1e-5 && vec.magnitude < 1e-5;
+    vec = MakeVector(MakePoint(x, y), vectorDirection, magnitude, overTheLine, stopped);
     resMap[idx] = vec;
   }
 

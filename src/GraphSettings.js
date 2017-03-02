@@ -30,9 +30,8 @@ export const UnboundGraphSettings = ({
   onScaleChange,
   onPlay
 }:GraphSettingsProps) => {
-  const timeInSeconds = time / 32;
-  const min = Math.floor(timeInSeconds / 60);
-  const sec = Math.round(10 * (timeInSeconds - min * 60)) / 10;
+  const min = Math.floor(time / 60);
+  const sec = Math.round(10 * (time - min * 60)) / 10;
   const timeExpr = `${min}:${(sec<10)?'0':''}${sec}`;
   const label = running ? '◾' : '▶'; // UTF8 Files :)
   const handler = (e:HTMLInputEvent) => onScaleChange(e.target.value);
@@ -74,7 +73,7 @@ const GraphSettings = connect(
   // State to Props:
   (state:GraphState) => ({
     scale: state.scale,
-    time: state.time,
+    time: state.millisec/1000,
     running: state.running,
     openDialogButton: <FileDialog/>
   }),

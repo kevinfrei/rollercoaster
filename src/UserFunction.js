@@ -14,7 +14,8 @@ export type Vector = {
   origin : Point,
   angle : number,
   magnitude : number,
-  line : boolean
+  line : boolean,
+  stuck : boolean
 };
 
 export type Range = {
@@ -35,8 +36,8 @@ export type FuncArray = Array<UserFunction>;
 export const MakePoint = (x: number, y: number): Point => ({x, y});
 
 export const MakeVector =
-  (origin: Point, angle: number, magnitude: number, line: boolean) =>
-  ({origin, angle, magnitude, line});
+  (origin: Point, angle: number, magnitude: number, line: boolean, stuck: boolean) =>
+  ({origin, angle, magnitude, line, stuck});
 
 export const MakeUserFunc = (
     text: string, l: number, h: number): (UserFunction|string) => {
@@ -68,8 +69,7 @@ export const CopyUserFunc =
   ({text:func.text, func:func.func, range: {low, high}});
 
 export const GetFunc = (funcList: FuncArray, x: number): ?UserFunction => {
-  // TODO: Make this more efficient than a linear search through the
-  // array...
+  // TODO: Make this more efficient than a linear search through the array?
   for (let f of funcList) {
     if (f.range.high > x) {
       return f;

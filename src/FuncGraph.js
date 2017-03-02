@@ -5,9 +5,10 @@ import {connect} from 'react-redux';
 
 import {getPosition} from './PhysicSim';
 import {FuncArrayString} from './UserFunction';
+import {Actions} from './coasterRedux';
 
 import type {Vector, FuncArray} from './UserFunction';
-import type {GraphState} from './coasterRedux';
+import type {GraphState, CoasterAction} from './coasterRedux';
 
 type FuncGraphProps = {
   funcs:FuncArray,
@@ -17,7 +18,8 @@ type FuncGraphProps = {
   showVector:boolean,
   showCart:boolean,
   showLabels:boolean,
-  size:{width:number, height:number}
+  size:{width:number, height:number},
+  onStopped: ()=>void
 };
 
 // Super duper exciting constant
@@ -25,7 +27,6 @@ const twoPi = Math.PI * 2;
 const halfPi = Math.PI / 2;
 const qtrPi = Math.PI / 4;
 const arrowAngle = Math.PI + Math.PI / 6;
-const FPS = 60; // This should match what's set in index.js
 
 // Function colors
 export const Colors = [
@@ -152,8 +153,9 @@ const drawVehicle = (ctx: CanvasRenderingContext2D, vec:Vector, cart:?boolean) =
   const carWidth = 1;
   const {x,y} = vec.origin;
   const a = vec.angle;
-  if (!cart) {
-    dot(ctx, x, y, .125, vec.line ? '#000' : '#F00');
+  if (!cart || vec.stuck) {
+    const color = vec.stuck ? '#00F' : (vec.line ? '#000' : '#F00');
+    dot(ctx, x, y, vec.stuck ? .5 : .125, color);
     return;
   }
   const [rWheelX, rWheelY] = move(x, y, a, .5 * carWidth);
@@ -274,11 +276,13 @@ export class UnboundFunctionGraph extends Component {
     // If we're stopped, don't draw the cart
     if (reqState.time < 0)
       return;
-    const t = reqState.time / FPS;
-    const vec: Vector = getPosition(this.props.funcs, t);
+    const vec: Vector = getPosition(this.props.funcs, reqState.time);
     drawVehicle(ctx, vec, this.props.showCart);
     if (this.props.showVector) {
       drawVector(ctx, vec);
+    }
+    if (vec.stuck && this.props.onStopped) {
+      this.props.onStopped();
     }
   }
   // This specifies the state that affects whether we redraw the graph paper
@@ -338,7 +342,8 @@ UnboundFunctionGraph.propTypes = {
   size: PropTypes.shape({
     width:PropTypes.number.isRequired,
     height:PropTypes.number.isRequired}
-  ).isRequired
+  ).isRequired,
+  onStopped: PropTypes.func
 };
 
 const FunctionGraph = connect(
@@ -346,12 +351,15 @@ const FunctionGraph = connect(
   (state:GraphState) => ({
     scale: state.scale,
     funcs: state.funcs,
-    time: state.time,
+    time: state.millisec,
     selected: state.currentEdit,
     showVector: state.showVector,
     showCart: state.showCart,
     showLabels: state.showLabels,
     size: state.size
+  }),
+  (dispatch:(a:CoasterAction)=>void) => ({
+    onStopped: () => dispatch(Actions.Stop())
   })
 )(UnboundFunctionGraph);
 

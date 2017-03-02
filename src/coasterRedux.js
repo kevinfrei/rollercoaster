@@ -26,7 +26,8 @@ export type GraphState = {
   displayState: DisplayStateType,
   currentEdit: number,
   scale: number,
-  time: number,
+  startTime: number,
+  millisec: number,
   running: boolean,
   showLabels: boolean,
   showVector: boolean,
@@ -49,13 +50,14 @@ export const MakeStateGood =
 const initialState:GraphState = {
   funcs: [
     DemandUserFunc('x^2-16x+64', 0, 8),
-    DemandUserFunc('(sin((pi x)/2-pi/2)+1)/5', 8, 12),
+    DemandUserFunc('sin((pi x)/2-pi/2)+1', 8, 12),
     DemandUserFunc('x^2/2-12x+72',12,20)
   ],
   displayState: MakeStateGood(),
   currentEdit: -1,
   scale: 25,
-  time: -1,
+  startTime: -1,
+  millisec: 0,
   running: false,
   showLabels: true,
   showVector: false,
@@ -437,10 +439,12 @@ const changeScaleReducer =
 
 const changeAnimationReducer =
   (state:GraphState, start:boolean): GraphState =>
-  nobj(state, start ? {running: true, time: 0} : {running: false});
+  nobj(state, start
+    ? {running: true, startTime: Date.now(), time: 0}
+    : {running: false});
 
 const tickReducer = (state: GraphState): GraphState =>
-  nobj(state, {time: state.running ? state.time + 1: -1});
+  state.running ? nobj(state, {millisec: Date.now() - state.startTime}) : state;
 
 const windowResizeReducer =
   (state: GraphState, action: WindowsResizeAction): GraphState =>
