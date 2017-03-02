@@ -138,7 +138,7 @@ export const getPosition = (funcs: FuncArray, time: number): Vector => {
         }
         const curBoundY = func(boundx);
         const prvBoundY = prevFunc.func(boundx);
-        if (Math.abs(curBoundY - prvBoundY) > 1e-6) {
+        if (Math.abs(curBoundY - prvBoundY) > 1e-6 && vec.line) {
           if (curBoundY > prvBoundY)
             return MakeVector(vec.origin, 0, 0, true, true);
         }
