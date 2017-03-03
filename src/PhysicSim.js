@@ -131,6 +131,7 @@ export const getPosition = (funcs: FuncArray, time: number): Vector => {
     if (idx > 1) {
       const prevFunc = GetFunc(funcs, resMap[idx - 2].origin.x);
       if (prevFunc && prevFunc.text !== userFunc.text) {
+        debugger;
         // Figure out which values to test for continuity
         let boundx = userFunc.range.low;
         if (Math.abs(userFunc.range.low - x) > Math.abs(userFunc.range.high - x) ) {
@@ -138,7 +139,8 @@ export const getPosition = (funcs: FuncArray, time: number): Vector => {
         }
         const curBoundY = func(boundx);
         const prvBoundY = prevFunc.func(boundx);
-        if (Math.abs(curBoundY - prvBoundY) > 1e-6 && vec.line) {
+        if (Math.abs(curBoundY - prvBoundY) > 1e-6 &&
+          (vec.line || vec.origin.y < curBoundY)) {
           if (curBoundY > prvBoundY)
             return MakeVector(vec.origin, 0, 0, true, true);
         }

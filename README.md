@@ -67,8 +67,6 @@ It all lives under `src`. From there, `App.js` is the main entry point.
     * with help
     * continuity assistance
     * derivability guidance, perhaps
-  * Handle animation better: drop frames, base on wall clock, not assumed
-    timer accuracy (try it on an iphone and watch it not seem quite right)
   * Prevent the graph from attempting to draw if the functions aren't at least
     calculable.
   * The MathJax rendered stops responding occasionally. Debug this...
