@@ -8,14 +8,12 @@ import FunctionEditor from './FuncEditor';
 import FunctionDivider from './FuncDivider';
 import FunctionViewer from './FuncViewer';
 import {Colors} from './FuncGraph';
-import {Actions} from './coasterRedux';
+import {Actions} from './Actions';
 
 import type {FuncArray} from './UserFunction';
-import type {
-  GraphState,
-  CoasterAction,
-  DisplayStateType
-} from './coasterRedux';
+import type {CoasterAction} from './Actions';
+import type {DisplayStateType} from './StoreTypes';
+import type {GraphState} from './StoreTypes';
 
 type FuncListAttribs = {
   funcs: FuncArray,

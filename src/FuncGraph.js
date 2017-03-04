@@ -5,10 +5,11 @@ import {connect} from 'react-redux';
 
 import {getPosition} from './PhysicSim';
 import {FuncArrayString} from './UserFunction';
-import {Actions} from './coasterRedux';
+import {Actions} from './Actions';
 
 import type {Vector, FuncArray} from './UserFunction';
-import type {GraphState, CoasterAction} from './coasterRedux';
+import type {CoasterAction} from './Actions';
+import type {GraphState} from './StoreTypes';
 
 type FuncGraphProps = {
   funcs:FuncArray,

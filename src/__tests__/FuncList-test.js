@@ -3,9 +3,9 @@ import ReactDOM from 'react-dom';
 
 import {UnboundFunctionList} from '../FuncList';
 import {DemandUserFunc} from '../UserFunction';
-import {MakeStateError, MakeStateGood, MakeStateWarning} from '../coasterRedux';
+import {MakeStateError, MakeStateGood, MakeStateWarning} from '../StoreTypes';
 
-import type {DisplayStateType} from '../coasterRedux';
+import type {DisplayStateType} from '../StoreTypes';
 
 // TODO: This doesn't do anything, because of a problem with using a
 // container component

@@ -6,12 +6,13 @@ import ReactBootstrapSlider from 'react-bootstrap-slider';
 import {connect} from 'react-redux';
 
 import FileDialog from './FileDialog';
-import {Actions} from './coasterRedux';
+import {Actions} from './Actions';
 
 import './bootstrap-slider-min.css';
 import './App.css';
 
-import type {GraphState, CoasterAction} from './coasterRedux';
+import type {GraphState} from './StoreTypes';
+import type {CoasterAction} from './Actions';
 
 type GraphSettingsProps = {
   scale: number,

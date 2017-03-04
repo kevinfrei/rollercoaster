@@ -3,9 +3,10 @@ import React, {Component, PropTypes} from 'react';
 import {Button, Panel} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
-import {Actions} from './coasterRedux';
+import {Actions} from './Actions';
 
-import type {GraphState, CoasterAction} from './coasterRedux';
+import type {GraphState} from './StoreTypes';
+import type {CoasterAction} from './Actions';
 
 type FuncEditorProps = {
   onSave: (pos:number, func:string)=>void,

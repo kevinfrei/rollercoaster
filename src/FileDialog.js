@@ -21,11 +21,11 @@ import {
   LoadFuncSets,
   SaveFuncSets
 } from './LoadSave';
-import {Actions} from './coasterRedux';
+import {Actions} from './Actions';
 
 import type {FuncArray} from './UserFunction';
 import type {FuncSetsType, FlatFunc} from './LoadSave';
-import type {GraphState, dispatchType} from './coasterRedux';
+import type {GraphState, dispatchType} from './StoreTypes';
 
 type FileDialogState = {
   showModal : boolean,

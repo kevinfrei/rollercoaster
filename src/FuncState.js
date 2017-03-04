@@ -3,13 +3,13 @@
 import React, {PropTypes} from 'react';
 import {connect} from 'react-redux';
 
-import {FuncProblems} from './coasterRedux';
+import {FuncProblems} from './Reducers';
 
 import type {
   GraphState,
   DisplayStateType,
   FunctionProblem
-} from './coasterRedux';
+} from './StoreTypes';
 
 const UnboundFunctionState = ({state}:{state:DisplayStateType}) => {
   if (state.state === 'GOOD') {

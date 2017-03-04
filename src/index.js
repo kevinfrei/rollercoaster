@@ -3,9 +3,11 @@ import './index.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import App from './App';
 import {createStore} from 'redux';
-import {CoasterReducer, Actions} from './coasterRedux';
+
+import App from './App';
+import {CoasterReducer} from './Reducers';
+import {Actions} from './Actions';
 import {Provider} from 'react-redux';
 
 import type {GraphState} from './coasterRedux';

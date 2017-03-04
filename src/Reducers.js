@@ -1,201 +1,26 @@
-// @flow
-import {CopyUserFunc, MakeUserFunc, DemandUserFunc} from './UserFunction';
+//@flow
+
+import {CopyUserFunc, MakeUserFunc} from './UserFunction';
+import {MakeStateError, MakeStateWarning, MakeStateGood} from './StoreTypes';
+import {initialState} from './StoreTypes';
 
 import type {UserFunction, FuncArray} from './UserFunction';
-
-// My 'user state':
-
-// A list of UserFunctions
-// Are those functions good to graph?
-// An optional 'selected' user function for editing
-
-// Knowne fu
-
-export type FunctionProblem = {
-  func: number,
-  problem: string|number
-};
-
-export type DisplayStateType = {
-  state: 'ERROR' | 'WARNING' | 'GOOD',
-  message: string | FunctionProblem;
-};
-
-export type GraphState = {
-  funcs: FuncArray,
-  displayState: DisplayStateType,
-  currentEdit: number,
-  scale: number,
-  startTime: number,
-  millisec: number,
-  running: boolean,
-  showLabels: boolean,
-  showVector: boolean,
-  showCart: boolean,
-  size: {width:number, height:number}
-};
+import type {GraphState, FunctionProblem, DisplayStateType} from './StoreTypes';
+import type {
+  CoasterAction,
+  AddFunctionAction,
+  DeleteFunctionAction,
+  EditFunctionAction,
+  ChangeDividerAction,
+  MoveFunctionAction,
+  SelectFunctionAction,
+  ClearEditorAction,
+  ScaleChangeAction,
+  WindowsResizeAction,
+  SettingsAction,
+  AllFuncsAction} from './Actions';
 
 const nobj = (a:Object, b:Object):Object => Object.assign({}, a, b);
-
-export const MakeStateError =
-  (message:string|FunctionProblem): DisplayStateType => ({
-    state: 'ERROR', message});
-export const MakeStateWarning =
-  (message:string|FunctionProblem): DisplayStateType => ({
-    state: 'WARNING', message});
-export const MakeStateGood =
-  (message:string = ''): DisplayStateType => ({
-    state: 'GOOD', message});
-
-const initialState:GraphState = {
-  funcs: [
-    DemandUserFunc('x^2-16x+64', 0, 8),
-    DemandUserFunc('sin((pi x)/2-pi/2)+1', 8, 12),
-    DemandUserFunc('x^2/2-12x+72',12,20)
-  ],
-  displayState: MakeStateGood(),
-  currentEdit: -1,
-  scale: 25,
-  startTime: -1,
-  millisec: 0,
-  running: false,
-  showLabels: true,
-  showVector: false,
-  showCart: true,
-  size: {width: -1, height: -1}
-};
-
-// And various messages that it needs to respond to:
-
-// Add a new function
-// Delete function
-// Edit a function
-// Change X divider value
-// Move a function up/down
-
-// These flow types are quite tedious
-// There really ought to be a better way...
-
-type AddFunctionAction = {
-  type: 'ADD_FUNCTION',
-  expr: string
-};
-
-type DeleteFunctionAction = {
-  type: 'DELETE_FUNCTION',
-  position: number
-};
-
-type EditFunctionAction = {
-  type: 'EDIT_FUNCTION',
-  position: number,
-  funcBody: string
-};
-
-type ChangeDividerAction = {
-  type: 'CHANGE_LIMIT',
-  position: number,
-  value: number|string
-};
-
-type MoveFunctionAction = {
-  type: 'MOVE_FUNCTION',
-  position: number,
-  up: boolean
-};
-
-type SelectFunctionAction = {
-  type: 'SELECT_FUNCTION',
-  position: number
-};
-
-type ClearEditorAction = {
-  type: 'CLEAR_EDITOR'
-};
-
-type StartAction = {
-  type: 'START_ANIMATION'
-};
-
-type StopAction = {
-  type: 'STOP_ANIMATION'
-};
-
-type ScaleChangeAction = {
-  type: 'CHANGE_SCALE',
-  value: string
-};
-
-type TickAction = {
-  type: 'TICK'
-};
-
-type WindowsResizeAction = {
-  type: 'WINDOW_RESIZE',
-  width: number,
-  height: number
-};
-
-type SettingsTuple = {cart: boolean, velocity: boolean, labels: boolean};
-
-type SettingsAction = {
-  type: 'SETTINGS',
-  value: SettingsTuple
-};
-
-type AllFuncsAction = {
-  type: 'ALL_FUNCS',
-  value: FuncArray
-};
-
-export type CoasterAction =
-  AddFunctionAction |
-  DeleteFunctionAction |
-  EditFunctionAction |
-  ChangeDividerAction |
-  MoveFunctionAction |
-  SelectFunctionAction |
-  ClearEditorAction |
-  StartAction |
-  StopAction |
-  ScaleChangeAction |
-  TickAction |
-  WindowsResizeAction |
-  SettingsAction |
-  AllFuncsAction;
-
-export type dispatchType = (action:CoasterAction) => void;
-
-export const Actions = {
-  AddFunction: (expr:string):AddFunctionAction => ({
-    type: 'ADD_FUNCTION', expr}),
-  DeleteFunction: (position:number):DeleteFunctionAction => ({
-    type: 'DELETE_FUNCTION', position}),
-  EditFunction: (position:number, funcBody:string):EditFunctionAction => ({
-    type: 'EDIT_FUNCTION', position, funcBody}),
-  ChangeDivider: (position:number, value: number|string):ChangeDividerAction => ({
-    type: 'CHANGE_LIMIT', position, value}),
-  MoveFunction: (position:number, up:boolean): MoveFunctionAction => ({
-    type: 'MOVE_FUNCTION', position, up}),
-  SelectFunction: (position:number): SelectFunctionAction => ({
-    type: 'SELECT_FUNCTION', position}),
-  ClearEditor: ():ClearEditorAction => ({
-    type: 'CLEAR_EDITOR'}),
-  Start: ():StartAction => ({
-    type: 'START_ANIMATION'}),
-  Stop: ():StopAction => ({
-    type: 'STOP_ANIMATION'}),
-  ChangeScale: (value:string):ScaleChangeAction => ({
-    type: 'CHANGE_SCALE', value}),
-  Tick: ():TickAction => ({
-    type: 'TICK'}),
-  WindowResize: (width:number, height:number):WindowsResizeAction => ({
-    type: 'WINDOW_RESIZE', width, height}),
-  Settings: (cart: boolean, velocity: boolean, labels: boolean):SettingsAction => ({
-    type: 'SETTINGS', value:{cart, velocity, labels}}),
-  AllFuncs: (value: FuncArray) => ({
-    type: 'ALL_FUNCS', value})
-};
 
 export const FuncProblems = {
   UnorderedRange: 0,
@@ -495,18 +320,6 @@ const internalCoasterReducer =
 
 export const CoasterReducer =
   (state:GraphState, action:CoasterAction): GraphState => {
-  /*
-  if (action.type !== 'TICK') {
-    console.log('***********************');
-    console.log({name:'***reducer input', state, action});
-  }
-  //*/
   const res = internalCoasterReducer(state, action);
-  /*
-  if (action.type !== 'TICK') {
-    console.log({name:'***reducer output', state:res});
-    console.log('***********************')
-  }
-  //*/
   return res;
 };
