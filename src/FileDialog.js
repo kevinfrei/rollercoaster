@@ -93,7 +93,7 @@ export class UnboundFileDialog extends Component {
     this.props.onSave(this.state.cart, this.state.velocity, !this.state.labels);
     this.setState({labels: !this.state.labels});
   }
-  changeName = (e) => this.setState({saveName : e.target.value});
+  changeName = (e:HTMLInputEvent) => this.setState({saveName : e.target.value});
   saveFuncSet = () => {
     const funcSet:Array<FlatFunc> = ArrayToFuncSet(this.props.curFuncs);
     const funcsets = this.state.funcsets;
