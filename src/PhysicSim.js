@@ -91,7 +91,7 @@ export const getPosition = (funcs: FuncArray, time: number): Vector => {
   // cumulatively because I've forgotten the Calculus necessary to do it
   // accurately :/
   const firstFunc = funcs[0];
-  const start = firstFunc.range.low;
+  const start = parseFloat(firstFunc.range.low);
   let vec: Vector = MakeVector(MakePoint(start, firstFunc.func(start)),
                                initialAngle,
                                initialSpeed,
@@ -133,10 +133,9 @@ export const getPosition = (funcs: FuncArray, time: number): Vector => {
       if (prevFunc && prevFunc.text !== userFunc.text) {
         debugger;
         // Figure out which values to test for continuity
-        let boundx = userFunc.range.low;
-        if (Math.abs(userFunc.range.low - x) > Math.abs(userFunc.range.high - x) ) {
-          boundx = userFunc.range.high;
-        }
+        const lo = parseFloat(userFunc.range.low);
+        const hi = parseFloat(userFunc.range.high);
+        const boundx = (Math.abs(lo - x) > Math.abs(hi - x)) ? hi : lo;
         const curBoundY = func(boundx);
         const prvBoundY = prevFunc.func(boundx);
         if (Math.abs(curBoundY - prvBoundY) > 1e-6 &&

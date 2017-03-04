@@ -1,7 +1,7 @@
 //@flow
 
 import React from 'react';
-import {Button, ButtonGroup} from 'react-bootstrap';
+import {Button} from 'react-bootstrap';
 import MathJaxReact from './MathJaxReact';
 
 import type {UserFunction} from './UserFunction';
@@ -18,28 +18,24 @@ type FuncViewerAttribs = {
 };
 
 const FuncMover = ({first, last, id, onPrev, onNext}) => (
-  <ButtonGroup vertical>
-    <Button block bsSize='xsmall' disabled={first} onClick={() => onPrev(id)}>
-      &nbsp;&uarr;&nbsp;
+  <div style={{height:'100%'}}>
+    <Button block bsSize='small' disabled={first} onClick={() => onPrev(id)}>
+      &uarr;
     </Button>
-    <Button block bsSize='xsmall' disabled={last} onClick={() => onNext(id)}>
-      &nbsp;&darr;&nbsp;
+    <Button block bsSize='small' disabled={last} onClick={() => onNext(id)}>
+      &darr;
     </Button>
-  </ButtonGroup>
+  </div>
 );
 
 const FuncDisplayer = ({text}) => <MathJaxReact formula={`y = ${text}`}/>;
 
 const FuncChangeButtons = ({first, last, id, onDel, onEdit}) => (
-  <ButtonGroup vertical>
-    <Button block bsSize='xsmall'
-      onClick={() => onDel(id)} disabled={first && last}>
-      Delete
-    </Button>
-    <Button block bsSize='xsmall' onClick={() => onEdit(id)}>
-      Edit
-    </Button>
-  </ButtonGroup>
+  <div style={{height:'100%'}}>
+    <Button block bsSize='small'
+      onClick={() => onDel(id)} disabled={first && last}>✗</Button>
+    <Button block bsSize='small' onClick={() => onEdit(id)}>✎</Button>
+  </div>
 );
 
 const FunctionViewer =
@@ -47,7 +43,7 @@ const FunctionViewer =
   <div className='ColJust'>
     <FuncMover id={id} first={first} last={last}
       onPrev={onPrev} onNext={onNext}/>
-    <div style={{padding:'4pt'}}>
+    <div style={{padding:'4pt', display:'flex', justifyContent:'center', alignItems:'center'}}>
       <FuncDisplayer text={userFunc.text}/>
     </div>
     <FuncChangeButtons id={id} first={first} last={last}

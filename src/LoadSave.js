@@ -54,8 +54,8 @@ export function Map2Obj<K, V>(m:Map<K, V>):objmap<K,V> {
 };
 
 export type FlatFunc = {
-  low:number,
-  high:number,
+  low:string,
+  high:string,
   expr:string
 };
 
@@ -72,7 +72,7 @@ const flatFuncFilter:filter<FlatFunc> = (i:mixed): ?FlatFunc => {
   const high = parseFloat(o.high);
   const expr = o.expr;
   if (isNaN(low) || isNaN(high)) return;
-  return {low, high, expr};
+  return {low:low.toString(), high:high.toString(), expr};
 };
 
 export const LoadFuncSets = ():FuncSetsType => {

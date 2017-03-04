@@ -19,8 +19,8 @@ export type Vector = {
 };
 
 export type Range = {
-  low : number,
-  high : number
+  low : string,
+  high : string
 };
 
 export type MathFunc = (val: number) => number;
@@ -40,8 +40,10 @@ export const MakeVector =
   ({origin, angle, magnitude, line, stuck});
 
 export const MakeUserFunc = (
-    text: string, l: number, h: number): (UserFunction|string) => {
+    text: string, lo: number|string, hi: number|string): (UserFunction|string) => {
   // Validate the range, since that's easy
+  const l = parseFloat(lo.toString());
+  const h = parseFloat(hi.toString());
   const low = Math.min(l, h);
   const high = Math.max(l, h);
 
@@ -49,14 +51,14 @@ export const MakeUserFunc = (
   try {
     const compiled:Expression = math.compile(text);
     const func: MathFunc = (a) => compiled.eval({x:a});
-    return { text, func, range : {low, high} };
+    return { text, func, range : {low: low.toString(), high:high.toString()} };
   } catch (e) {
     return `Problem occurred processing function '${text}'`;
   }
 };
 
 export const DemandUserFunc =
-  (text: string, l: number, h: number):UserFunction => {
+  (text: string, l: number|string, h: number|string):UserFunction => {
   const val = MakeUserFunc(text, l, h);
   if (typeof val === 'string') {
     throw val;
@@ -65,30 +67,32 @@ export const DemandUserFunc =
 };
 
 export const CopyUserFunc =
-  (func:UserFunction, low:number, high:number):UserFunction =>
-  ({text:func.text, func:func.func, range: {low, high}});
+  (func:UserFunction, low:number|string, high:number|string):UserFunction =>
+  ({text:func.text, func:func.func, range: {low:low.toString(), high:high.toString()}});
 
 export const GetFunc = (funcList: FuncArray, x: number): ?UserFunction => {
   // TODO: Make this more efficient than a linear search through the array?
   for (let f of funcList) {
-    if (f.range.high > x) {
+    if (parseFloat(f.range.high.toString()) > x) {
       return f;
     }
   }
 };
 
 export const FuncListRange = (funcList: FuncArray): Range => {
-  let high = funcList[0].range.high;
-  let low = funcList[0].range.low;
+  let high = parseFloat(funcList[0].range.high.toString());
+  let low = parseFloat(funcList[0].range.low.toString());
   for (let f of funcList) {
-    if (f.range.low < low) {
-      low = f.range.low;
+    const l = parseFloat(f.range.low.toString());
+    if (l < low) {
+      low = l;
     }
-    if (f.range.high > high) {
-      high = f.range.high;
+    const h = parseFloat(f.range.high.toString());
+    if (h > high) {
+      high = h;
     }
   }
-  return {low, high};
+  return {low:low.toString(), high:high.toString()};
 };
 
 export const FuncArrayString = (funcs:FuncArray): string =>

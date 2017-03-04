@@ -103,7 +103,7 @@ const drawGraphPaper = (
   const high = Math.max(x1,y1,x2,y2);
   for (let pos = Math.round(low); pos <= high; pos += .5) {
     ctx.beginPath();
-    ctx.strokeStyle = '#000';
+    ctx.strokeStyle = '#AAA';
     if (!pos) {
       ctx.lineWidth = .1; // 0 : darkest on the axes
     } else if (Math.round(Math.round(pos*.2)*10) === Math.round(pos*2)) {
@@ -173,20 +173,21 @@ const drawVehicle = (ctx: CanvasRenderingContext2D, vec:Vector, cart:?boolean) =
   dot(ctx, lWheelX, lWheelY, .15 * carWidth, '#000');
   dot(ctx, rWheelX, rWheelY, .15 * carWidth, '#000');
 };
+
 // This draws the lines for the function on the graph:
 const drawFunctions = (ctx: CanvasRenderingContext2D, funcs: FuncArray): void => {
   let curStroke = 0;
   for (let f of funcs) {
-    let x = f.range.low;
+    let x = parseFloat(f.range.low);
     let y = f.func(x);
-    dot(ctx, x, y, .1, '#000');
+    dot(ctx, x, y, 1/8, '#000');
     ctx.beginPath();
     ctx.strokeStyle = Colors[curStroke];
     ctx.fillStyle = Colors[curStroke];
-    ctx.lineWidth = 1/16;
+    ctx.lineWidth = 2/scale;
     curStroke = (curStroke + 1) % Colors.length;
     ctx.moveTo(x, y);
-    const e = f.range.high;
+    const e = parseFloat(f.range.high);
     while (x < e) {
       let fail = false;
       try {

@@ -27,6 +27,6 @@ it ('seems consistent', () => {
   const ua = [uf, df, cf];
   const gf = GetFunc(ua, .5);
   expect(GetFunc(ua, .5)).toEqual(uf);
-  expect(FuncListRange(ua).low).toEqual(0);
-  expect(FuncListRange(ua).high).toEqual(3);
+  expect(FuncListRange(ua).low).toEqual('0');
+  expect(FuncListRange(ua).high).toEqual('3');
 });

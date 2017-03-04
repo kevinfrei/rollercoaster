@@ -1,7 +1,6 @@
 //@flow
 
 import React, {PropTypes} from 'react';
-import {Panel} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
 import FunctionEditor from './FuncEditor';
@@ -9,6 +8,7 @@ import FunctionDivider from './FuncDivider';
 import FunctionViewer from './FuncViewer';
 import {Colors} from './FuncGraph';
 import {Actions} from './Actions';
+import {GetTextColor} from './HtmlUtils';
 
 import type {FuncArray} from './UserFunction';
 import type {CoasterAction} from './Actions';
@@ -33,18 +33,22 @@ export const UnboundFunctionList = ({
   // Should I assert that they're sorted?
   const MapOfFuncs = funcs.map(
     (uf, index) => {
-      const header = (
-        <FunctionDivider pos={index} low={uf.range.low} high={uf.range.high}
-          onChange={onChange}/>);
-      let btnStyle = (selected === index) ? 'info' : 'default';
-      if (status.state !== 'GOOD' && typeof status.message !== 'string') {
-        if (status.message.func === index + 1) {
-          btnStyle = (status.state === 'WARNING') ? 'warning' : 'danger';
-        }
+      let contents = (selected === index) ? '✍': '';
+      if (status.state !== 'GOOD' && typeof status.message !== 'string' && status.message.func === index + 1) {
+        contents += (status.state === 'WARNING') ? '❉' : '❕';
       }
+      const header = (
+        <div style={{display:'flex', justifyContent:'space-between', padding:'3pt'}}>
+        <FunctionDivider pos={index} low={uf.range.low} high={uf.range.high}
+          onChange={onChange}/>
+          <div>{contents}</div>
+        </div>);
+      const color = Colors[index % Colors.length];
       return (
-        <Panel key={index} header={header} bsStyle={btnStyle}>
-          <div style={{border:'2pt solid '+Colors[index % Colors.length], padding:'2pt'}}>
+        <div key={index}>
+          <div style={{backgroundColor:color, padding:'2pt', color:GetTextColor(color)}}>
+            {header}
+          </div>
           <FunctionViewer
             id={index}
             first={index===0}
@@ -54,8 +58,7 @@ export const UnboundFunctionList = ({
             onPrev={onPrev}
             onEdit={onEdit}
             onDel={onDel}/>
-          </div>
-        </Panel>
+        </div>
       );
   });
   const withEditor = [...MapOfFuncs, <div key='theEditor'>{editor}</div>];

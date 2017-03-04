@@ -40,20 +40,22 @@ const ValidateFuncs = (funcs:FuncArray):DisplayStateType => {
   for (let func of funcs) {
     i++;
     try {
-      if (func.range.low > func.range.high) {
+      const lo = parseFloat(func.range.low);
+      const hi = parseFloat(func.range.high);
+      if (lo > hi) {
         return MakeStateError(
           FuncProblems.Make(i, FuncProblems.UnorderedRange));
       }
-      if (prevHi && Math.abs(prevHi - func.range.low) > 1e-6) {
+      if (prevHi && Math.abs(prevHi - lo) > 1e-6) {
         return MakeStateError(
           FuncProblems.Make(i, 'X range is not continuous (Bug in app!)'));
       }
-      const curY = func.func(func.range.low);
+      const curY = func.func(lo);
       if (prevY && Math.abs(prevY - curY) > 1e-6) {
         return MakeStateWarning(
           FuncProblems.Make(i, FuncProblems.Discontinuous));
       }
-      prevHi = func.range.high;
+      prevHi = hi;
       prevY = func.func(prevHi);
     } catch (e) {
       return MakeStateError(
@@ -123,7 +125,7 @@ const deleteFunctionReducer =
   if (bArr.length > 0) {
     bArr[bArr.length-1].range.high = high;
   } else if (eArr.length > 0) {
-    eArr[0].range.low = 0;
+    eArr[0].range.low = '0';
   } else {
     console.log('Invalid delete function results');
   }
@@ -208,10 +210,10 @@ const changeDividerReducer =
   // Modify the hi & lo ranges
   let result:FuncArray = [];
   if (hiFunc) {
-    hiFunc = CopyUserFunc(hiFunc, hiFunc.range.low, val);
+    hiFunc = CopyUserFunc(hiFunc, hiFunc.range.low, action.value);
   }
   if (loFunc) {
-    loFunc = CopyUserFunc(loFunc, val, loFunc.range.high);
+    loFunc = CopyUserFunc(loFunc, action.value, loFunc.range.high);
   }
   if (hiFunc && loFunc) {
     result = [...bArr, hiFunc, loFunc, ...eArr];

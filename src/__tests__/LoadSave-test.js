@@ -22,9 +22,9 @@ it('runs alright', () => {
 });
 
 it('local storage testing', () => {
-  const FlatFunc1 = {low:1.2, high:2.3, expr:'2^x'};
-  const FlatFunc2 = {low:2.3, high:4.7, expr:'x+1'};
-  const FlatFunc3 = {low:4.7, high:6.1, expr:'cos(pi x)'};
+  const FlatFunc1 = {low:'1.2', high:'2.3', expr:'2^x'};
+  const FlatFunc2 = {low:'2.3', high:'4.7', expr:'x+1'};
+  const FlatFunc3 = {low:'4.7', high:'6.1', expr:'cos(pi x)'};
   const arr123 = [FlatFunc1, FlatFunc2, FlatFunc3];
   const arr132 = [FlatFunc1, FlatFunc3, FlatFunc2];
   const arr213 = [FlatFunc2, FlatFunc1, FlatFunc3];

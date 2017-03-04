@@ -12,7 +12,7 @@ import type {DisplayStateType} from '../StoreTypes';
 
 it('renders without crashing', () => {
   const div = document.createElement('div');
-  const funcs = [ DemandUserFunc('x', 0, 1) ];
+  const funcs = [ DemandUserFunc('x', '0', '1') ];
   const fn = (id) => {};
   const err = MakeStateError('test');
   const wrn = MakeStateWarning('test');

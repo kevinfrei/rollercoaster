@@ -6,9 +6,10 @@ class MathJaxReact extends Component {
   props:{formula:string};
   MathOutput:HTMLElement;
   QueueForRendering = () => {
-    if (window.MathJax && window.MathJax.Hub)
-      window.MathJax.Hub.Queue(
-        ["Typeset", window.MathJax.Hub, this.MathOutput]);
+    const MathJax = window.MathJax;
+    if (MathJax && MathJax.Hub) {
+      MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.MathOutput]);
+    }
   }
   componentDidMount() {
     this.QueueForRendering();
