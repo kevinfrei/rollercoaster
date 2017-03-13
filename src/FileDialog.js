@@ -23,6 +23,8 @@ import {
 } from './LoadSave';
 import {Actions} from './Actions';
 
+import './App.css';
+
 import type {FuncArray} from './UserFunction';
 import type {FuncSetsType, FlatFunc} from './LoadSave';
 import type {GraphState, dispatchType} from './StoreTypes';
@@ -125,7 +127,7 @@ export class UnboundFileDialog extends Component {
       'No function sets available!';
     return (
       <div>
-        <Button onClick={this.open}>{ButtonInfo}</Button>
+        <Button onClick={this.open} className='btnWidth'>{ButtonInfo}</Button>
         <Modal show={this.state.showModal} onHide={this.close}>
           <Modal.Header closeButton>
             <Modal.Title>Settings, Loading, Saving (and eventually import/export)</Modal.Title>
@@ -217,8 +219,8 @@ UnboundFileDialog.propTypes = {
     text: PropTypes.string.isRequired,
     func: PropTypes.func.isRequired,
     range: PropTypes.shape({
-      low: PropTypes.number.isRequired,
-      high: PropTypes.number.isRequired
+      low: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+      high: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired
     })
   })),
   onSave: PropTypes.func.isRequired,

@@ -1,6 +1,18 @@
 //@flow
 
 import React, {Component, PropTypes} from 'react';
+import {Button} from 'react-bootstrap';
+
+import './App.css';
+
+// This is a terrible hack, but I don't know why it sometimes just gets stuck...
+export const MathJaxFixer = () => (
+  <Button className='btnWidth' onClick={() => {
+    const MathJaxHub = window.MathJax.Hub;
+    if (MathJaxHub) {
+      MathJaxHub.Queue(["PreProcess", MathJaxHub], ["Reprocess", MathJaxHub]);
+    }
+  }}>Redraw</Button>);
 
 class MathJaxReact extends Component {
   props:{formula:string};

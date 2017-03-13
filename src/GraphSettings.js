@@ -5,7 +5,6 @@ import {Button} from 'react-bootstrap';
 import ReactBootstrapSlider from 'react-bootstrap-slider';
 import {connect} from 'react-redux';
 
-import FileDialog from './FileDialog';
 import {Actions} from './Actions';
 
 import './bootstrap-slider-min.css';
@@ -18,7 +17,6 @@ type GraphSettingsProps = {
   scale: number,
   time: number,
   running: boolean,
-  openDialogButton: mixed,
   onScaleChange: (a:string)=>void,
   onPlay: (a:boolean)=>void,
 };
@@ -27,7 +25,6 @@ export const UnboundGraphSettings = ({
   scale,
   time,
   running,
-  openDialogButton,
   onScaleChange,
   onPlay
 }:GraphSettingsProps) => {
@@ -50,6 +47,7 @@ export const UnboundGraphSettings = ({
       <div style={{width:'120pt', padding:'5pt'}}>
         Current time: {(time > 0) ? timeExpr : 'Stopped'}
       </div>
+      // TODO: Add a slider for the time, perhaps?
       <div style={{padding:'5pt'}}>Zoom:&nbsp;</div>
       <div style={{flexGrow:10, padding:'5pt'}}>
         <ReactBootstrapSlider
@@ -57,7 +55,6 @@ export const UnboundGraphSettings = ({
           min={1} max={100} step={.01}
           change={handler} slideStop={handler}/>
       </div>
-      {openDialogButton}
     </div>
   );
 };
@@ -65,7 +62,6 @@ export const UnboundGraphSettings = ({
 UnboundGraphSettings.propTypes = {
   scale: PropTypes.number.isRequired,
   time: PropTypes.number.isRequired,
-  openDialogButton: PropTypes.element.isRequired,
   onScaleChange: PropTypes.func.isRequired,
   onPlay: PropTypes.func.isRequired
 };
@@ -76,7 +72,6 @@ const GraphSettings = connect(
     scale: state.scale,
     time: state.millisec/1000,
     running: state.running,
-    openDialogButton: <FileDialog/>
   }),
   // Dispatch to Handler Prop
   (dispatch:(a:CoasterAction)=>void) => ({

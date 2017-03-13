@@ -25,6 +25,7 @@ export type DisplayStateType = {
 export type GraphState = {
   funcs: FuncArray,
   displayState: DisplayStateType,
+  editorOpen: boolean,
   currentEdit: number,
   scale: number,
   startTime: number,
@@ -55,6 +56,7 @@ export const initialState:GraphState = {
     DemandUserFunc('x^2/2-12x+72',12,20)
   ],
   displayState: MakeStateGood(),
+  editorOpen: false,
   currentEdit: -1,
   scale: 25,
   startTime: -1,

@@ -3,7 +3,6 @@
 import React, {PropTypes} from 'react';
 import {connect} from 'react-redux';
 
-import FunctionEditor from './FuncEditor';
 import FunctionDivider from './FuncDivider';
 import FunctionViewer from './FuncViewer';
 import {Colors} from './FuncGraph';
@@ -24,52 +23,53 @@ type FuncListAttribs = {
   onDel: (id:number)=>void,
   onChange: (id:number, value:string|number)=>void,
   selected: number,
-  editor: React$Element<*>
 };
 
 export const UnboundFunctionList = ({
-  funcs, status, onEdit, onPrev, onNext, onDel, onChange, selected, editor
+  funcs, status, onEdit, onPrev, onNext, onDel, onChange, selected
 }:FuncListAttribs) => {
   // Should I assert that they're sorted?
-  const MapOfFuncs = funcs.map(
-    (uf, index) => {
-      let contents = (selected === index) ? '✍': '';
-      if (status.state !== 'GOOD' && typeof status.message !== 'string' && status.message.func === index + 1) {
-        contents += (status.state === 'WARNING') ? '❉' : '❕';
-      }
-      const header = (
-        <div style={{display:'flex', justifyContent:'space-between', padding:'3pt'}}>
+  const MapOfFuncs = funcs.map((uf, index) => {
+    let contents = (selected === index) ? '✍' : '';
+    if (status.state !== 'GOOD' &&
+      typeof status.message !== 'string' &&
+      status.message.func === index + 1) {
+      contents += (status.state === 'WARNING') ? '❉' : '❕';
+    }
+    const header = (
+      <div style={{
+        display:'flex',
+        justifyContent:'space-between',
+        padding:'3pt'}}>
         <FunctionDivider pos={index} low={uf.range.low} high={uf.range.high}
           onChange={onChange}/>
           <div>{contents}</div>
-        </div>);
-      const color = Colors[index % Colors.length];
-      return (
-        <div key={index}>
-          <div style={{backgroundColor:color, padding:'2pt', color:GetTextColor(color)}}>
-            {header}
-          </div>
-          <FunctionViewer
-            id={index}
-            first={index===0}
-            last={index===funcs.length-1}
-            userFunc={uf}
-            onNext={onNext}
-            onPrev={onPrev}
-            onEdit={onEdit}
-            onDel={onDel}/>
+      </div>);
+    const color = Colors[index % Colors.length];
+    return (
+      <div key={index}>
+        <div style={{backgroundColor:color, padding:'2pt', color:GetTextColor(color)}}>
+          {header}
         </div>
-      );
+        <FunctionViewer
+          id={index}
+          first={index===0}
+          last={index===funcs.length-1}
+          userFunc={uf}
+          onNext={onNext}
+          onPrev={onPrev}
+          onEdit={onEdit}
+          onDel={onDel}/>
+        <div style={{backgroundColor:color, height:'2pt'}}/>
+      </div>);
   });
-  const withEditor = [...MapOfFuncs, <div key='theEditor'>{editor}</div>];
-  return (<div>{withEditor}</div>);
+  return (<div>{MapOfFuncs}</div>);
 };
 
 UnboundFunctionList.propTypes = {
   funcs: PropTypes.arrayOf(PropTypes.object).isRequired,
   status: PropTypes.object.isRequired,
   selected: PropTypes.number.isRequired,
-  editor: PropTypes.element.isRequired,
   onEdit: PropTypes.func.isRequired,
   onPrev: PropTypes.func.isRequired,
   onNext: PropTypes.func.isRequired,
@@ -82,8 +82,7 @@ const FunctionList = connect(
   (state:GraphState) => ({
     funcs: state.funcs,
     status: state.displayState,
-    selected: state.currentEdit,
-    editor: <FunctionEditor/>
+    selected: state.currentEdit
   }),
   // Dispatch To Handler Props
   (dispatch:(a:CoasterAction)=>void) => ({

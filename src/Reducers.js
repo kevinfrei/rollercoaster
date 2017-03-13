@@ -10,14 +10,15 @@ import type {
   CoasterAction,
   AddFunctionAction,
   DeleteFunctionAction,
-  EditFunctionAction,
+  ChangeFunctionAction,
   ChangeDividerAction,
   MoveFunctionAction,
   SelectFunctionAction,
-  ClearEditorAction,
   ScaleChangeAction,
   WindowsResizeAction,
   SettingsAction,
+  OpenEditorAction,
+  CloseEditorAction,
   AllFuncsAction} from './Actions';
 
 const nobj = (a:Object, b:Object):Object => Object.assign({}, a, b);
@@ -85,7 +86,7 @@ const sliceOut = (
 };
 
 const editFunctionReducer =
-  (state:GraphState, action:EditFunctionAction):GraphState => {
+  (state:GraphState, action:ChangeFunctionAction):GraphState => {
   let funcs = state.funcs;
   const pos = action.position;
   if (pos < 0 || pos > funcs.length) {
@@ -143,7 +144,7 @@ const addFunctionReducer =
   (state:GraphState, action:AddFunctionAction):GraphState => {
   let funcs = state.funcs;
   const r = funcs[funcs.length - 1].range.high;
-  const func = MakeUserFunc(action.expr, r, r+1);
+  const func = MakeUserFunc(action.funcBody, r, r+1);
   if (typeof func === 'string') {
     return UpdateFunctions(
       state,
@@ -200,7 +201,6 @@ const changeDividerReducer =
   (state:GraphState, action:ChangeDividerAction):GraphState => {
   const funcs = state.funcs;
   const pos = parseFloat(action.position);
-  const val = parseFloat(action.value.toString());
   if (pos > funcs.length || pos < 0) {
     console.log('Invalid change divider request for current state');
     return state;
@@ -247,12 +247,7 @@ const moveFunctionReducer =
 
 const selectFunctionReducer =
   (state:GraphState, action:SelectFunctionAction):GraphState => {
-  return CheckFunctions(state, state.funcs, action.position);
-};
-
-const clearEditorReducer =
-  (state:GraphState, action:ClearEditorAction): GraphState => {
-  return CheckFunctions(state, state.funcs, -1);
+  return nobj(state, {editorOpen: true, currentEdit: action.position});
 };
 
 const changeScaleReducer =
@@ -284,6 +279,12 @@ const settingsReducer = (state: GraphState, action: SettingsAction):GraphState =
     showLabels: action.value.labels
   });
 
+const openEditorReducer = (state: GraphState, action: OpenEditorAction):GraphState =>
+  nobj(state, {editorOpen: true, currentEdit: -1});
+
+const closeEditorReducer = (state: GraphState, action: CloseEditorAction):GraphState =>
+  nobj(state, {editorOpen: false});
+
 const internalCoasterReducer =
   (state:GraphState = initialState, action:CoasterAction): GraphState => {
   switch (action.type) {
@@ -299,8 +300,6 @@ const internalCoasterReducer =
       return moveFunctionReducer(state, action);
     case 'SELECT_FUNCTION':
       return selectFunctionReducer(state, action);
-    case 'CLEAR_EDITOR':
-      return clearEditorReducer(state, action);
     case 'START_ANIMATION':
       return changeAnimationReducer(state, true);
     case 'STOP_ANIMATION':
@@ -313,6 +312,10 @@ const internalCoasterReducer =
       return windowResizeReducer(state, action);
     case 'SETTINGS':
       return settingsReducer(state, action);
+    case 'OPEN_EDITOR':
+      return openEditorReducer(state, action);
+    case 'CLOSE_EDITOR':
+      return closeEditorReducer(state, action);
     case 'ALL_FUNCS':
       return allFuncsReducer(state, action);
     default:

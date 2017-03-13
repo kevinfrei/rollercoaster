@@ -23,7 +23,7 @@ import type {FuncArray} from './UserFunction';
 
 export type AddFunctionAction = {
   type: 'ADD_FUNCTION',
-  expr: string
+  funcBody: string
 };
 
 export type DeleteFunctionAction = {
@@ -31,8 +31,8 @@ export type DeleteFunctionAction = {
   position: number
 };
 
-export type EditFunctionAction = {
-  type: 'EDIT_FUNCTION',
+export type ChangeFunctionAction = {
+  type: 'CHANGE_FUNCTION',
   position: number,
   funcBody: string
 };
@@ -52,10 +52,6 @@ export type MoveFunctionAction = {
 export type SelectFunctionAction = {
   type: 'SELECT_FUNCTION',
   position: number
-};
-
-export type ClearEditorAction = {
-  type: 'CLEAR_EDITOR'
 };
 
 export type StartAction = {
@@ -93,49 +89,54 @@ export type AllFuncsAction = {
   value: FuncArray
 };
 
+export type OpenEditorAction = {
+  type: 'OPEN_EDITOR'
+};
+
+export type CloseEditorAction = {
+  type: 'CLOSE_EDITOR'
+};
+
 export type CoasterAction =
   AddFunctionAction |
   DeleteFunctionAction |
-  EditFunctionAction |
+  ChangeFunctionAction |
   ChangeDividerAction |
   MoveFunctionAction |
   SelectFunctionAction |
-  ClearEditorAction |
   StartAction |
   StopAction |
   ScaleChangeAction |
   TickAction |
   WindowsResizeAction |
   SettingsAction |
+  OpenEditorAction |
+  CloseEditorAction |
   AllFuncsAction;
 
 export const Actions = {
-  AddFunction: (expr:string):AddFunctionAction => ({
-    type: 'ADD_FUNCTION', expr}),
+  AddFunction: (funcBody:string):AddFunctionAction => ({
+    type: 'ADD_FUNCTION', funcBody}),
   DeleteFunction: (position:number):DeleteFunctionAction => ({
     type: 'DELETE_FUNCTION', position}),
-  EditFunction: (position:number, funcBody:string):EditFunctionAction => ({
-    type: 'EDIT_FUNCTION', position, funcBody}),
+  ChangeFunction: (position:number, funcBody:string):ChangeFunctionAction => ({
+    type: 'CHANGE_FUNCTION', position, funcBody}),
   ChangeDivider: (position:number, value: number|string):ChangeDividerAction => ({
     type: 'CHANGE_LIMIT', position, value}),
-  MoveFunction: (position:number, up:boolean): MoveFunctionAction => ({
+  MoveFunction: (position:number, up:boolean):MoveFunctionAction => ({
     type: 'MOVE_FUNCTION', position, up}),
-  SelectFunction: (position:number): SelectFunctionAction => ({
+  SelectFunction: (position:number):SelectFunctionAction => ({
     type: 'SELECT_FUNCTION', position}),
-  ClearEditor: ():ClearEditorAction => ({
-    type: 'CLEAR_EDITOR'}),
-  Start: ():StartAction => ({
-    type: 'START_ANIMATION'}),
-  Stop: ():StopAction => ({
-    type: 'STOP_ANIMATION'}),
+  Start: ():StartAction => ({ type: 'START_ANIMATION' }),
+  Stop: ():StopAction => ({ type: 'STOP_ANIMATION' }),
   ChangeScale: (value:string):ScaleChangeAction => ({
     type: 'CHANGE_SCALE', value}),
-  Tick: ():TickAction => ({
-    type: 'TICK'}),
+  Tick: ():TickAction => ({ type: 'TICK' }),
   WindowResize: (width:number, height:number):WindowsResizeAction => ({
     type: 'WINDOW_RESIZE', width, height}),
   Settings: (cart: boolean, velocity: boolean, labels: boolean):SettingsAction => ({
     type: 'SETTINGS', value:{cart, velocity, labels}}),
-  AllFuncs: (value: FuncArray) => ({
-    type: 'ALL_FUNCS', value})
+  OpenEditor: ():OpenEditorAction => ({ type: 'OPEN_EDITOR' }),
+  CloseEditor: ():CloseEditorAction => ({ type: 'CLOSE_EDITOR' }),
+  AllFuncs: (value: FuncArray) => ({ type: 'ALL_FUNCS', value }),
 };
