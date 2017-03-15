@@ -9,7 +9,7 @@ it('renders without crashing', () => {
     for (let visible = 0; visible < 2; visible++) {
       ReactDOM.render(<UnboundFunctionEditor func={'x^2'} pos={pos}
         visible={visible===1} onAddClick={() => {}} onClose={() => {}}
-        onSave={() => {}}/>, div);
+        onSave={() => {}} onChange={() => {}}/>, div);
     }
   }
 });

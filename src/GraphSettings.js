@@ -33,6 +33,7 @@ export const UnboundGraphSettings = ({
   const timeExpr = `${min}:${(sec<10)?'0':''}${sec}`;
   const label = running ? '◾' : '▶'; // UTF8 Files :)
   const handler = (e:HTMLInputEvent) => onScaleChange(e.target.value);
+  // TODO: Add a slider for the time, perhaps?
   return (
     <div className='ColJust' style={{
       padding:'3pt',
@@ -40,14 +41,13 @@ export const UnboundGraphSettings = ({
       justifyContent:'space-between',
       alignItems:'stretch',
       alignContent:'center'
-    }}>
+      }}>
       <Button onClick={() => onPlay(!running)} style={{width:50}}>
         {label}
       </Button>
       <div style={{width:'120pt', padding:'5pt'}}>
         Current time: {(time > 0) ? timeExpr : 'Stopped'}
       </div>
-      // TODO: Add a slider for the time, perhaps?
       <div style={{padding:'5pt'}}>Zoom:&nbsp;</div>
       <div style={{flexGrow:10, padding:'5pt'}}>
         <ReactBootstrapSlider

@@ -1,12 +1,11 @@
 // @flow
-import React, {Component, PropTypes} from 'react';
+import React, {PropTypes} from 'react';
 import {
   Button,
   FormControl,
   FormGroup,
   InputGroup,
-  Modal,
-  Panel} from 'react-bootstrap';
+  Modal} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
 import {Actions} from './Actions';
@@ -17,39 +16,20 @@ import type {GraphState} from './StoreTypes';
 import type {CoasterAction} from './Actions';
 
 type FuncEditorProps = {
-  onSave: (pos:number, func:string)=>void,
+  onSave: (pos:number) => void,
   onClose: () => void,
   onAddClick: () => void,
+  onChange: (expr: string) => void;
   func: string,
   pos: number,
   visible: boolean
 };
 
-type FuncEditorState = {
-  value: string
-};
-
-export class UnboundFunctionEditor extends Component {
-  props:FuncEditorProps;
-  TextArea:?HTMLTextAreaElement;
-  state:FuncEditorState;
-  constructor(props:FuncEditorProps) {
-    super(props);
-    this.state = {value:props.func};
-  }
-  handleChange = (e:Event) => {
-    // TODO: Function validation here?
-    if (e.target && e.target.value && typeof e.target.value === 'string')
-      this.setState({value: e.target.value})
-  }
-  clickSave = () => {
-    this.props.onSave(this.props.pos, this.state.value);
-    this.props.onClose();
-  }
-  render() {
-    return (<div>
-      <Button onClick={this.props.onAddClick} className='btnWidth'>Add</Button>
-      <Modal show={this.props.visible} onHide={this.props.onClose}>
+export const UnboundFunctionEditor =
+  ({onSave, onClose, onAddClick, onChange, func, pos, visible}:FuncEditorProps) =>
+    (<div>
+      <Button onClick={onAddClick} className='btnWidth'>Add</Button>
+      <Modal show={visible} onHide={onClose}>
         <Modal.Header closeButton>
           <Modal.Title>Create/Edit Function</Modal.Title>
         </Modal.Header>
@@ -57,18 +37,16 @@ export class UnboundFunctionEditor extends Component {
           <FormGroup>
             <InputGroup>
               <InputGroup.Addon>y = </InputGroup.Addon>
-              <FormControl type="text" value={this.state.value}
-                onChange={this.handleChange}/>
+              <FormControl type="text" defaultValue={func}
+                onChange={e => onChange(e.target.value)}/>
               <InputGroup.Button>
-                <Button onClick={this.clickSave}>Save</Button>
+                <Button onClick={onSave}>Save</Button>
               </InputGroup.Button>
             </InputGroup>
           </FormGroup>
         </Modal.Body>
       </Modal>
     </div>);
-  }
-}
 /*
 export class UnboundOldFunctionEditor extends Component {
   props:FuncEditorProps;
@@ -113,10 +91,12 @@ export class UnboundOldFunctionEditor extends Component {
   }
 };
 */
+
 UnboundFunctionEditor.propTypes = {
   onAddClick: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
+  onChange: PropTypes.func.isRequired,
   func: PropTypes.string.isRequired,
   pos: PropTypes.number.isRequired,
   visible: PropTypes.bool.isRequired
@@ -127,16 +107,14 @@ const FunctionEditor = connect(
   (state:GraphState) => ({
     pos: state.currentEdit,
     visible: state.editorOpen,
-    func: (state.currentEdit < 0) ? 'x' : String(state.funcs[state.currentEdit].text)
+    func: (state.currentEdit < 0) ? 'x' : state.funcs[state.currentEdit].text
   }),
   // Dispatch to Handler Props
   (dispatch:(a:CoasterAction)=>void) => ({
-    onSave: (id:number, expr:string) =>
-      dispatch((id >= 0)
-        ? Actions.ChangeFunction(id, expr)
-        : Actions.AddFunction(expr)),
-    onAddClick: () => dispatch(Actions.OpenEditor()),
-    onClose: () => dispatch(Actions.CloseEditor())
+    onSave: () => dispatch(Actions.SaveFunction()),
+    onAddClick: () => dispatch(Actions.AddNewFunction()),
+    onClose: () => dispatch(Actions.CloseEditor()),
+    onChange: (expr:string) => dispatch(Actions.ChangeCurrentExpression(expr))
   })
 )(UnboundFunctionEditor);
 

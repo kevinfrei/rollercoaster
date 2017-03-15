@@ -8,8 +8,6 @@ import type {FuncArray} from './UserFunction';
 // Are those functions good to graph?
 // An optional 'selected' user function for editing
 
-// Knowne fu
-
 // And various messages that it needs to respond to:
 
 // Add a new function
@@ -21,20 +19,13 @@ import type {FuncArray} from './UserFunction';
 // These flow types are quite tedious
 // There really ought to be a better way...
 
-export type AddFunctionAction = {
-  type: 'ADD_FUNCTION',
-  funcBody: string
+export type SaveFunctionAction = {
+  type: 'SAVE_FUNCTION',
 };
 
 export type DeleteFunctionAction = {
   type: 'DELETE_FUNCTION',
   position: number
-};
-
-export type ChangeFunctionAction = {
-  type: 'CHANGE_FUNCTION',
-  position: number,
-  funcBody: string
 };
 
 export type ChangeDividerAction = {
@@ -49,8 +40,8 @@ export type MoveFunctionAction = {
   up: boolean
 };
 
-export type SelectFunctionAction = {
-  type: 'SELECT_FUNCTION',
+export type EditFunctionAction = {
+  type: 'EDIT_FUNCTION',
   position: number
 };
 
@@ -89,44 +80,49 @@ export type AllFuncsAction = {
   value: FuncArray
 };
 
-export type OpenEditorAction = {
-  type: 'OPEN_EDITOR'
+export type AddNewFunctionAction = {
+  type: 'ADD_NEW_FUNCTION'
 };
 
 export type CloseEditorAction = {
   type: 'CLOSE_EDITOR'
 };
 
+export type ChangeCurrentExpressionAction = {
+  type: 'CHANGE_CURRENT_EXPRESSION',
+  expr: string
+};
+
 export type CoasterAction =
-  AddFunctionAction |
+  SaveFunctionAction |
   DeleteFunctionAction |
-  ChangeFunctionAction |
   ChangeDividerAction |
   MoveFunctionAction |
-  SelectFunctionAction |
+  EditFunctionAction |
   StartAction |
   StopAction |
   ScaleChangeAction |
   TickAction |
   WindowsResizeAction |
   SettingsAction |
-  OpenEditorAction |
+  AddNewFunctionAction |
   CloseEditorAction |
+  ChangeCurrentExpressionAction |
   AllFuncsAction;
 
 export const Actions = {
-  AddFunction: (funcBody:string):AddFunctionAction => ({
-    type: 'ADD_FUNCTION', funcBody}),
+  SaveFunction: ():SaveFunctionAction => ({
+    type: 'SAVE_FUNCTION'}),
   DeleteFunction: (position:number):DeleteFunctionAction => ({
     type: 'DELETE_FUNCTION', position}),
-  ChangeFunction: (position:number, funcBody:string):ChangeFunctionAction => ({
-    type: 'CHANGE_FUNCTION', position, funcBody}),
   ChangeDivider: (position:number, value: number|string):ChangeDividerAction => ({
     type: 'CHANGE_LIMIT', position, value}),
   MoveFunction: (position:number, up:boolean):MoveFunctionAction => ({
     type: 'MOVE_FUNCTION', position, up}),
-  SelectFunction: (position:number):SelectFunctionAction => ({
-    type: 'SELECT_FUNCTION', position}),
+  EditFunction: (position:number):EditFunctionAction => ({
+    type: 'EDIT_FUNCTION', position}),
+  ChangeCurrentExpression: (expr:string):ChangeCurrentExpressionAction => ({
+    type: 'CHANGE_CURRENT_EXPRESSION', expr}),
   Start: ():StartAction => ({ type: 'START_ANIMATION' }),
   Stop: ():StopAction => ({ type: 'STOP_ANIMATION' }),
   ChangeScale: (value:string):ScaleChangeAction => ({
@@ -136,7 +132,7 @@ export const Actions = {
     type: 'WINDOW_RESIZE', width, height}),
   Settings: (cart: boolean, velocity: boolean, labels: boolean):SettingsAction => ({
     type: 'SETTINGS', value:{cart, velocity, labels}}),
-  OpenEditor: ():OpenEditorAction => ({ type: 'OPEN_EDITOR' }),
+  AddNewFunction: ():AddNewFunctionAction => ({ type: 'ADD_NEW_FUNCTION' }),
   CloseEditor: ():CloseEditorAction => ({ type: 'CLOSE_EDITOR' }),
   AllFuncs: (value: FuncArray) => ({ type: 'ALL_FUNCS', value }),
 };

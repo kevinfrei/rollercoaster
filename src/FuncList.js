@@ -22,15 +22,14 @@ type FuncListAttribs = {
   onNext: (id:number)=>void,
   onDel: (id:number)=>void,
   onChange: (id:number, value:string|number)=>void,
-  selected: number,
 };
 
 export const UnboundFunctionList = ({
-  funcs, status, onEdit, onPrev, onNext, onDel, onChange, selected
+  funcs, status, onEdit, onPrev, onNext, onDel, onChange
 }:FuncListAttribs) => {
   // Should I assert that they're sorted?
   const MapOfFuncs = funcs.map((uf, index) => {
-    let contents = (selected === index) ? '✍' : '';
+    let contents = '';
     if (status.state !== 'GOOD' &&
       typeof status.message !== 'string' &&
       status.message.func === index + 1) {
@@ -69,7 +68,6 @@ export const UnboundFunctionList = ({
 UnboundFunctionList.propTypes = {
   funcs: PropTypes.arrayOf(PropTypes.object).isRequired,
   status: PropTypes.object.isRequired,
-  selected: PropTypes.number.isRequired,
   onEdit: PropTypes.func.isRequired,
   onPrev: PropTypes.func.isRequired,
   onNext: PropTypes.func.isRequired,
@@ -82,14 +80,13 @@ const FunctionList = connect(
   (state:GraphState) => ({
     funcs: state.funcs,
     status: state.displayState,
-    selected: state.currentEdit
   }),
   // Dispatch To Handler Props
   (dispatch:(a:CoasterAction)=>void) => ({
     onPrev: (id:number) => dispatch(Actions.MoveFunction(id, true)),
     onNext: (id:number) => dispatch(Actions.MoveFunction(id, false)),
     onDel: (id:number) => dispatch(Actions.DeleteFunction(id)),
-    onEdit: (id:number) => dispatch(Actions.SelectFunction(id)),
+    onEdit: (id:number) => dispatch(Actions.EditFunction(id)),
     onChange: (id:number, value:number|string) => dispatch(Actions.ChangeDivider(id, value))
   })
 )(UnboundFunctionList);
