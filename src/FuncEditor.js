@@ -5,6 +5,7 @@ import {
   FormControl,
   FormGroup,
   InputGroup,
+  HelpBlock,
   Modal} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
@@ -31,7 +32,9 @@ export const UnboundFunctionEditor =
       <Button onClick={onAddClick} className='btnWidth'>Add</Button>
       <Modal show={visible} onHide={onClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Create/Edit Function</Modal.Title>
+          <Modal.Title>
+            {(pos === -1) ? 'Add New Function' : `Edit Function #${pos+1}`}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <FormGroup>
@@ -43,6 +46,9 @@ export const UnboundFunctionEditor =
                 <Button onClick={onSave}>Save</Button>
               </InputGroup.Button>
             </InputGroup>
+            <HelpBlock>
+              I should put some help here at some point...
+            </HelpBlock>
           </FormGroup>
         </Modal.Body>
       </Modal>
