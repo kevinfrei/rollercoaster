@@ -324,12 +324,12 @@ const internalCoasterReducer =
 
 export const CoasterReducer =
   (state:GraphState, action:CoasterAction): GraphState => {
-  if (action.type !== 'TICK') {
+  if (false && action.type !== 'TICK') {
     console.log(state);
     console.log(action);
   }
   const res = internalCoasterReducer(state, action);
-  if (action.type !== 'TICK') {
+  if (false && action.type !== 'TICK') {
     console.log(res);
   }
   return res;

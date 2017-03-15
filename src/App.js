@@ -23,10 +23,10 @@ const App = () => (
         justifyContent:'space-between'}}>
         <FunctionEditor/>
         <FileDialog/>
-        <MathJaxFixer/>
       </div>
       <FunctionList/>
       <FunctionState/>
+      <div style={{textAlign:'center', margin:'3pt'}}><br/>If the formulas<br/>don't look right,<br/>try <MathJaxFixer>clicking here</MathJaxFixer><br/>to redraw them</div>
     </div>
     <div className='RowList'>
       <FunctionGraph/>
