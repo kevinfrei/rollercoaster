@@ -2,12 +2,13 @@
 
 import React, {PropTypes} from 'react';
 import {Button} from 'react-bootstrap';
-import ReactBootstrapSlider from 'react-bootstrap-slider';
 import {connect} from 'react-redux';
+import InputRange from 'react-input-range';
 
 import {Actions} from './Actions';
 
 import './bootstrap-slider-min.css';
+import 'react-input-range/lib/css/index.css';
 import './App.css';
 
 import type {GraphState} from './StoreTypes';
@@ -17,8 +18,17 @@ type GraphSettingsProps = {
   scale: number,
   time: number,
   running: boolean,
-  onScaleChange: (a:string)=>void,
-  onPlay: (a:boolean)=>void,
+  onScaleChange: (a:string) => void,
+  onPlayPause: () => void,
+  onStop: () => void,
+  onSetTime: (msec:number) => void
+};
+
+const format = (msec:number, type:string):string=>{
+  const time = msec / 1000;
+  const min = Math.floor(time / 60);
+  const sec = Math.round(10 * (time - min * 60)) / 10;
+  return `${min}:${(sec<10)?'0':''}${sec}`;
 };
 
 export const UnboundGraphSettings = ({
@@ -26,15 +36,10 @@ export const UnboundGraphSettings = ({
   time,
   running,
   onScaleChange,
-  onPlay
-}:GraphSettingsProps) => {
-  const min = Math.floor(time / 60);
-  const sec = Math.round(10 * (time - min * 60)) / 10;
-  const timeExpr = `${min}:${(sec<10)?'0':''}${sec}`;
-  const label = running ? '◾' : '▶'; // UTF8 Files :)
-  const handler = (e:HTMLInputEvent) => onScaleChange(e.target.value);
-  // TODO: Add a slider for the time, perhaps?
-  return (
+  onPlayPause,
+  onStop,
+  onSetTime
+}:GraphSettingsProps) => (
     <div className='ColJust' style={{
       padding:'3pt',
       alignSelf:'stretch',
@@ -42,41 +47,53 @@ export const UnboundGraphSettings = ({
       alignItems:'stretch',
       alignContent:'center'
       }}>
-      <Button onClick={() => onPlay(!running)} style={{width:50}}>
-        {label}
+      <Button onClick={onPlayPause} style={{width:40, margin:2}}>
+        {running ? '❚❚' : '▶'}
       </Button>
-      <div style={{width:'120pt', padding:'5pt'}}>
-        Current time: {(time > 0) ? timeExpr : 'Stopped'}
+      <Button onClick={onStop} style={{width:40, margin:2}}>◾</Button>
+      <div style={{padding:'5pt'}}>Time:</div>
+      <div style={{flexGrow:5, padding:'8pt'}}>
+        <InputRange
+          value={time} step={25}
+          minValue={0} maxValue={60000}
+          formatLabel={format}
+          onChange={onSetTime} onChangeComplete={onSetTime}/>
       </div>
-      <div style={{padding:'5pt'}}>Zoom:&nbsp;</div>
-      <div style={{flexGrow:10, padding:'5pt'}}>
-        <ReactBootstrapSlider
-          value={scale} orientation='horizontal'
-          min={1} max={100} step={.01}
-          change={handler} slideStop={handler}/>
+      <div style={{padding:'5pt'}}>Zoom:</div>
+      <div style={{flexGrow:5, padding:'8pt'}}>
+        <InputRange
+          value={scale} step={.01}
+          minValue={1} maxValue={50}
+          formatLabel={(v:number, t:string) => (t==='value')? v.toString().substr(0, 5) : ''}
+          onChange={onScaleChange} onChangeComplete={onScaleChange}/>
       </div>
     </div>
   );
-};
+
 
 UnboundGraphSettings.propTypes = {
   scale: PropTypes.number.isRequired,
   time: PropTypes.number.isRequired,
+  running: PropTypes.bool.isRequired,
   onScaleChange: PropTypes.func.isRequired,
-  onPlay: PropTypes.func.isRequired
+  onPlayPause: PropTypes.func.isRequired,
+  onStop: PropTypes.func.isRequired,
+  onSetTime: PropTypes.func.isRequired
 };
 
 const GraphSettings = connect(
   // State to Props:
   (state:GraphState) => ({
     scale: state.scale,
-    time: state.millisec/1000,
+    time: state.millisec,
     running: state.running,
   }),
   // Dispatch to Handler Prop
   (dispatch:(a:CoasterAction)=>void) => ({
-    onPlay: (play:boolean) => dispatch(play ? Actions.Start() : Actions.Stop()),
-    onScaleChange: (value:string) => dispatch(Actions.ChangeScale(value))
+    onPlayPause: () => dispatch(Actions.PlayPause()),
+    onScaleChange: (value:string) => dispatch(Actions.ChangeScale(value)),
+    onStop: () => dispatch(Actions.Stop()),
+    onSetTime: (msec:number) => dispatch(Actions.SetTime(msec))
   })
 )(UnboundGraphSettings);
 

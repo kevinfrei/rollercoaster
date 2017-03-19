@@ -131,7 +131,7 @@ export const getPosition = (funcs: FuncArray, time: number): Vector => {
     if (idx > 1) {
       const prevFunc = GetFunc(funcs, resMap[idx - 2].origin.x);
       if (prevFunc && prevFunc.text !== userFunc.text) {
-        debugger;
+        //debugger;
         // Figure out which values to test for continuity
         const lo = parseFloat(userFunc.range.low);
         const hi = parseFloat(userFunc.range.high);

@@ -13,6 +13,7 @@ it('renders without crashing', () => {
       time={1}
       running={false}
       onScaleChange={a=>{}}
-      onPlay={a=>{}}
-      openDialogButton={btn}/>, div);
+      onSetTime={a=>{}}
+      onStop={a=>{}}
+      onPlayPause={a=>{}}/>, div);
 });

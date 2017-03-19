@@ -14,6 +14,7 @@ import type {
   EditFunctionAction,
   ScaleChangeAction,
   WindowsResizeAction,
+  SetTimeAction,
   SettingsAction,
   AddNewFunctionAction,
   CloseEditorAction,
@@ -255,14 +256,28 @@ const changeScaleReducer =
   return state;
 };
 
-const changeAnimationReducer =
-  (state:GraphState, start:boolean): GraphState =>
-  nobj(state, start
-    ? {running: true, startTime: Date.now(), time: 0}
-    : {running: false});
+const toggleAnimationReducer = (state:GraphState): GraphState => {
+  if (state.running) {
+    // If we're running, just pause the thing
+    return nobj(state, {running: false});
+  } else {
+    // Resume by recalculating the 'startTime' as an offset from right now
+    // This works only if 'stop' has the effect of setting the time to zero
+    return nobj(
+      state,
+      { running: true, startTime: Date.now() - state.millisec }
+    );
+  }
+}
+
+const stopAnimationReducer = (state:GraphState): GraphState =>
+  nobj(state, {running: false, millisec: 0});
 
 const tickReducer = (state: GraphState): GraphState =>
   state.running ? nobj(state, {millisec: Date.now() - state.startTime}) : state;
+
+  const setTimeReducer = (state: GraphState, action: SetTimeAction): GraphState =>
+    nobj(state, {millisec: action.msec, startTime: Date.now() - action.msec});
 
 const windowResizeReducer =
   (state: GraphState, action: WindowsResizeAction): GraphState =>
@@ -297,12 +312,14 @@ const internalCoasterReducer =
       return moveFunctionReducer(state, action);
     case 'EDIT_FUNCTION':
       return editFunctionReducer(state, action);
-    case 'START_ANIMATION':
-      return changeAnimationReducer(state, true);
+    case 'TOGGLE_ANIMATION':
+      return toggleAnimationReducer(state);
     case 'STOP_ANIMATION':
-      return changeAnimationReducer(state, false);
+      return stopAnimationReducer(state);
     case 'CHANGE_SCALE':
       return changeScaleReducer(state, action);
+    case 'SET_TIME':
+      return setTimeReducer(state, action);
     case 'TICK':
       return tickReducer(state);
     case 'WINDOW_RESIZE':
@@ -318,6 +335,10 @@ const internalCoasterReducer =
     case 'CHANGE_CURRENT_EXPRESSION':
       return changeCurrentExpressionReducer(state, action);
     default:
+      if (action.type !== '@@redux/INIT') {
+        console.log(`Unkown state type: ${action.type}`);
+        console.log(action);
+      }
       return state;
   }
 };

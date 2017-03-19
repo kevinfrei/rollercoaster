@@ -45,8 +45,8 @@ export type EditFunctionAction = {
   position: number
 };
 
-export type StartAction = {
-  type: 'START_ANIMATION'
+export type ToggleAnimationAction = {
+  type: 'TOGGLE_ANIMATION'
 };
 
 export type StopAction = {
@@ -56,6 +56,11 @@ export type StopAction = {
 export type ScaleChangeAction = {
   type: 'CHANGE_SCALE',
   value: string
+};
+
+export type SetTimeAction = {
+  type: 'SET_TIME',
+  msec: number
 };
 
 export type TickAction = {
@@ -99,9 +104,10 @@ export type CoasterAction =
   ChangeDividerAction |
   MoveFunctionAction |
   EditFunctionAction |
-  StartAction |
+  ToggleAnimationAction |
   StopAction |
   ScaleChangeAction |
+  SetTimeAction |
   TickAction |
   WindowsResizeAction |
   SettingsAction |
@@ -123,10 +129,11 @@ export const Actions = {
     type: 'EDIT_FUNCTION', position}),
   ChangeCurrentExpression: (expr:string):ChangeCurrentExpressionAction => ({
     type: 'CHANGE_CURRENT_EXPRESSION', expr}),
-  Start: ():StartAction => ({ type: 'START_ANIMATION' }),
+  PlayPause: ():ToggleAnimationAction => ({ type: 'TOGGLE_ANIMATION' }),
   Stop: ():StopAction => ({ type: 'STOP_ANIMATION' }),
   ChangeScale: (value:string):ScaleChangeAction => ({
     type: 'CHANGE_SCALE', value}),
+  SetTime: (msec:number):SetTimeAction => ({ type: 'SET_TIME', msec }),
   Tick: ():TickAction => ({ type: 'TICK' }),
   WindowResize: (width:number, height:number):WindowsResizeAction => ({
     type: 'WINDOW_RESIZE', width, height}),

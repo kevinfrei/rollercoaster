@@ -15,7 +15,7 @@ export const MathJaxFixer = ({children}:{children?:mixed}) => (
   }}>{children}</Button>);
 
 class MathJaxReact extends Component {
-  props:{formula:string};
+  props:{formula:string, style?:Object};
   MathOutput:HTMLElement;
   QueueForRendering = () => {
     const MathJax = window.MathJax;
@@ -31,7 +31,7 @@ class MathJaxReact extends Component {
   }
   render() {
     return (
-      <div ref={(m:HTMLDivElement) => this.MathOutput = m}>
+      <div style={this.props.style} ref={(m:HTMLDivElement) => this.MathOutput = m}>
         {'`' + this.props.formula + '`'}
       </div>
     );
