@@ -17,6 +17,7 @@ import type {CoasterAction} from './Actions';
 type GraphSettingsProps = {
   scale: number,
   time: number,
+  maxTime: number,
   running: boolean,
   onScaleChange: (a:string) => void,
   onPlayPause: () => void,
@@ -35,6 +36,7 @@ export const UnboundGraphSettings = ({
   scale,
   time,
   running,
+  maxTime,
   onScaleChange,
   onPlayPause,
   onStop,
@@ -51,21 +53,25 @@ export const UnboundGraphSettings = ({
         {running ? '❚❚' : '▶'}
       </Button>
       <Button onClick={onStop} style={{width:40, margin:2}}>◾</Button>
-      <div style={{padding:'5pt'}}>Time:</div>
-      <div style={{flexGrow:5, padding:'8pt'}}>
-        <InputRange
-          value={time} step={25}
-          minValue={0} maxValue={60000}
-          formatLabel={format}
-          onChange={onSetTime} onChangeComplete={onSetTime}/>
+      <div className='ColJust' style={{flexGrow:5, border:'solid black 1pt', margin:2}}>
+        <div style={{padding:'5pt'}}>Time:</div>
+        <div style={{flexGrow:5, padding:'8pt'}}>
+          <InputRange
+            value={time} step={25}
+            minValue={0} maxValue={maxTime}
+            formatLabel={format}
+            onChange={onSetTime} onChangeComplete={onSetTime}/>
+        </div>
       </div>
-      <div style={{padding:'5pt'}}>Zoom:</div>
-      <div style={{flexGrow:5, padding:'8pt'}}>
-        <InputRange
-          value={scale} step={.01}
-          minValue={1} maxValue={50}
-          formatLabel={(v:number, t:string) => (t==='value')? v.toString().substr(0, 5) : ''}
-          onChange={onScaleChange} onChangeComplete={onScaleChange}/>
+      <div className='ColJust' style={{flexGrow:5, border:'solid black 1pt', margin:2}}>
+        <div style={{padding:'5pt'}}>Zoom:</div>
+        <div style={{flexGrow:5, padding:'8pt'}}>
+          <InputRange
+            value={scale} step={.01}
+            minValue={1} maxValue={50}
+            formatLabel={(v:number, t:string) => (t==='value')? v.toString().substr(0, 5) : ''}
+            onChange={onScaleChange} onChangeComplete={onScaleChange}/>
+        </div>
       </div>
     </div>
   );
@@ -75,6 +81,7 @@ UnboundGraphSettings.propTypes = {
   scale: PropTypes.number.isRequired,
   time: PropTypes.number.isRequired,
   running: PropTypes.bool.isRequired,
+  maxTime: PropTypes.number.isRequired,
   onScaleChange: PropTypes.func.isRequired,
   onPlayPause: PropTypes.func.isRequired,
   onStop: PropTypes.func.isRequired,
@@ -87,6 +94,7 @@ const GraphSettings = connect(
     scale: state.scale,
     time: state.millisec,
     running: state.running,
+    maxTime: state.maxTime
   }),
   // Dispatch to Handler Prop
   (dispatch:(a:CoasterAction)=>void) => ({

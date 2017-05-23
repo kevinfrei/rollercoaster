@@ -86,6 +86,22 @@ const CalcForceVectors =
 let resMap: Array<Vector> = [];
 let resMapKey: string = '';
 
+export const getMaxTime = (funcs:FuncArray, maxTime: number):number => {
+  let min = 1;
+  let max = maxTime;
+  // Binary search the time space
+  do {
+    const half = Math.floor((min + max) / 2);
+    const vec:Vector = getPosition(funcs, half);
+    if (vec.stuck) {
+      max = half;
+    } else {
+      min = half;
+    }
+  } while (min + 1 < max)
+  return max;
+};
+
 export const getPosition = (funcs: FuncArray, time: number): Vector => {
   // Okay, reasonable way to simulate gravity? Just calculate it
   // cumulatively because I've forgotten the Calculus necessary to do it
@@ -101,7 +117,7 @@ export const getPosition = (funcs: FuncArray, time: number): Vector => {
     resMap = [];
     resMapKey = fas;
   }
-  for (let idx = 0; idx <= time; idx++) {
+  for (let idx = 0; idx <= time && !vec.stuck; idx++) {
     if (resMap[idx]) {
       // Dynamic programming, FTW...
       vec = resMap[idx];

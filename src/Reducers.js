@@ -3,6 +3,7 @@
 import {CopyUserFunc, MakeUserFunc} from './UserFunction';
 import {MakeStateError, MakeStateWarning, MakeStateGood} from './StoreTypes';
 import {initialState} from './StoreTypes';
+import {getMaxTime} from './PhysicSim';
 
 import type {UserFunction, FuncArray} from './UserFunction';
 import type {GraphState, FunctionProblem, DisplayStateType} from './StoreTypes';
@@ -69,9 +70,15 @@ const ValidateFuncs = (funcs:FuncArray):DisplayStateType => {
 const UpdateFunctions = (
     originalState: GraphState,
     funcs: FuncArray,
-    displayState: DisplayStateType): GraphState =>
-  nobj(originalState,
-    { funcs, displayState, currentEdit: -1, editorOpen: false });
+    displayState: DisplayStateType): GraphState => {
+  if (displayState.state === 'ERROR') {
+    return nobj(originalState,
+      { funcs, displayState, currentEdit: -1, editorOpen: false });
+  }
+  const maxTime = getMaxTime(funcs, 300000);
+  return nobj(originalState,
+  {funcs, displayState, currentEdit: -1, editorOpen: false, maxTime})
+}
 
 const CheckFunctions =
   (origState:GraphState, funcs: FuncArray):GraphState =>

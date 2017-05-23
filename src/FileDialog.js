@@ -154,6 +154,18 @@ export class UnboundFileDialog extends Component {
                   </Checkbox>
                 </Col>
               </FormGroup>
+              <FormGroup>
+                <Col componentClass={ControlLabel} sm={3}>
+                  Initial Cart Velocity:
+                </Col>
+                <Col sm={5}>
+                  <FormControl type='text' value={this.props.initVelocity}
+                    onChange={(e) => this.props.initVelocityChanged(parseFloat(e.target.value))}/>
+                </Col>
+                <Col sm={4}>
+                  meters / second
+                </Col>
+              </FormGroup>
               <FormGroup controlId='formLoadFuncSet'>
                 <Col componentClass={ControlLabel} sm={3}>
                   Available&nbsp;sets&nbsp;to&nbsp;load

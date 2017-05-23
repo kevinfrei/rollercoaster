@@ -17,16 +17,18 @@ const App = () => (
   <div className='ColList'>
     <div id='left'>
       <div style={{
-        padding:'1pt',
+        padding:'2pt',
         display:'flex',
-        alignItems:'stretch',
-        justifyContent:'space-between'}}>
+        justifyContent:'space-around'}}>
         <FunctionEditor/>
         <FileDialog/>
       </div>
       <FunctionList/>
       <FunctionState/>
-      <div style={{textAlign:'center', margin:'3pt'}}><br/>If the formulas<br/>don't look right,<br/>try <MathJaxFixer>clicking here</MathJaxFixer><br/>to redraw them</div>
+      <div style={{textAlign:'center', margin:'5pt'}}>
+        If the formulas don't look right,<br/>
+        try <MathJaxFixer>clicking here</MathJaxFixer> to redraw them.
+      </div>
     </div>
     <div className='RowList'>
       <FunctionGraph/>

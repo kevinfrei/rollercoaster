@@ -306,10 +306,10 @@ export class UnboundFunctionGraph extends Component {
     let w = 500;
     let h = 500;
     if (left && this.props.size.width > 0 && left.clientWidth > 0) {
-      w = Math.max(w, this.props.size.width - left.clientWidth - 4);
+      w = Math.max(w, this.props.size.width - left.clientWidth - 8);
     }
     if (bottom && this.props.size.height > 0 && bottom.scrollHeight > 0) {
-      h = Math.max(h, this.props.size.height - bottom.scrollHeight - 4);
+      h = Math.max(h, this.props.size.height - bottom.scrollHeight - 8);
     }
     this.stateUpdateRequest(w, h);
     const hpx = `${h}px`;

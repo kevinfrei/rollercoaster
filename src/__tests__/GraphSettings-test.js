@@ -12,6 +12,7 @@ it('renders without crashing', () => {
       scale={5}
       time={1}
       running={false}
+      maxTime={60000}
       onScaleChange={a=>{}}
       onSetTime={a=>{}}
       onStop={a=>{}}
