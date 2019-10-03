@@ -1,26 +1,27 @@
 //@flow
 
-import React, {Component, PropTypes} from 'react';
-import {connect} from 'react-redux';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
-import {getPosition} from './PhysicSim';
-import {FuncArrayString} from './UserFunction';
-import {Actions} from './Actions';
+import { getPosition } from './PhysicSim';
+import { FuncArrayString } from './UserFunction';
+import { Actions } from './Actions';
 
-import type {Vector, FuncArray} from './UserFunction';
-import type {CoasterAction} from './Actions';
-import type {GraphState} from './StoreTypes';
+import type { Vector, FuncArray } from './UserFunction';
+import type { CoasterAction } from './Actions';
+import type { GraphState } from './StoreTypes';
 
 type FuncGraphProps = {
-  funcs:FuncArray,
-  selected:number,
-  scale:number,
-  time:number,
-  showVector:boolean,
-  showCart:boolean,
-  showLabels:boolean,
-  size:{width:number, height:number},
-  onStopped: ()=>void
+  funcs: FuncArray,
+  selected: number,
+  scale: number,
+  time: number,
+  showVector: boolean,
+  showCart: boolean,
+  showLabels: boolean,
+  size: { width: number, height: number },
+  onStopped: () => void
 };
 
 // Super duper exciting constant
@@ -31,14 +32,34 @@ const arrowAngle = Math.PI + Math.PI / 6;
 
 // Function colors
 export const Colors = [
-  '#080', '#008', '#800', '#088', '#808', '#880',
-  '#C00', '#0C0', '#00C', '#0CC', '#C0C', '#CC0',
-  '#C80', '#0C8', '#80C', '#C08', '#8C0', '#08C',
-  '#CC8', '#C8C', '#8CC', '#88C', '#8C8', '#C88'
+  '#080',
+  '#008',
+  '#800',
+  '#088',
+  '#808',
+  '#880',
+  '#C00',
+  '#0C0',
+  '#00C',
+  '#0CC',
+  '#C0C',
+  '#CC0',
+  '#C80',
+  '#0C8',
+  '#80C',
+  '#C08',
+  '#8C0',
+  '#08C',
+  '#CC8',
+  '#C8C',
+  '#8CC',
+  '#88C',
+  '#8C8',
+  '#C88'
 ];
 
 let scale = 20; // Scale of the graph
-let graphStep = 0.25/scale; // The steps used for drawing the graph
+let graphStep = 0.25 / scale; // The steps used for drawing the graph
 let xo = 10;
 let yo = 500;
 const tx = (x: number): number => x * scale + xo;
@@ -46,17 +67,20 @@ const ty = (y: number): number => yo - y * scale;
 const xu = (a: number): number => (a - xo) / scale;
 const yu = (b: number): number => (b - yo) / -scale;
 
-const textScale = (ctx:CanvasRenderingContext2D) => {
+const textScale = (ctx: CanvasRenderingContext2D) => {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-}
+};
 
-const drawScale = (ctx:CanvasRenderingContext2D) => {
+const drawScale = (ctx: CanvasRenderingContext2D) => {
   ctx.setTransform(scale, 0, 0, -scale, xo, yo);
-}
+};
 
-const freshContext = (canvas:?HTMLCanvasElement):CanvasRenderingContext2D => {
-  if (!canvas) {console.log('oops');throw String('oops');}
-  const ctx:?CanvasRenderingContext2D = canvas.getContext('2d');
+const freshContext = (canvas: ?HTMLCanvasElement): CanvasRenderingContext2D => {
+  if (!canvas) {
+    console.log('oops');
+    throw String('oops');
+  }
+  const ctx: ?CanvasRenderingContext2D = canvas.getContext('2d');
   if (!ctx) throw String('testOnly');
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -64,8 +88,13 @@ const freshContext = (canvas:?HTMLCanvasElement):CanvasRenderingContext2D => {
   return ctx;
 };
 
-const dot = (ctx:CanvasRenderingContext2D,
-  x:number, y:number, r:number, style:string) => {
+const dot = (
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  r: number,
+  style: string
+) => {
   ctx.beginPath();
   ctx.fillStyle = style;
   ctx.arc(x, y, r, 0, twoPi);
@@ -73,11 +102,11 @@ const dot = (ctx:CanvasRenderingContext2D,
   ctx.fill();
 };
 
-const path = (ctx:CanvasRenderingContext2D, ...dots:Array<number>) => {
+const path = (ctx: CanvasRenderingContext2D, ...dots: Array<number>) => {
   let seen = false;
   for (let i = 0; i < dots.length + 1; i += 2) {
     const x = dots[i];
-    const y = dots[i+1];
+    const y = dots[i + 1];
     if (seen) {
       ctx.lineTo(x, y);
     } else {
@@ -94,21 +123,22 @@ const move = (x, y, a, m) => {
 
 const drawGraphPaper = (
   ctx: CanvasRenderingContext2D,
-  {w, h, lbls}:{w:number, h:number, lbls:boolean}) => {
+  { w, h, lbls }: { w: number, h: number, lbls: boolean }
+) => {
   const x1 = xu(0);
   const y1 = yu(0);
   const x2 = xu(w);
   const y2 = yu(h);
-  const low = Math.min(x1,y1,x2,y2);
-  const high = Math.max(x1,y1,x2,y2);
-  for (let pos = Math.round(low); pos <= high; pos += .5) {
+  const low = Math.min(x1, y1, x2, y2);
+  const high = Math.max(x1, y1, x2, y2);
+  for (let pos = Math.round(low); pos <= high; pos += 0.5) {
     ctx.beginPath();
     ctx.strokeStyle = '#AAA';
     if (!pos) {
-      ctx.lineWidth = .1; // 0 : darkest on the axes
-    } else if (Math.round(Math.round(pos*.2)*10) === Math.round(pos*2)) {
+      ctx.lineWidth = 0.1; // 0 : darkest on the axes
+    } else if (Math.round(Math.round(pos * 0.2) * 10) === Math.round(pos * 2)) {
       ctx.lineWidth = 5e-2; // multiples of 5
-    } else if (Math.round(pos + .05) === Math.round(pos - .05)) {
+    } else if (Math.round(pos + 0.05) === Math.round(pos - 0.05)) {
       ctx.lineWidth = 2e-2; // on every 1
     } else {
       ctx.lineWidth = 5e-3; // one every .5
@@ -120,71 +150,78 @@ const drawGraphPaper = (
   if (lbls && scale > 2.5) {
     textScale(ctx);
     const textSize = scale;
-    ctx.font = `${textSize*.75}pt Courier`;
+    ctx.font = `${textSize * 0.75}pt Courier`;
     for (let val = 5; val < high; val += 5) {
       ctx.textAlign = 'right';
-      ctx.fillText(val.toString(), tx(-.1), ty(val-.3));
-      ctx.fillText((-val).toString(), tx(-.1), ty(-val-.3));
+      ctx.fillText(val.toString(), tx(-0.1), ty(val - 0.3));
+      ctx.fillText((-val).toString(), tx(-0.1), ty(-val - 0.3));
       ctx.textAlign = 'center';
-      ctx.fillText(val.toString(), tx(val), ty(-.9));
+      ctx.fillText(val.toString(), tx(val), ty(-0.9));
     }
     drawScale(ctx);
   }
 };
 
-const drawVector = (ctx: CanvasRenderingContext2D, vec:Vector) => {
+const drawVector = (ctx: CanvasRenderingContext2D, vec: Vector) => {
   // This draws the velocity vector on the graph
   const xo = vec.origin.x;
   const yo = vec.origin.y;
   const [xe, ye] = move(xo, yo, vec.angle, vec.magnitude);
-  const [xl, yl] = move(xe, ye, vec.angle + arrowAngle, 1/4);
-  const [xr, yr] = move(xe, ye, vec.angle - arrowAngle, 1/4);
+  const [xl, yl] = move(xe, ye, vec.angle + arrowAngle, 1 / 4);
+  const [xr, yr] = move(xe, ye, vec.angle - arrowAngle, 1 / 4);
   ctx.beginPath();
   path(ctx, xo, yo, xe, ye, xl, yl, xr, yr, xe, ye);
   ctx.closePath();
   ctx.strokeStyle = '#008';
-  ctx.lineWidth = 1/16;
+  ctx.lineWidth = 1 / 16;
   ctx.fillStyle = '#008';
   ctx.stroke();
   ctx.fill();
 };
 
-const drawVehicle = (ctx: CanvasRenderingContext2D, vec:Vector, cart:?boolean) => {
+const drawVehicle = (
+  ctx: CanvasRenderingContext2D,
+  vec: Vector,
+  cart: ?boolean
+) => {
   // This isn't a very attractive looking rollercoaster car...
   const carWidth = 1;
-  const {x,y} = vec.origin;
+  const { x, y } = vec.origin;
   const a = vec.angle;
   if (!cart || vec.stuck) {
-    const color = vec.stuck ? '#00F' : (vec.line ? '#000' : '#F00');
-    dot(ctx, x, y, vec.stuck ? .5 : .125, color);
+    const color = vec.stuck ? '#00F' : vec.line ? '#000' : '#F00';
+    dot(ctx, x, y, vec.stuck ? 0.5 : 0.125, color);
     return;
   }
-  const [rWheelX, rWheelY] = move(x, y, a, .5 * carWidth);
-  const [lWheelX, lWheelY] = move(x, y, a + Math.PI, .5 * carWidth);
-  const na = (Math.abs(a) > halfPi) ? -qtrPi : qtrPi;
+  const [rWheelX, rWheelY] = move(x, y, a, 0.5 * carWidth);
+  const [lWheelX, lWheelY] = move(x, y, a + Math.PI, 0.5 * carWidth);
+  const na = Math.abs(a) > halfPi ? -qtrPi : qtrPi;
   const [rTopX, rTopY] = move(x, y, a + na, carWidth * 1.5);
   const [lTopX, lTopY] = move(x, y, a - na + Math.PI, carWidth * 1.5);
 
   ctx.beginPath();
   path(ctx, rWheelX, rWheelY, rTopX, rTopY, lTopX, lTopY, lWheelX, lWheelY);
-  ctx.fillStyle = '#632';//vec.line ? '#632' : '#F00'; For when it's off track?
+  ctx.fillStyle = '#632'; //vec.line ? '#632' : '#F00'; For when it's off track?
   ctx.closePath();
   ctx.fill();
-  dot(ctx, lWheelX, lWheelY, .15 * carWidth, '#000');
-  dot(ctx, rWheelX, rWheelY, .15 * carWidth, '#000');
+  dot(ctx, lWheelX, lWheelY, 0.15 * carWidth, '#000');
+  dot(ctx, rWheelX, rWheelY, 0.15 * carWidth, '#000');
 };
 
 // This draws the lines for the function on the graph:
-const drawFunctions = (ctx: CanvasRenderingContext2D, funcs: FuncArray): void => {
+const drawFunctions = (
+  ctx: CanvasRenderingContext2D,
+  funcs: FuncArray
+): void => {
   let curStroke = 0;
   for (let f of funcs) {
     let x = parseFloat(f.range.low);
     let y = f.func(x);
-    dot(ctx, x, y, 1/8, '#000');
+    dot(ctx, x, y, 1 / 8, '#000');
     ctx.beginPath();
     ctx.strokeStyle = Colors[curStroke];
     ctx.fillStyle = Colors[curStroke];
-    ctx.lineWidth = 2/scale;
+    ctx.lineWidth = 2 / scale;
     curStroke = (curStroke + 1) % Colors.length;
     ctx.moveTo(x, y);
     const e = parseFloat(f.range.high);
@@ -196,14 +233,13 @@ const drawFunctions = (ctx: CanvasRenderingContext2D, funcs: FuncArray): void =>
       } catch (e) {
         fail = true;
       }
-      if (!fail)
-        ctx.lineTo(x, y);
+      if (!fail) ctx.lineTo(x, y);
       x += graphStep;
     }
     y = f.func(e);
     ctx.lineTo(e, y);
     ctx.stroke();
-    dot(ctx, e, y, .1, '#000');
+    dot(ctx, e, y, 0.1, '#000');
   }
 };
 
@@ -223,23 +259,22 @@ const NewRenderState = (): renderState => ({
   time: -1,
   scale: 1
 });
-const RenderStateChange =
-(reqState:renderState, drawnState:renderState): boolean => (
+const RenderStateChange = (
+  reqState: renderState,
+  drawnState: renderState
+): boolean =>
   reqState.w !== drawnState.w ||
   reqState.h !== drawnState.h ||
   reqState.funcs !== drawnState.funcs ||
   reqState.time !== drawnState.time ||
   reqState.lbls !== drawnState.lbls ||
-  reqState.scale !== drawnState.scale
-);
-const RedrawAxes =
-(reqState:renderState, drawnState:renderState): boolean => (
+  reqState.scale !== drawnState.scale;
+const RedrawAxes = (reqState: renderState, drawnState: renderState): boolean =>
   reqState.w !== drawnState.w ||
   reqState.h !== drawnState.h ||
   reqState.funcs !== drawnState.funcs ||
   reqState.lbls !== drawnState.lbls ||
-  reqState.scale !== drawnState.scale
-);
+  reqState.scale !== drawnState.scale;
 
 export class UnboundFunctionGraph extends Component {
   // Flow annotations
@@ -251,7 +286,7 @@ export class UnboundFunctionGraph extends Component {
   // The 'rendering' state of the system
   latestState: renderState;
 
-  constructor(props:FuncGraphProps) {
+  constructor(props: FuncGraphProps) {
     super(props);
     this.state = NewRenderState();
     this.latestState = NewRenderState();
@@ -270,14 +305,17 @@ export class UnboundFunctionGraph extends Component {
     }
     this.setState(reqState);
     if (RedrawAxes(reqState, drawnState)) {
-      const ctx:CanvasRenderingContext2D = freshContext(this.FuncGraph);
-      drawGraphPaper(ctx, {w: reqState.w, h: reqState.h, lbls: reqState.lbls});
+      const ctx: CanvasRenderingContext2D = freshContext(this.FuncGraph);
+      drawGraphPaper(ctx, {
+        w: reqState.w,
+        h: reqState.h,
+        lbls: reqState.lbls
+      });
       drawFunctions(ctx, this.props.funcs);
     }
-    const ctx:CanvasRenderingContext2D = freshContext(this.CarGraph);
+    const ctx: CanvasRenderingContext2D = freshContext(this.CarGraph);
     // If we're stopped, don't draw the cart
-    if (reqState.time < 0)
-      return;
+    if (reqState.time < 0) return;
     const vec: Vector = getPosition(this.props.funcs, reqState.time);
     drawVehicle(ctx, vec, this.props.showCart);
     if (this.props.showVector) {
@@ -288,19 +326,19 @@ export class UnboundFunctionGraph extends Component {
     }
   }
   // This specifies the state that affects whether we redraw the graph paper
-  stateUpdateRequest = (w:number, h:number) => {
+  stateUpdateRequest = (w: number, h: number) => {
     this.latestState.w = w;
     this.latestState.h = h;
     this.latestState.lbls = this.props.showLabels;
     this.latestState.funcs = FuncArrayString(this.props.funcs);
     this.latestState.scale = this.props.scale;
     this.latestState.time = this.props.time;
-    yo = h * .75;
-    xo = w * .002 * scale + 10;
-  }
+    yo = h * 0.75;
+    xo = w * 0.002 * scale + 10;
+  };
   render() {
     scale = this.props.scale || 30;
-    graphStep = 1/scale;
+    graphStep = 1 / scale;
     const left = document.getElementById('left');
     const bottom = document.getElementById('bottom');
     let w = 500;
@@ -323,15 +361,23 @@ export class UnboundFunctionGraph extends Component {
       left: 0
     };
     return (
-      <div style={{position:'relative', height: hpx, width:wpx}}>
-        <canvas ref={(fg:HTMLCanvasElement) => this.FuncGraph = fg}
-          width={w} height={h} style={s}/>
-        <canvas ref={(cg:HTMLCanvasElement) => this.CarGraph = cg}
-          width={w} height={h} style={s}/>
+      <div style={{ position: 'relative', height: hpx, width: wpx }}>
+        <canvas
+          ref={(fg: HTMLCanvasElement) => (this.FuncGraph = fg)}
+          width={w}
+          height={h}
+          style={s}
+        />
+        <canvas
+          ref={(cg: HTMLCanvasElement) => (this.CarGraph = cg)}
+          width={w}
+          height={h}
+          style={s}
+        />
       </div>
     );
   }
-};
+}
 
 UnboundFunctionGraph.propTypes = {
   funcs: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -342,15 +388,15 @@ UnboundFunctionGraph.propTypes = {
   showCart: PropTypes.bool.isRequired,
   showLabels: PropTypes.bool.isRequired,
   size: PropTypes.shape({
-    width:PropTypes.number.isRequired,
-    height:PropTypes.number.isRequired}
-  ).isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired
+  }).isRequired,
   onStopped: PropTypes.func
 };
 
 const FunctionGraph = connect(
   // State to Props
-  (state:GraphState) => ({
+  (state: GraphState) => ({
     scale: state.scale,
     funcs: state.funcs,
     time: state.millisec,
@@ -360,7 +406,7 @@ const FunctionGraph = connect(
     showLabels: state.showLabels,
     size: state.size
   }),
-  (dispatch:(a:CoasterAction)=>void) => ({
+  (dispatch: (a: CoasterAction) => void) => ({
     onStopped: () => dispatch(Actions.Stop())
   })
 )(UnboundFunctionGraph);

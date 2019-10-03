@@ -1,28 +1,35 @@
 //@flow
 
-import React, {Component, PropTypes} from 'react';
-import {Button} from 'react-bootstrap';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { Button } from 'react-bootstrap';
 
 import './App.css';
 
 // This is a terrible hack, but I don't know why it sometimes just gets stuck...
-export const MathJaxFixer = ({children}:{children?:mixed}) => (
-  <Button bsSize='xsmall' onClick={() => {
-    const MathJaxHub = window.MathJax.Hub;
-    if (MathJaxHub) {
-      MathJaxHub.Queue(["PreProcess", MathJaxHub], ["Reprocess", MathJaxHub]);
-    }
-  }}>{children}</Button>);
+export const MathJaxFixer = ({ children }: { children?: mixed }) => (
+  <Button
+    bsSize="xsmall"
+    onClick={() => {
+      const MathJaxHub = window.MathJax.Hub;
+      if (MathJaxHub) {
+        MathJaxHub.Queue(['PreProcess', MathJaxHub], ['Reprocess', MathJaxHub]);
+      }
+    }}
+  >
+    {children}
+  </Button>
+);
 
 class MathJaxReact extends Component {
-  props:{formula:string, style?:Object};
-  MathOutput:HTMLElement;
+  props: { formula: string, style?: Object };
+  MathOutput: HTMLElement;
   QueueForRendering = () => {
     const MathJax = window.MathJax;
     if (MathJax && MathJax.Hub) {
-      MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.MathOutput]);
+      MathJax.Hub.Queue(['Typeset', MathJax.Hub, this.MathOutput]);
     }
-  }
+  };
   componentDidMount() {
     this.QueueForRendering();
   }
@@ -31,7 +38,10 @@ class MathJaxReact extends Component {
   }
   render() {
     return (
-      <div style={this.props.style} ref={(m:HTMLDivElement) => this.MathOutput = m}>
+      <div
+        style={this.props.style}
+        ref={(m: HTMLDivElement) => (this.MathOutput = m)}
+      >
         {'`' + this.props.formula + '`'}
       </div>
     );

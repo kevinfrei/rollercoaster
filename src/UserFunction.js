@@ -1,46 +1,54 @@
 //@flow
 
-import math from 'mathjs';
+import { create, all } from 'mathjs';
+const math = create(all, {});
 
 export type Point = {
-  x : number,
-  y : number
+  x: number,
+  y: number
 };
 
 // I'm abusing this a bit:
 // 'line' indicates, for the simulation,
 // whether the point is still on the function or not
 export type Vector = {
-  origin : Point,
-  angle : number,
-  magnitude : number,
-  line : boolean,
-  stuck : boolean
+  origin: Point,
+  angle: number,
+  magnitude: number,
+  line: boolean,
+  stuck: boolean
 };
 
 export type Range = {
-  low : string,
-  high : string
+  low: string,
+  high: string
 };
 
 export type MathFunc = (val: number) => number;
 
 export type UserFunction = {
-  text : string,
-  func : MathFunc,
-  range : Range,
+  text: string,
+  func: MathFunc,
+  range: Range
 };
 
 export type FuncArray = Array<UserFunction>;
 
-export const MakePoint = (x: number, y: number): Point => ({x, y});
+export const MakePoint = (x: number, y: number): Point => ({ x, y });
 
-export const MakeVector =
-  (origin: Point, angle: number, magnitude: number, line: boolean, stuck: boolean) =>
-  ({origin, angle, magnitude, line, stuck});
+export const MakeVector = (
+  origin: Point,
+  angle: number,
+  magnitude: number,
+  line: boolean,
+  stuck: boolean
+) => ({ origin, angle, magnitude, line, stuck });
 
 export const MakeUserFunc = (
-    text: string, lo: number|string, hi: number|string): (UserFunction|string) => {
+  text: string,
+  lo: number | string,
+  hi: number | string
+): UserFunction | string => {
   // Validate the range, since that's easy
   const l = parseFloat(lo.toString());
   const h = parseFloat(hi.toString());
@@ -49,16 +57,23 @@ export const MakeUserFunc = (
 
   // TODO: validate the function expression
   try {
-    const compiled:Expression = math.compile(text);
-    const func: MathFunc = (a) => compiled.eval({x:a});
-    return { text, func, range : {low: low.toString(), high:high.toString()} };
+    const compiled: Expression = math.compile(text);
+    const func: MathFunc = a => compiled.eval({ x: a });
+    return {
+      text,
+      func,
+      range: { low: low.toString(), high: high.toString() }
+    };
   } catch (e) {
     return `Problem occurred processing function '${text}'`;
   }
 };
 
-export const DemandUserFunc =
-  (text: string, l: number|string, h: number|string):UserFunction => {
+export const DemandUserFunc = (
+  text: string,
+  l: number | string,
+  h: number | string
+): UserFunction => {
   const val = MakeUserFunc(text, l, h);
   if (typeof val === 'string') {
     throw val;
@@ -66,9 +81,15 @@ export const DemandUserFunc =
   return val;
 };
 
-export const CopyUserFunc =
-  (func:UserFunction, low:number|string, high:number|string):UserFunction =>
-  ({text:func.text, func:func.func, range: {low:low.toString(), high:high.toString()}});
+export const CopyUserFunc = (
+  func: UserFunction,
+  low: number | string,
+  high: number | string
+): UserFunction => ({
+  text: func.text,
+  func: func.func,
+  range: { low: low.toString(), high: high.toString() }
+});
 
 export const GetFunc = (funcList: FuncArray, x: number): ?UserFunction => {
   // TODO: Make this more efficient than a linear search through the array?
@@ -92,8 +113,8 @@ export const FuncListRange = (funcList: FuncArray): Range => {
       high = h;
     }
   }
-  return {low:low.toString(), high:high.toString()};
+  return { low: low.toString(), high: high.toString() };
 };
 
-export const FuncArrayString = (funcs:FuncArray): string =>
+export const FuncArrayString = (funcs: FuncArray): string =>
   funcs.map(f => f.text + `{${f.range.low},${f.range.high}}`).join('*');

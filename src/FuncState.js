@@ -1,9 +1,10 @@
 //@flow
 
-import React, {PropTypes} from 'react';
-import {connect} from 'react-redux';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
-import {FuncProblems} from './Reducers';
+import { FuncProblems } from './Reducers';
 
 import type {
   GraphState,
@@ -11,21 +12,21 @@ import type {
   FunctionProblem
 } from './StoreTypes';
 
-const UnboundFunctionState = ({state}:{state:DisplayStateType}) => {
+const UnboundFunctionState = ({ state }: { state: DisplayStateType }) => {
   if (state.state === 'GOOD') {
-    return <div/>;
+    return <div />;
   }
   const color = state.state === 'WARNING' ? '#FF0' : '#F00';
   let msg = state.message;
-  const message:string | FunctionProblem = state.message;
+  const message: string | FunctionProblem = state.message;
   if (typeof message !== 'string') {
     msg = ' in function #' + message.func;
     switch (message.problem) {
       case FuncProblems.UnorderedRange:
-        msg += ": the low and high values are out of order.";
+        msg += ': the low and high values are out of order.';
         break;
       case FuncProblems.Discontinuous:
-        msg += ": the function appears to not be continuous.";
+        msg += ': the function appears to not be continuous.';
         break;
       case FuncProblems.ParseFailure:
         msg += ": the function doesn't parse properly.";
@@ -37,9 +38,11 @@ const UnboundFunctionState = ({state}:{state:DisplayStateType}) => {
         msg += message.problem;
     }
   }
-  return (<div style={{padding:'3pt', backgroundColor:color}}>
-    {state.state}: {msg}
-  </div>);
+  return (
+    <div style={{ padding: '3pt', backgroundColor: color }}>
+      {state.state}: {msg}
+    </div>
+  );
 };
 
 UnboundFunctionState.propTypes = {
@@ -48,7 +51,7 @@ UnboundFunctionState.propTypes = {
 
 const FunctionState = connect(
   // State to Props
-  (state:GraphState) => ({ state: state.displayState })
+  (state: GraphState) => ({ state: state.displayState })
 )(UnboundFunctionState);
 
 export default FunctionState;
