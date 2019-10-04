@@ -49,15 +49,13 @@ export const UnboundFunctionEditor = ({
       <Modal.Body>
         <FormGroup>
           <InputGroup>
-            <InputGroup.Addon>y = </InputGroup.Addon>
+            <span>y = </span>
             <FormControl
               type="text"
               defaultValue={func}
               onChange={e => onChange(e.target.value)}
             />
-            <InputGroup.Button>
               <Button onClick={onSave}>Save</Button>
-            </InputGroup.Button>
           </InputGroup>
         </FormGroup>
       </Modal.Body>

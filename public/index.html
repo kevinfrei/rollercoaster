@@ -1,9 +1,9 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
     <!--
       Notice the use of %PUBLIC_URL% in the tag above.
       It will be replaced with the URL of the `public` folder during the build.
@@ -15,8 +15,14 @@
     -->
 
     <!-- Bootstrap's CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap-theme.min.css">
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap-theme.min.css"
+    />
 
     <!--
       MathJax doesn't play nice with WebPack, so I have to just configure and
@@ -24,12 +30,18 @@
     -->
     <!-- If you need to configure MathJax, do it here:
     <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-        asciimath2jax: { inlineMath: [['`','`']] },
-        ascii2jax: {inlineMath:  [['`','`']] }
+           MathJax.Hub.Config({
+        jax: ["input/AsciiMath","output/CommonHTML"],
+        extensions: ["asciimath2jax.js","MathMenu.js","MathZoom.js","AssistiveMML.js", "a11y/accessibility-menu.js"]
       });
-    </script> -->
-    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=AM_CHTML"></script>
+    </script>
+     -->
+    <script
+      type="text/javascript"
+      id="MathJax-script"
+      async
+      src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=AM_CHTML,https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/config/AM_CHTML.js"
+    ></script>
     <!--
     Put this in the webpack.config.prod.js file in the react-scripts folder
     in order to NOT bundle everything into a gigantic JS file

@@ -6,10 +6,12 @@ import {
   Button,
   Col,
   Dropdown,
+  DropdownButton,
   Form,
   FormControl,
   FormGroup,
-  Modal
+  Modal,
+  Row
 } from 'react-bootstrap';
 import { connect } from 'react-redux';
 
@@ -142,34 +144,32 @@ export class UnboundFileDialog extends Component {
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <Form horizontal>
-              <FormGroup>
-                <Col smOffset={1} sm={4}>
+            <Form>
+              <FormGroup as={Row}>
+                <Col offset={1} sm={4}>
                   <Form.Check
                     checked={this.state.labels}
                     onChange={this.labels}
-                  >
-                    Show labels on axes
-                  </Form.Check>
+                    label="Show labels on axes"
+                  />
                 </Col>
                 <Col sm={4}>
                   <Form.Check
                     checked={this.state.velocity}
                     onChange={this.velocity}
-                  >
-                    Show velocity vector
-                  </Form.Check>
+                    label="Show velocity vector"
+                  />
                 </Col>
                 <Col sm={3}>
-                  <Form.Check checked={this.state.cart} onChange={this.cart}>
-                    Show cart
-                  </Form.Check>
+                  <Form.Check
+                    checked={this.state.cart}
+                    onChange={this.cart}
+                    label="Show cart"
+                  />
                 </Col>
               </FormGroup>
               <FormGroup>
-                <Col componentClass={Form.Label} sm={3}>
-                  Initial Cart Velocity:
-                </Col>
+                <Form.Label sm={3}>Initial Cart Velocity:</Form.Label>
                 <Col sm={5}>
                   <FormControl
                     type="text"
@@ -182,21 +182,21 @@ export class UnboundFileDialog extends Component {
                 <Col sm={4}>meters / second</Col>
               </FormGroup>
               <FormGroup controlId="formLoadFuncSet">
-                <Col componentClass={Form.Label} sm={3}>
+                <Form.Label sm={3}>
                   Available&nbsp;sets&nbsp;to&nbsp;load
-                </Col>
+                </Form.Label>
                 <Col sm={5}>
-                  <Dropdown.Button
+                  <DropdownButton
                     title={FuncSetTitle}
                     disabled={map.size === 0}
                     id="ddb"
                   >
                     {FuncSets}
-                  </Dropdown.Button>
+                  </DropdownButton>
                 </Col>
-                <Col sm={2}>
+                <Col sm={3}>
                   <Button
-                    bsStyle="primary"
+                    variant="primary"
                     disabled={map.size === 0}
                     style={{ width: 78 }}
                     onClick={this.loadFuncSets}
@@ -204,9 +204,9 @@ export class UnboundFileDialog extends Component {
                     Load
                   </Button>
                 </Col>
-                <Col sm={2}>
+                <Col sm={3}>
                   <Button
-                    bsStyle="danger"
+                    variant="danger"
                     disabled={map.size === 0}
                     style={{ width: 78 }}
                     onClick={this.delFuncSet}
@@ -216,9 +216,7 @@ export class UnboundFileDialog extends Component {
                 </Col>
               </FormGroup>
               <FormGroup controlId="formSaveFuncSet">
-                <Col componentClass={Form.Label} sm={3}>
-                  Current&nbsp;set&nbsp;name
-                </Col>
+                <Form.Label sm={3}>Current&nbsp;set&nbsp;name</Form.Label>
                 <Col sm={5}>
                   <FormControl
                     type="text"
@@ -228,8 +226,8 @@ export class UnboundFileDialog extends Component {
                 </Col>
                 <Col sm={4}>
                   <Button
-                    bsStyle="primary"
-                    style={{ width: 78 }}
+                    variant="primary"
+                    style={{ width: 100 }}
                     disabled={this.state.saveName.length === 0}
                     onClick={this.saveFuncSet}
                   >

@@ -9,7 +9,7 @@ import './App.css';
 // This is a terrible hack, but I don't know why it sometimes just gets stuck...
 export const MathJaxFixer = ({ children }: { children?: mixed }) => (
   <Button
-    bsSize="xsmall"
+    size="xsmall"
     onClick={() => {
       const MathJaxHub = window.MathJax.Hub;
       if (MathJaxHub) {

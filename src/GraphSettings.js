@@ -57,7 +57,7 @@ export const UnboundGraphSettings = ({
       {running ? '❚❚' : '▶'}
     </Button>
     <Button onClick={onStop} style={{ width: 40, margin: 2 }}>
-      ◾
+      <span role='img' aria-label='stop'>◾</span>
     </Button>
     <div
       className="ColJust"

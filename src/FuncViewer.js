@@ -19,10 +19,10 @@ type FuncViewerAttribs = {
 
 const FuncMover = ({first, last, id, onPrev, onNext}) => (
   <div style={{height:'100%'}}>
-    <Button block bsSize='small' disabled={first} onClick={() => onPrev(id)}>
+    <Button block size='small' disabled={first} onClick={() => onPrev(id)}>
       &uarr;
     </Button>
-    <Button block bsSize='small' disabled={last} onClick={() => onNext(id)}>
+    <Button block size='small' disabled={last} onClick={() => onNext(id)}>
       &darr;
     </Button>
   </div>
@@ -32,9 +32,9 @@ const FuncDisplayer = ({text}) => <MathJaxReact formula={`y = ${text}`}/>;
 
 const FuncChangeButtons = ({first, last, id, onDel, onEdit}) => (
   <div style={{height:'100%'}}>
-    <Button block bsSize='small'
+    <Button block size='small'
       onClick={() => onDel(id)} disabled={first && last}>✗</Button>
-    <Button block bsSize='small' onClick={() => onEdit(id)}>✎</Button>
+    <Button block size='small' onClick={() => onEdit(id)}>✎</Button>
   </div>
 );
 
