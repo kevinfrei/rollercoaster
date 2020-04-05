@@ -1,3 +1,8 @@
+# Currently busted!
+I updated some components but haven't worked through the breaking changes yet.
+`master` is broken, currently. I probably should tag a working release. 
+But I haven't bothered. Sorry.
+
 # Rollercoaster
 
 This is a 2D "rollercoaster" simulator for use in high school math classes.
