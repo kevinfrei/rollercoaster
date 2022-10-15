@@ -11851,6 +11851,7 @@ __metadata:
     gh-pages: ^4.0.0
     jest-enzyme: ^7.1.2
     mathjs: ^11.3.0
+    prettier: ^2.7.1
     react: ^18.2.0
     react-addons-test-utils: ^15.6.2
     react-bootstrap: ^2.5.0
@@ -13597,7 +13598,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:~2":
+"prettier@npm:^2.7.1, prettier@npm:~2":
   version: 2.7.1
   resolution: "prettier@npm:2.7.1"
   bin:
