@@ -1,26 +1,44 @@
 import React from 'react';
-import logo from './logo.svg';
+import './App.css';
+import MathJaxReact from './MathJaxReact';
+import FunctionList from './FunctionList.js';
+import FunctionState from './FunctionState.js';
+import FunctionGraph from './FunctionGraph.js';
+import FunctionEditor from './FunctionEditor.js';
+import FileDialog from './FileDialog';
+import GraphSettings from './GraphSettings';
+
+// Resources
 import './App.css';
 
-function App() {
-  return (
+export default function App(): JSX.Element {
+  /*  return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+        <MathJaxReact formula="ax^2+bx+c=0" />
+    </div>
+  );*/
+  return (
+    <div className="ColList">
+      <div id="left">
+        <div
+          style={{
+            padding: '2pt',
+            display: 'flex',
+            justifyContent: 'space-around',
+          }}
+        >         
+          <FunctionEditor /> 
+          <FileDialog />
+        </div>
+        <FunctionList />
+        <FunctionState />
+      </div>
+      <div className="RowList">
+        <FunctionGraph />
+        <div id="bottom" className="RowList" style={{ alignSelf: 'stretch' }}>
+          <GraphSettings />
+        </div>
+      </div>
     </div>
   );
 }
-
-export default App;

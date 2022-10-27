@@ -6112,7 +6112,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"csstype@npm:^3.0.2":
+"csstype@npm:^3.0.2, csstype@npm:^3.1.1":
   version: 3.1.1
   resolution: "csstype@npm:3.1.1"
   checksum: 1f7b4f5fdd955b7444b18ebdddf3f5c699159f13e9cf8ac9027ae4a60ae226aef9bbb14a6e12ca7dba3358b007cee6354b116e720262867c398de6c955ea451d
@@ -11901,6 +11901,7 @@ __metadata:
     "@types/node": ^16.11.65
     "@types/react": ^18.0.21
     "@types/react-dom": ^18.0.6
+    csstype: ^3.1.1
     enzyme: ^3.11.0
     gh-pages: ^4.0.0
     jest-enzyme: ^7.1.2

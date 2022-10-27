@@ -42,11 +42,9 @@ const UnboundFunctionState = ({state}:{state:DisplayStateType}) => {
   </div>);
 };
 
-/*
 UnboundFunctionState.propTypes = {
   state: PropTypes.object.isRequired
 };
-*/
 
 const FunctionState = connect(
   // State to Props

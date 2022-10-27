@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@freik/core-utils": "^1.2.0",
+    "mathjax-react": "^2.0.1",
     "mathjs": "^11.3.0",
     "react": "^18.2.0",
     "react-bootstrap": "^2.5.0",

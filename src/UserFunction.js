@@ -1,6 +1,6 @@
 //@flow
 
-import math from 'mathjs';
+import * as math from 'mathjs';
 
 export type Point = {
   x : number,
@@ -50,7 +50,8 @@ export const MakeUserFunc = (
   // TODO: validate the function expression
   try {
     const compiled:Expression = math.compile(text);
-    const func: MathFunc = (a) => compiled.eval({x:a});
+    console.log(compiled);
+    const func: MathFunc = (a) => compiled.evaluate({x:a});
     return { text, func, range : {low: low.toString(), high:high.toString()} };
   } catch (e) {
     return `Problem occurred processing function '${text}'`;

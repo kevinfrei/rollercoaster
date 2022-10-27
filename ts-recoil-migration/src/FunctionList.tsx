@@ -65,7 +65,6 @@ export const UnboundFunctionList = ({
   return (<div>{MapOfFuncs}</div>);
 };
 
-/*
 UnboundFunctionList.propTypes = {
   funcs: PropTypes.arrayOf(PropTypes.object).isRequired,
   status: PropTypes.object.isRequired,
@@ -75,7 +74,6 @@ UnboundFunctionList.propTypes = {
   onDel: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired
 };
-*/ 
 
 const FunctionList = connect(
   // State to Props

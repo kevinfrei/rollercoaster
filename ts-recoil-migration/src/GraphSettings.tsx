@@ -76,7 +76,7 @@ export const UnboundGraphSettings = ({
     </div>
   );
 
-/*
+
 UnboundGraphSettings.propTypes = {
   scale: PropTypes.number.isRequired,
   time: PropTypes.number.isRequired,
@@ -87,7 +87,6 @@ UnboundGraphSettings.propTypes = {
   onStop: PropTypes.func.isRequired,
   onSetTime: PropTypes.func.isRequired
 };
-*/
 
 const GraphSettings = connect(
   // State to Props:

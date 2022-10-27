@@ -38,8 +38,10 @@ class MathJaxReact extends Component {
   }
 }
 
+/*
 MathJaxReact.propTypes = {
   formula: PropTypes.string.isRequired
 };
+*/
 
 export default MathJaxReact;

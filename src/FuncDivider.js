@@ -30,11 +30,13 @@ const FunctionDivider = ({pos, low, high, onChange}:FuncDividerTypes) => {
     </span>);
 };
 
+/*
 FunctionDivider.propTypes = {
   pos:PropTypes.number.isRequired,
   low:PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
   high:PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
   onChange:React.PropTypes.func.isRequired
 };
+*/
 
 export default FunctionDivider;

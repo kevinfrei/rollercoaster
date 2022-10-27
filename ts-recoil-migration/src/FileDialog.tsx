@@ -3,12 +3,14 @@
 import React, {Component, PropTypes} from 'react';
 import {
   Button,
+  Checkbox,
   Col,
-  Dropdown,
+  ControlLabel,
   DropdownButton,
   Form,
   FormControl,
   FormGroup,
+  MenuItem,
   Modal,
 } from 'react-bootstrap';
 import {connect} from 'react-redux';
@@ -119,7 +121,7 @@ export class UnboundFileDialog extends Component {
     const ButtonInfo = '⚙/💾'; // I love UTF8...
     const map: FuncSetsType = this.state.funcsets;
     const FuncSets = Array.from(map.keys()).map((k,i) => (
-      <Dropdown.Item key={i} eventKey={k} onSelect={this.loadSelect}>{k}</Dropdown.Item>
+      <MenuItem key={i} eventKey={k} onSelect={this.loadSelect}>{k}</MenuItem>
     ));
     const FuncSetTitle = (map.size > 0) ? this.state.loadSelection.substring(0,17) :
       'No function sets available!';
@@ -134,26 +136,26 @@ export class UnboundFileDialog extends Component {
             <Form horizontal>
               <FormGroup>
                 <Col smOffset={1} sm={4}>
-                  <Form.Check checked={this.state.labels}
+                  <Checkbox checked={this.state.labels}
                     onChange={this.labels}>
                     Show labels on axes
-                  </Form.Check>
+                  </Checkbox>
                 </Col>
                 <Col sm={4}>
-                  <Form.Check checked={this.state.velocity}
+                  <Checkbox checked={this.state.velocity}
                     onChange={this.velocity}>
                     Show velocity vector
-                  </Form.Check>
+                  </Checkbox>
                 </Col>
                 <Col sm={3}>
-                  <Form.Check checked={this.state.cart}
+                  <Checkbox checked={this.state.cart}
                     onChange={this.cart}>
                     Show cart
-                  </Form.Check>
+                  </Checkbox>
                 </Col>
               </FormGroup>
               <FormGroup>
-                <Col /*componentClass={ControlLabel}*/ sm={3}>
+                <Col componentClass={ControlLabel} sm={3}>
                   Initial Cart Velocity:
                 </Col>
                 <Col sm={5}>
@@ -165,7 +167,7 @@ export class UnboundFileDialog extends Component {
                 </Col>
               </FormGroup>
               <FormGroup controlId='formLoadFuncSet'>
-                <Col /*componentClass={ControlLabel}*/ sm={3}>
+                <Col componentClass={ControlLabel} sm={3}>
                   Available&nbsp;sets&nbsp;to&nbsp;load
                 </Col>
                 <Col sm={5}>
@@ -196,7 +198,7 @@ export class UnboundFileDialog extends Component {
                 </Col>
               </FormGroup>
               <FormGroup controlId='formSaveFuncSet'>
-                <Col /*componentClass={ControlLabel}*/ sm={3}>
+                <Col componentClass={ControlLabel} sm={3}>
                   Current&nbsp;set&nbsp;name
                 </Col>
                 <Col sm={5}>
@@ -221,7 +223,6 @@ export class UnboundFileDialog extends Component {
   }
 }
 
-/*
 UnboundFileDialog.propTypes = {
   cart: PropTypes.bool.isRequired,
   velocity: PropTypes.bool.isRequired,
@@ -237,7 +238,6 @@ UnboundFileDialog.propTypes = {
   onSave: PropTypes.func.isRequired,
   onLoad: PropTypes.func.isRequired
 };
-*/
 
 const FileDialog = connect(
   // State to Props

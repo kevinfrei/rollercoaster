@@ -333,7 +333,6 @@ export class UnboundFunctionGraph extends Component {
   }
 };
 
-/*
 UnboundFunctionGraph.propTypes = {
   funcs: PropTypes.arrayOf(PropTypes.object).isRequired,
   selected: PropTypes.number.isRequired,
@@ -348,7 +347,6 @@ UnboundFunctionGraph.propTypes = {
   ).isRequired,
   onStopped: PropTypes.func
 };
-*/
 
 const FunctionGraph = connect(
   // State to Props
