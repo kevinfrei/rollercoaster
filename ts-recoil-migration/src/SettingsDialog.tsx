@@ -23,13 +23,13 @@ type FileDialogProps = {
   onLoad: (funcSet: FuncArray) => void;
 };
 */
-export function SettingsDialog(): JSX.Element {
+export function SettingsDialog({visible, close}:{visible:boolean, close:(cancel:boolean)=>void}): JSX.Element {
   const [showCart, setShowCart] = useRecoilState(showCartState);
-  const [isVisible, setVisible] = useState<boolean>(false);
   return (
-    <ModalDialog visible={isVisible} close={() => setVisible(false)}>
+    <ModalDialog visible={visible} close={close}>
       <div>Show Cart: {showCart.toString()}</div>
       <button onClick={() => setShowCart(!showCart)}>Switch Cart</button>
+      <button onClick={()=>close(false)}>Close</button>
     </ModalDialog>
   );
 }

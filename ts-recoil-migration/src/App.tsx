@@ -12,24 +12,26 @@ import { SettingsDialog } from './SettingsDialog';
 
 // Resources
 import './App.css';
-import { RecoilRoot, useRecoilCallback } from 'recoil';
-import { useMyTransaction } from '@freik/web-utils';
+import {useRecoilState } from 'recoil';
 import { settingsDialogVisibleState } from './State';
 
 export default function App(): JSX.Element {
-  const settingsShow = useRecoilCallback(({ set }) => () => {
-    set(settingsDialogVisibleState, true);
-  });
+  const [settingsShown, setSettingsShown] = useRecoilState(
+    settingsDialogVisibleState,
+  );
   return (
-      <div id="App">
-        <SettingsDialog />
-        <div id="FunctionList" />
-        <div id="ButtonPanel">
-          <button onClick={settingsShow}>Show Settings</button>
-        </div>
-        <div id="Graph" />
-        <div id="GraphControls" />
+    <div id="App">
+      <SettingsDialog
+        visible={settingsShown}
+        close={() => setSettingsShown(false)}
+      />
+      <div id="FunctionList" />
+      <div id="ButtonPanel">
+        <button onClick={() => setSettingsShown(true)}>Show Settings</button>
       </div>
+      <div id="Graph" />
+      <div id="GraphControls" />
+    </div>
   );
 }
 
