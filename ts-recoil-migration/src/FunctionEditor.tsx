@@ -1,4 +1,4 @@
-// @flow
+/*
 import React, {PropTypes} from 'react';
 import {
   Button,
@@ -81,3 +81,5 @@ const FunctionEditor = connect(
 )(UnboundFunctionEditor);
 
 export default FunctionEditor;
+*/
+export {}

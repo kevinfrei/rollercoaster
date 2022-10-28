@@ -1,5 +1,4 @@
-// @flow
-
+/*
 import React, {PropTypes} from 'react';
 import {Button} from 'react-bootstrap';
 import {connect} from 'react-redux';
@@ -106,3 +105,5 @@ const GraphSettings = connect(
 )(UnboundGraphSettings);
 
 export default GraphSettings;
+*/
+export {}

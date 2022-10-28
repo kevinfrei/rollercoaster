@@ -1,3 +1,4 @@
+/*
 //@flow
 
 import React, {PropTypes} from 'react';
@@ -52,3 +53,5 @@ const FunctionState = connect(
 )(UnboundFunctionState);
 
 export default FunctionState;
+*/
+export {};

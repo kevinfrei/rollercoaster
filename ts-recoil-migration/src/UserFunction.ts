@@ -1,4 +1,4 @@
-import math from 'mathjs';
+import * as math from 'mathjs';
 
 export type Point = {
   x: number;

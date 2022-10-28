@@ -1,3 +1,46 @@
+#App {
+  display: grid;
+  grid-template-columns: 20vw 80vw;
+  grid-template-rows: 90vh 10vh;
+}
+
+#FunctionList {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+#ButtonPanel {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+#GraphControls {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+#Graph {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.modalWrapper {
+  display: flex;
+  background-color: #8888;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+}
+
+.modalContext {
+  border: 10pt solid white;
+  border-radius: 5pt;
+  background-color: #fff;
+}
+
 .RowList {
   display:flex;
   flex-direction:column;
