@@ -33,12 +33,14 @@
   width: 100vw;
   height: 100vh;
   position: absolute;
+  z-index: 888888;
 }
 
 .modalContext {
   border: 10pt solid white;
   border-radius: 5pt;
   background-color: #fff;
+  z-index: 999999;
 }
 
 .RowList {

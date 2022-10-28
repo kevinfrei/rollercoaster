@@ -1,4 +1,4 @@
-import { useRecoilState } from 'recoil';
+import { useRecoilCallback, useRecoilState, useRecoilValue } from 'recoil';
 import { settingsDialogVisibleState, showCartState } from './State';
 /*import {
   ArrayToFuncSet,
@@ -10,6 +10,8 @@ import type { FuncArray } from './UserFunction';
 import type { FuncSetsType, FlatFunc } from './LoadSave';
 */
 import './App.css';
+import React, { useEffect, useRef, useState } from 'react';
+import { ModalDialog } from './ModalDialog';
 
 /*
 type FileDialogProps = {
@@ -23,17 +25,12 @@ type FileDialogProps = {
 */
 export function SettingsDialog(): JSX.Element {
   const [showCart, setShowCart] = useRecoilState(showCartState);
-  const [isVisible, setVisible] = useRecoilState(settingsDialogVisibleState);
-  return isVisible ? (
-    <div className="modalWrapper">
-      <div className="modalContext">
-        <div>Show Cart: {showCart.toString()}</div>
-        <button onClick={() => setShowCart(!showCart)}>Switch Cart</button>
-        <button onClick={() => setVisible(false)}>Close</button>
-      </div>
-    </div>
-  ) : (
-    <></>
+  const [isVisible, setVisible] = useState<boolean>(false);
+  return (
+    <ModalDialog visible={isVisible} close={() => setVisible(false)}>
+      <div>Show Cart: {showCart.toString()}</div>
+      <button onClick={() => setShowCart(!showCart)}>Switch Cart</button>
+    </ModalDialog>
   );
 }
 /*
