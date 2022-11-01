@@ -1,5 +1,5 @@
 import { useRecoilCallback, useRecoilState, useRecoilValue } from 'recoil';
-import { settingsDialogVisibleState, showCartState } from './State';
+import { settingsDialogVisibleState, showCartState, showLabelsState, showVelocityState } from './State';
 /*import {
   ArrayToFuncSet,
   FuncSetToArray,
@@ -11,7 +11,7 @@ import type { FuncSetsType, FlatFunc } from './LoadSave';
 */
 import './App.css';
 import React, { useEffect, useRef, useState } from 'react';
-import { ModalDialog } from './ModalDialog';
+import { Checkbox, ModalDialog } from './ModalDialog';
 
 /*
 type FileDialogProps = {
@@ -23,13 +23,39 @@ type FileDialogProps = {
   onLoad: (funcSet: FuncArray) => void;
 };
 */
-export function SettingsDialog({visible, close}:{visible:boolean, close:(cancel:boolean)=>void}): JSX.Element {
+export function SettingsDialog({
+  visible,
+  close,
+}: {
+  visible: boolean;
+  close: (cancel: boolean) => void;
+}): JSX.Element {
   const [showCart, setShowCart] = useRecoilState(showCartState);
+  const [showLabels, setShowLabels] = useRecoilState(showLabelsState);
+  const [showVelocity, setShowVelocity] = useRecoilState(showVelocityState);
   return (
-    <ModalDialog visible={visible} close={close}>
-      <div>Show Cart: {showCart.toString()}</div>
-      <button onClick={() => setShowCart(!showCart)}>Switch Cart</button>
-      <button onClick={()=>close(false)}>Close</button>
+    <ModalDialog
+      visible={visible}
+      close={close}
+      closeButton={true}
+      title="Settings"
+    >
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr auto',
+          marginTop:15,
+          rowGap:5,
+          columnGap:15          
+        }}
+      >
+        <div>Show Cart:</div>
+        <Checkbox onClick={(v) => setShowCart(!v)} checked={showCart} />
+        <div>Show Labels:</div>
+        <Checkbox onClick={(v) => setShowLabels(!v)} checked={showLabels} />
+        <div>Show Velocity:</div>
+        <Checkbox onClick={(v) => setShowVelocity(!v)} checked={showVelocity} />
+      </div>
     </ModalDialog>
   );
 }

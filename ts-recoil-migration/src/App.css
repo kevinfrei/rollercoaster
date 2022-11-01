@@ -24,25 +24,6 @@
   grid-row: 1;
 }
 
-.modalWrapper {
-  display: flex;
-  background-color: #8888;
-  justify-content: center;
-  align-content: center;
-  align-items: center;
-  width: 100vw;
-  height: 100vh;
-  position: absolute;
-  z-index: 888888;
-}
-
-.modalContext {
-  border: 10pt solid white;
-  border-radius: 5pt;
-  background-color: #fff;
-  z-index: 999999;
-}
-
 .RowList {
   display:flex;
   flex-direction:column;

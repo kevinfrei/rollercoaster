@@ -12,7 +12,7 @@ import { SettingsDialog } from './SettingsDialog';
 
 // Resources
 import './App.css';
-import {useRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { settingsDialogVisibleState } from './State';
 
 export default function App(): JSX.Element {
@@ -21,13 +21,15 @@ export default function App(): JSX.Element {
   );
   return (
     <div id="App">
-      <SettingsDialog
-        visible={settingsShown}
-        close={() => setSettingsShown(false)}
-      />
       <div id="FunctionList" />
       <div id="ButtonPanel">
-        <button onClick={() => setSettingsShown(true)}>Show Settings</button>
+        <button onClick={() => setSettingsShown(true)}>
+          Show Settings
+        </button>
+        <SettingsDialog
+            visible={settingsShown}
+            close={() => setSettingsShown(false)}
+          />
       </div>
       <div id="Graph" />
       <div id="GraphControls" />
