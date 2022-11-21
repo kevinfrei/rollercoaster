@@ -1,7 +1,7 @@
-import { DemandUserFunc } from './UserFunction';
+import { DemandUserFunc, MakeUserFunc, UserFunction } from './UserFunction';
 import type { CoasterAction } from './Actions';
 import type { FuncArray } from './UserFunction';
-import { atom } from 'recoil';
+import { atom, atomFamily } from 'recoil';
 
 // My 'user state':
 
@@ -42,6 +42,10 @@ export const settingsDialogVisibleState = atom<boolean>({
   key: 'SettingsDialogVisibleState',
   default: false,
 });
+export const functionEditorVisibleState = atom<boolean>({
+  key: 'FunctionEditorVisibleState',
+  default: false,
+});
 export const showCartState = atom<boolean>({
   key: 'ShowCartState',
   default: true,
@@ -54,8 +58,13 @@ export const showLabelsState = atom<boolean>({
   key: 'ShowLabelsState',
   default: true,
 });
-
-const FunctionsState = atom<FuncArray>({ key: 'FunctionsState', default: [] });
+const FunctionCountState = atom<number>({
+  key: 'FunctionCount',
+  default: 0,
+});
+const FunctionsState = atomFamily<UserFunction, number>({
+  key: 'FunctionsState',
+});
 const DisplayState = atom<DisplayStateType>({
   key: 'DisplayState',
   default: { state: 'WARNING', message: 'uninitialized' },

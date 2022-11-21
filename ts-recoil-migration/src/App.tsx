@@ -13,23 +13,39 @@ import { SettingsDialog } from './SettingsDialog';
 // Resources
 import './App.css';
 import { useRecoilState } from 'recoil';
-import { settingsDialogVisibleState } from './State';
+import {
+  functionEditorVisibleState,
+  settingsDialogVisibleState,
+} from './State';
+import { FunctionEditor } from './FunctionEditor';
 
 export default function App(): JSX.Element {
   const [settingsShown, setSettingsShown] = useRecoilState(
     settingsDialogVisibleState,
   );
+  const [funcEditorShown, setFuncEditorShown] = useRecoilState(
+    functionEditorVisibleState,
+  );
   return (
     <div id="App">
-      <div id="FunctionList" />
+      <div id="FunctionList">
+        <button onClick={() => setFuncEditorShown(true)}>Show Editor</button>
+        <FunctionEditor
+          visible={funcEditorShown}
+          onClose={() => setFuncEditorShown(false)}
+          onAddClick={() => alert('add')}
+          onChange={(val) => alert('newval: ' + val)}
+          func="x^2"
+          pos={0}
+          onSave={() => alert('saving')}
+        />
+      </div>
       <div id="ButtonPanel">
-        <button onClick={() => setSettingsShown(true)}>
-          Show Settings
-        </button>
+        <button onClick={() => setSettingsShown(true)}>Show Settings</button>
         <SettingsDialog
-            visible={settingsShown}
-            close={() => setSettingsShown(false)}
-          />
+          visible={settingsShown}
+          close={() => setSettingsShown(false)}
+        />
       </div>
       <div id="Graph" />
       <div id="GraphControls" />

@@ -1,3 +1,5 @@
+import { ModalDialog } from './ModalDialog';
+
 /*
 import React, {PropTypes} from 'react';
 import {
@@ -15,45 +17,47 @@ import './App.css';
 
 import type {GraphState} from './StoreTypes';
 import type {CoasterAction} from './Actions';
+*/
 
 type FuncEditorProps = {
-  onSave: (pos:number) => void,
-  onClose: () => void,
-  onAddClick: () => void,
+  onSave: (pos: number) => void;
+  onClose: (cancel: boolean) => void;
+  onAddClick: () => void;
   onChange: (expr: string) => void;
-  func: string,
-  pos: number,
-  visible: boolean
+  func: string;
+  pos: number;
+  visible: boolean;
 };
 
-export const UnboundFunctionEditor =
-  ({onSave, onClose, onAddClick, onChange, func, pos, visible}:FuncEditorProps) =>
-    (<div>
-      <Button onClick={onAddClick} className='btnWidth'>Add</Button>
-      <Modal show={visible} onHide={onClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>
-            {(pos === -1) ? 'Add New Function' : `Edit Function #${pos+1}`}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <FormGroup>
-            <InputGroup>
-              <InputGroup.Addon>y = </InputGroup.Addon>
-              <FormControl type="text" defaultValue={func}
-                onChange={e => onChange(e.target.value)}/>
-              <InputGroup.Button>
-                <Button onClick={onSave}>Save</Button>
-              </InputGroup.Button>
-            </InputGroup>
-            <HelpBlock>
-              I should put some help here at some point...
-            </HelpBlock>
-          </FormGroup>
-        </Modal.Body>
-      </Modal>
-    </div>);
-
+export function FunctionEditor({
+  onSave,
+  onClose,
+  onAddClick,
+  onChange,
+  func,
+  pos,
+  visible,
+}: FuncEditorProps): JSX.Element {
+  return (
+    <ModalDialog
+      visible={visible}
+      close={onClose}
+      title={pos === -1 ? 'Add New Function' : `Edit Function #${pos + 1}`}
+    >
+      <button onClick={onAddClick} className="btnWidth">
+        Add
+      </button>
+      <div>y = </div>
+      <input
+        type="text"
+        defaultValue={func}
+        onChange={(e) => onChange(e.target.value)}
+      />
+      <button onClick={() => onSave(pos)}>Save</button>
+    </ModalDialog>
+  );
+}
+/*
 UnboundFunctionEditor.propTypes = {
   onAddClick: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
@@ -82,4 +86,4 @@ const FunctionEditor = connect(
 
 export default FunctionEditor;
 */
-export {}
+export {};
