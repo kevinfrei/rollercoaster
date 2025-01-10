@@ -1,6 +1,4 @@
-//@flow
-
-import * as math from 'mathjs';
+import { compile } from "mathjs";
 
 export type Point = {
   x : number,
@@ -49,7 +47,7 @@ export const MakeUserFunc = (
 
   // TODO: validate the function expression
   try {
-    const compiled:Expression = math.compile(text);
+    const compiled = compile(text);
     console.log(compiled);
     const func: MathFunc = (a) => compiled.evaluate({x:a});
     return { text, func, range : {low: low.toString(), high:high.toString()} };
@@ -71,7 +69,7 @@ export const CopyUserFunc =
   (func:UserFunction, low:number|string, high:number|string):UserFunction =>
   ({text:func.text, func:func.func, range: {low:low.toString(), high:high.toString()}});
 
-export const GetFunc = (funcList: FuncArray, x: number): ?UserFunction => {
+export const GetFunc = (funcList: FuncArray, x: number): UserFunction | undefined => {
   // TODO: Make this more efficient than a linear search through the array?
   for (let f of funcList) {
     if (parseFloat(f.range.high.toString()) > x) {

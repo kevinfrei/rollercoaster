@@ -1,7 +1,4 @@
-// @flow
-
 import {GetFunc, MakePoint, MakeVector, FuncArrayString} from './UserFunction';
-
 import type {MathFunc, Vector, Point, FuncArray} from './UserFunction';
 
 type PointData = {

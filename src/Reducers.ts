@@ -22,7 +22,10 @@ import type {
   ChangeCurrentExpressionAction,
   AllFuncsAction} from './Actions';
 
-const nobj = (a:Object, b:Object):Object => Object.assign({}, a, b);
+function nobj<A, B>(a:A, b: B):A & B {
+  return Object.assign({}, a, b);
+}
+// const nobj = (a:Object, b:Object):Object => Object.assign({}, a, b);
 
 export const FuncProblems = {
   UnorderedRange: 0,
@@ -35,8 +38,8 @@ export const FuncProblems = {
 };
 
 const ValidateFuncs = (funcs:FuncArray):DisplayStateType => {
-  let prevHi:?number = undefined;
-  let prevY:?number = undefined;
+  let prevHi:number | undefined = undefined;
+  let prevY:number | undefined = undefined;
   // TODO: Check for smoothness of transitions and warn
   let i = 0;
   for (let func of funcs) {

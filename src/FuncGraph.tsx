@@ -1,6 +1,6 @@
 //@flow
 
-import React, {Component, PropTypes} from 'react';
+import React, {Component, CSSProperties} from 'react';
 import {connect} from 'react-redux';
 
 import {getPosition} from './PhysicSim';
@@ -54,9 +54,9 @@ const drawScale = (ctx:CanvasRenderingContext2D) => {
   ctx.setTransform(scale, 0, 0, -scale, xo, yo);
 }
 
-const freshContext = (canvas:?HTMLCanvasElement):CanvasRenderingContext2D => {
+const freshContext = (canvas:HTMLCanvasElement|undefined):CanvasRenderingContext2D => {
   if (!canvas) {console.log('oops');throw String('oops');}
-  const ctx:?CanvasRenderingContext2D = canvas.getContext('2d');
+  const ctx:CanvasRenderingContext2D | null= canvas.getContext('2d');
   if (!ctx) throw String('testOnly');
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -149,7 +149,7 @@ const drawVector = (ctx: CanvasRenderingContext2D, vec:Vector) => {
   ctx.fill();
 };
 
-const drawVehicle = (ctx: CanvasRenderingContext2D, vec:Vector, cart:?boolean) => {
+const drawVehicle = (ctx: CanvasRenderingContext2D, vec:Vector, cart?:boolean) => {
   // This isn't a very attractive looking rollercoaster car...
   const carWidth = 1;
   const {x,y} = vec.origin;
@@ -241,13 +241,13 @@ const RedrawAxes =
   reqState.scale !== drawnState.scale
 );
 
-export class UnboundFunctionGraph extends Component {
+export class UnboundFunctionGraph extends Component<FuncGraphProps, renderState, void> {
   // Flow annotations
-  CarGraph: ?HTMLCanvasElement;
-  FuncGraph: ?HTMLCanvasElement;
-  props: FuncGraphProps;
+  CarGraph: HTMLCanvasElement | undefined;
+  FuncGraph: HTMLCanvasElement | undefined;
+  // props: FuncGraphProps;
   // The 'requested' state of the system
-  state: renderState;
+  // state: renderState;
   // The 'rendering' state of the system
   latestState: renderState;
 
@@ -314,7 +314,7 @@ export class UnboundFunctionGraph extends Component {
     this.stateUpdateRequest(w, h);
     const hpx = `${h}px`;
     const wpx = `${w}px`;
-    const s = {
+    const s:CSSProperties = {
       border: '4px solid #000',
       height: hpx,
       width: wpx,
@@ -348,7 +348,6 @@ UnboundFunctionGraph.propTypes = {
   ).isRequired,
   onStopped: PropTypes.func
 };
-*/
 
 const FunctionGraph = connect(
   // State to Props
@@ -366,5 +365,6 @@ const FunctionGraph = connect(
     onStopped: () => dispatch(Actions.Stop())
   })
 )(UnboundFunctionGraph);
+*/
 
-export default FunctionGraph;
+export default UnboundFunctionGraph;

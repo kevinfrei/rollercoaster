@@ -237,7 +237,6 @@ UnboundFileDialog.propTypes = {
   onSave: PropTypes.func.isRequired,
   onLoad: PropTypes.func.isRequired
 };
-*/
 
 const FileDialog = connect(
   // State to Props
@@ -256,5 +255,6 @@ const FileDialog = connect(
     }
   })
 )(UnboundFileDialog);
+*/
 
-export default FileDialog;
+export default UnboundFileDialog;

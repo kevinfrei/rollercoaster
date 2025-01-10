@@ -1,5 +1,3 @@
-// @flow
-
 import type {FuncArray} from './UserFunction';
 
 // My 'user state':
