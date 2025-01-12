@@ -10,7 +10,10 @@
     "preview": "bunx --bun vite preview"
   },
   "dependencies": {
+    "@fluentui/react-components": "^9.57.0",
+    "better-react-mathjax": "^2.0.4-beta1",
     "jotai": "^2.11.0",
+    "mathjs": "^14.0.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
