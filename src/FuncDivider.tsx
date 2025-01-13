@@ -1,5 +1,3 @@
-// @flow
-
 import React, {PropTypes} from 'react';
 
 type FuncDividerTypes = {

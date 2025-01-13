@@ -3,17 +3,30 @@
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
-    "@freik/build-tools": "^3.6.11",
+    "@eslint/js": "^9.18.0",
     "@freik/workspace": "^0.6.4",
+    "@types/react": "^19.0.5",
+    "@types/react-dom": "^19.0.3",
+    "@vitejs/plugin-react-swc": "^3.7.2",
     "enzyme": "^3.11.0",
+    "eslint": "^9.18.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.18",
     "gh-pages": "^6.3.0",
+    "globals": "^15.14.0",
     "jest-enzyme": "^7.1.2",
     "prettier": "^3.4.2",
     "react-addons-test-utils": "^15.6.2",
-    "react-scripts": "5.0.1"
+    "react-scripts": "5.0.1",
+    "typescript-eslint": "^8.19.1",
+    "vite": "^6.0.7"
   },
   "dependencies": {
+    "@fluentui/react-components": "^9.57.0",
+    "@fluentui/react-icons": "^2.0.270",
     "@freik/core-utils": "^1.4.5",
+    "better-react-mathjax": "^2.0.4-beta1",
+    "jotai": "^2.11.0",
     "mathjax-react": "^2.0.1",
     "mathjs": "^14.0.1",
     "react": "^19.0.0",
@@ -30,24 +43,20 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "format": "tools format bun"
+    "format": "tools format bun",
+    "* - new stuff - *": "",
+    "dev": "bunx --bun vite",
+    "bld": "tsc -b && bunx --bun vite build",
+    "lint": "eslint .",
+    "preview": "bunx --bun vite preview"
   },
   "description": "High School math class roller coaster simulator",
-  "main": "index.js",
+  "type": "module",
   "repository": {
     "url": "git@github.com:kevinfrei/rollercoaster.git",
     "type": "git"
   },
   "homepage": "https://kevinfrei.github.io/rollercoaster",
   "author": "Kevin Frei <kevinfrei@hotmail.com>",
-  "license": "Unlicense",
-  "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "packageManager": "yarn@3.2.4"
+  "license": "Unlicense"
 }
